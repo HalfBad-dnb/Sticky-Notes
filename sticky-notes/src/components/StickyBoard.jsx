@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from 'react';
-import PropTypes from 'prop-types'; // Added PropTypes import
+import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
 import '../App.css';
 
@@ -14,7 +14,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     return colors[Math.floor(Math.random() * colors.length)];
   }, []);
 
-  // Fetch notes on mount
   useEffect(() => {
     console.log('Fetching notes from http://localhost:9090/api/comments...');
     fetch('http://localhost:9090/api/comments', {
@@ -22,12 +21,14 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       headers: { 'Content-Type': 'application/json' },
     })
       .then((response) => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         return response.json();
       })
       .then((data) => {
         console.log('Fetched notes:', data);
-        setNotes(data); // Update shared state from App.jsx
+        setNotes(data);
         setError(null);
       })
       .catch((error) => {
@@ -37,8 +38,8 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   }, [setNotes]);
 
   const calculateCenterPosition = () => {
-    const centerX = Math.round((window.innerWidth - 150) / 2); // 150px is note width
-    const centerY = Math.round((window.innerHeight - 120) / 2); // 120px is note height
+    const centerX = Math.round((window.innerWidth - 150) / 2);
+    const centerY = Math.round((window.innerHeight - 120) / 2);
     return { x: centerX, y: centerY };
   };
 
@@ -67,14 +68,14 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       })
       .then((savedNote) => {
         console.log('Saved note:', savedNote);
-        setNotes((prevNotes) => [...prevNotes, savedNote]); // Update shared state
+        setNotes((prevNotes) => [...prevNotes, savedNote]);
         setNewNoteText('');
       })
       .catch((error) => console.error('Error saving note:', error));
   }, [newNoteText, getRandomColor, setNotes]);
 
   const handleDragWithBackend = useCallback((id, x, y) => {
-    onDrag(id, x, y); // Optimistic update via App.jsx
+    onDrag(id, x, y);
     fetch(`http://localhost:9090/api/comments/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -90,14 +91,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           prevNotes.map((note) => (note.id === id ? updatedNote : note))
         );
       })
-      .catch((error) => {
-        console.error('Error updating position:', error);
-        setError(`Failed to update position: ${error.message}`);
-      });
   }, [onDrag, setNotes]);
 
   const handleLikeWithBackend = useCallback((id) => {
-    onLike(id); // Optimistic update via App.jsx
+    onLike(id);
     fetch(`http://localhost:9090/api/comments/${id}/like`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -116,7 +113,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   }, [onLike, setNotes]);
 
   const handleDislikeWithBackend = useCallback((id) => {
-    onDislike(id); // Optimistic update via App.jsx
+    onDislike(id); // Call the provided onDislike function
     fetch(`http://localhost:9090/api/comments/${id}/dislike`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -127,9 +124,15 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       })
       .then((updatedNote) => {
         console.log('Disliked note:', updatedNote);
-        setNotes((prevNotes) =>
-          prevNotes.map((note) => (note.id === id ? updatedNote : note))
-        );
+        if (updatedNote.dislikes >= 100) {
+          // If dislikes reach 100, delete the comment
+          setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+        } else {
+          // Update the notes if dislikes are less than 100
+          setNotes((prevNotes) =>
+            prevNotes.map((note) => (note.id === id ? updatedNote : note))
+          );
+        }
       })
       .catch((error) => console.error('Error disliking note:', error));
   }, [onDislike, setNotes]);
@@ -151,7 +154,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       {error && <div style={{ color: 'red' }}>Error: {error}</div>}
 
       <div className="notes-container">
-        <h3 className="notes-title">Sticky Notes ({notes.length} total)</h3>
         {notes.length === 0 && !error ? (
           <p>No notes yet. Add one above!</p>
         ) : (
@@ -170,7 +172,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   );
 };
 
-// PropTypes validation
 StickyBoard.propTypes = {
   notes: PropTypes.arrayOf(
     PropTypes.shape({

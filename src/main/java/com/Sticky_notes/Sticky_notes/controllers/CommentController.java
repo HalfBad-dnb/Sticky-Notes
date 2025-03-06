@@ -8,9 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -19,9 +23,24 @@ public class CommentController {
 
     private final CommentRepository commentRepository;
 
+    // List of connected SSE clients
+    private final CopyOnWriteArrayList<SseEmitter> clients = new CopyOnWriteArrayList<>();
+
     @Autowired
     public CommentController(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
+    }
+
+    // SSE stream to send updates to connected clients
+    @GetMapping(value = "/sse", produces = "text/event-stream")
+    public SseEmitter streamComments() {
+        SseEmitter emitter = new SseEmitter();
+        clients.add(emitter);
+
+        emitter.onCompletion(() -> clients.remove(emitter));
+        emitter.onTimeout(() -> clients.remove(emitter));
+
+        return emitter;
     }
 
     @GetMapping
@@ -80,6 +99,8 @@ public class CommentController {
             Comment comment = commentOpt.get();
             comment.setLikes(comment.getLikes() + 1);
             Comment savedComment = commentRepository.save(comment);
+            // Notify clients about the updated comment
+            sendUpdateToClients(savedComment);
             return new ResponseEntity<>(savedComment, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,19 +109,56 @@ public class CommentController {
     }
 
     @PutMapping("/{id}/dislike")
-    public ResponseEntity<Comment> dislikeComment(@PathVariable Long id) {
+    public ResponseEntity<?> dislikeComment(@PathVariable Long id) {
         try {
             Optional<Comment> commentOpt = commentRepository.findById(id);
             if (commentOpt.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+
+            // Increment dislikes
             Comment comment = commentOpt.get();
             comment.setDislikes(comment.getDislikes() + 1);
+
+            // If dislikes reach 100, delete the comment and notify clients
+            if (comment.getDislikes() >= 100) {
+                commentRepository.deleteById(id);  // Automatically remove comment
+                sendDeleteUpdateToClients(id);     // Notify clients about deletion
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // No content response
+            }
+
+            // Otherwise, save the updated comment
             Comment savedComment = commentRepository.save(comment);
+            // Notify clients about the updated comment
+            sendUpdateToClients(savedComment);
             return new ResponseEntity<>(savedComment, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Send comment updates to all connected clients
+    private void sendUpdateToClients(Comment comment) {
+        for (SseEmitter emitter : clients) {
+            try {
+                emitter.send(comment);
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                clients.remove(emitter);
+            }
+        }
+    }
+
+    // Send delete notification to all connected clients
+    private void sendDeleteUpdateToClients(Long commentId) {
+        for (SseEmitter emitter : clients) {
+            try {
+                emitter.send("deleted:" + commentId);
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                clients.remove(emitter);
+            }
         }
     }
 }

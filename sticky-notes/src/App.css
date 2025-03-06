@@ -1,46 +1,64 @@
 /* src/App.css */
-@import url('https://fonts.googleapis.com/css2?family=Chalkduster&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&display=swap');
 
-/* Ensure full-screen reset */
+/* Base reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  font-family: 'Gochi Hand', cursive;
 }
 
-/* Root element */
 #root {
   width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 /* App container */
 .app-container {
   display: flex;
   flex-direction: column;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
 }
 
 /* Navigation bar */
 .navbar {
-  background: url('https://www.transparenttextures.com/patterns/blackboard.jpg');
-  background-color: #1a2a2a;
-  padding: 10px 20px;
-  z-index: 2000;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  font-family: 'Chalkduster', cursive;
+  background-color: #0e1515; /* Dark chalkboard base */
+  position: relative;
+  padding: 10px 20px; /* Slightly reduced padding for minimalism */
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Subtle shadow for premium feel */
+}
+
+/* Chalkboard texture for navbar */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(14, 21, 21, 0.7), rgba(14, 21, 21, 0.9)),
+    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqPiEhJkSJgIz1LxfZ4n5ZTRFLDQXCLcPGLmD3ZiDiVAkwchRVswI/VJrYEJHzPKgYfYkBZDXhS3SO9ks2ykUJ6sjCA0zbxfMx/jUBb0/CKwyeJyOZGx77ccCU8mQUlbGpXSo55oy7SqW5JJbPbWQ0Z0lQHWUkg8VkZqWOl5dpSDm8OnvDSdqXK86qi5Sg9s1v2EipGBk3Nr/5atOOFjLuiHEC8UVN6w4k2A8WwzxlSW6wS+DYj/ZrtljMm3MB3xB2FbyYUOXt3Vfto3FmUTcT5IHIkeScoTZCbvU/Cl3XV9JsR1FL3YU5d1xAFLpe5YMnMVz9b4PfJ7k3lhwg+MXLZsR4zoDhMCu/7knmKkpyO9V3Mvmk1TmuGCXpXshF9Be+X7GbHcH3HkR+1E/LJlPO9kdsYHj/ES3DifdSp2DEypT3jIQQO2K8pIicSAFQJ01clZg4sboQgl3zZ4/zdECgKvNEQGWcLWx1k7xVC4tBUxK0jUfXUzxYGPRK6iWzUGahm4PaHUhWNUHA2RmRQ8JJQrQosDSQ43RW1Xeo3n3/Y8lY8kCWpCozVIGaQW7zCOr3gRVa3dPsDJN6p4Uhpc4SXTvPVGHCnF1QIYoa09kVs1wp/RygCUiRQmm+4GpwxCJbAOmK/kFiSkBH8Yi8ElhQ5/L4rCEwTJhAJ8Oy0HkCFiGPgOt+PsRlnlKhHZnQMGmio0ksK2FJAiUdBnVnmJVWtBSuVq6XklFh9svUNWUNhL7ov3z01cioXTEFy6B0nPZjGIVQsQkTuCEAjx5AKQylpMQZPcoHAoGJnO4QdURvL17FYA2RVSYCMUWw5Wz6KmSGFQDv97QNJgV9Wobae5ug8vYW2gWAlRkcxEEIEYpCOCEfXZMI6PLQ/4mX2SRjm1qFQsVWKQQoTDoDnHW9MSQhtO0cvINQ9KEaPdidbMuUjdTy7IEXAgq188pYDNp8HDR67uLwO9LLzR1qu8uHX8SLGIb5KWrK3VvQVVzV29fj8dvS9i7S2PsYvcJzhUE6OaJlTS1v6n0j2wCbaxreNmi6lXM8Cw9LTQh5QLSZmBE+UGFVh8SAa+qIDBkxmtkrMjQppSWpJmMS6oKTkSY1Eo5HezIX7KLgnvjnGppJiNFcTKRQlHPYOhZH6dKZCFIUQhEUZmEIdDpCDaw4KYBt46LCiMEZQGQhS1qFHEBSEMEEUSFIWhZCBYRKggQifQSDFgUkdCEDmDQjAURSiKIigMQvCxFcY2rE1DdRx9wMGZ1Lcu5v+eQC+NS07gYlPeA0JQAisgSPkF2kQ5KqEA4TSCyDIEBxSIopAiCGQdDAJRpkgxFMXDIAZ9zPMwSL//////////NaYKBNxCqM0rxD1PdKiAIYjxP1lGImCGSSlGR4jiiKIw5GUoZFwxj0LGoDDI+ggFIfUhBaFoJYGo2JCUCQTKQqQYhMJgyPGvl//DX1f/MYrjP2T94WjJl8DEIxGEg+J8I56EYrgSUo5hmJQEMSSZZgjFXxT8X/qf+Z/ef9p/Qv+JYtyAYh//////////////+dWCz4uxr+DsmhSPPr0yiwIGEWQKE2QmDIRyTFpqr79//19jWVFNsrxgpGSwzFjBWMg4KIyGojgGSsDh6DkcZRTHDGRGjBQKQ5IHC2Eo');
+  background-position: center;
+  background-size: 100px 100px;
+  opacity: 0.7;
+  z-index: -1;
 }
 
 /* Navigation list */
 .nav-list {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 30px; /* Original spacing restored */
   margin: 0;
   padding: 0;
   list-style: none;
@@ -49,33 +67,56 @@ html, body {
 /* Navigation item */
 .nav-item {
   display: inline-block;
+  background: linear-gradient(135deg, rgba(255, 234, 92, 0.2), rgba(255, 234, 92, 0.1)); /* Subtle premium gradient */
+  padding: 6px 12px; /* Minimal padding */
+  border-radius: 4px; /* Slightly rounded for elegance */
+  transition: background 0.3s ease, transform 0.2s ease; /* Smooth transitions */
 }
 
-/* Nav links */
-.nav-link {
-  color: #e0e0e0;
+/* Hover effect for premium feel */
+.nav-item:hover {
+  background: linear-gradient(135deg, rgba(255, 234, 92, 0.4), rgba(255, 234, 92, 0.2));
+  transform: translateY(-2px); /* Slight lift for premium effect */
+}
+
+/* Nav links and text */
+.nav-link, .nav-text {
+  color: rgba(255, 255, 255, 0.85); /* Original chalk-like color */
   text-decoration: none;
-  font-size: 18px;
-  transition: color 0.3s ease, transform 0.2s ease;
+  font-size: 20px;
+  position: relative;
+  padding: 5px 2px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8); /* Chalkboard shadow restored */
+  transition: all 0.3s ease;
+  display: block;
+}
+
+/* Underline effect for links */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #ffea5c; /* Premium yellow */
+  opacity: 0.7;
+  transition: width 0.3s ease;
 }
 
 .nav-link:hover {
-  color: #ffea5c;
-  transform: scale(1.05);
+  color: #ffea5c; /* Brighten on hover */
 }
 
-/* Chalk dust overlay for navbar */
-.navbar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+.nav-link:hover::after {
   width: 100%;
-  height: 100%;
-  background: url('https://www.transparenttextures.com/patterns/chalk-dust.png');
-  opacity: 0.05;
-  pointer-events: none;
-  z-index: -1;
+}
+
+/* Premium styling for nav-text (Sticky Notes count) */
+.nav-text {
+  color: #ffea5c; /* Already premium yellow */
+  font-weight: bold; /* Emphasize the count */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9); /* Stronger shadow for standout */
 }
 
 /* Full-screen content area */
@@ -87,54 +128,173 @@ html, body {
 
 /* Full-screen chalkboard */
 .sticky-board.fullscreen {
-  background: url('https://www.transparenttextures.com/patterns/blackboard.jpg');
-  background-color: #1a2a2a;
-  background-size: cover;
+  position: relative;
   width: 100%;
   height: 100%;
-  padding: 20px;
+  padding: 30px;
   box-sizing: border-box;
-  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.5);
-  font-family: 'Chalkduster', cursive;
-  color: #e0e0e0;
+  background-color: #2a3636;
+  overflow: hidden;
+}
+
+/* Realistic chalkboard texture */
+.sticky-board.fullscreen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(42, 54, 54, 0.5), rgba(42, 54, 54, 0.8)),
+    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqPiEhJkSJgIz1LxfZ4n5ZTRFLDQXCLcPGLmD3ZiDiVAkwchRVswI/VJrYEJHzPKgYfYkBZDXhS3SO9ks2ykUJ6sjCA0zbxfMx/jUBb0/CKwyeJyOZGx77ccCU8mQUlbGpXSo55oy7SqW5JJbPbWQ0Z0lQHWUkg8VkZqWOl5dpSDm8OnvDSdqXK86qi5Sg9s1v2EipGBk3Nr/5atOOFjLuiHEC8UVN6w4k2A8WwzxlSW6wS+DYj/ZrtljMm3MB3xB2FbyYUOXt3Vfto3FmUTcT5IHIkeScoTZCbvU/Cl3XV9JsR1FL3YU5d1xAFLpe5YMnMVz9b4PfJ7k3lhwg+MXLZsR4zoDhMCu/7knmKkpyO9V3Mvmk1TmuGCXpXshF9Be+X7GbHcH3HkR+1E/LJlPO9kdsYHj/ES3DifdSp2DEypT3jIQQO2K8pIicSAFQJ01clZg4sboQgl3zZ4/zdECgKvNEQGWcLWx1k7xVC4tBUxK0jUfXUzxYGPRK6iWzUGahm4PaHUhWNUHA2RmRQ8JJQrQosDSQ43RW1Xeo3n3/Y8lY8kCWpCozVIGaQW7zCOr3gRVa3dPsDJN6p4Uhpc4SXTvPVGHCnF1QIYoa09kVs1wp/RygCUiRQmm+4GpwxCJbAOmK/kFiSkBH8Yi8ElhQ5/L4rCEwTJhAJ8Oy0HkCFiGPgOt+PsRlnlKhHZnQMGmio0ksK2FJAiUdBnVnmJVWtBSuVq6XklFh9svUNWUNhL7ov3z01cioXTEFy6B0nPZjGIVQsQkTuCEAjx5AKQylpMQZPcoHAoGJnO4QdURvL17FYA2RVSYCMUWw5Wz6KmSGFQDv97QNJgV9Wobae5ug8vYW2gWAlRkcxEEIEYpCOCEfXZMI6PLQ/4mX2SRjm1qFQsVWKQQoTDoDnHW9MSQhtO0cvINQ9KEaPdidbMuUjdTy7IEXAgq188pYDNp8HDR67uLwO9LLzR1qu8uHX8SLGIb5KWrK3VvQVVzV29fj8dvS9i7S2PsYvcJzhUE6OaJlTS1v6n0j2wCbaxreNmi6lXM8Cw9LTQh5QLSZmBE+UGFVh8SAa+qIDBkxmtkrMjQppSWpJmMS6oKTkSY1Eo5HezIX7KLgnvjnGppJiNFcTKRQlHPYOhZH6dKZCFIUQhEUZmEIdDpCDaw4KYBt46LCiMEZQGQhS1qFHEBSEMEEUSFIWhZCBYRKggQifQSDFgUkdCEDmDQjAURSiKIigMQvCxFcY2rE1DdRx9wMGZ1Lcu5v+eQC+NS07gYlPeA0JQAisgSPkF2kQ5KqEA4TSCyDIEBxSIopAiCGQdDAJRpkgxFMXDIAZ9zPMwSL//////////NaYKBNxCqM0rxD1PdKiAIYjxP1lGImCGSSlGR4jiiKIw5GUoZFwxj0LGoDDI+ggFIfUhBaFoJYGo2JCUCQTKQqQYhMJgyPGvl//DX1f/MYrjP2T94WjJl8DEIxGEg+J8I56EYrgSUo5hmJQEMSSZZgjFXxT8X/qf+Z/ef9p/Qv+JYtyAYh//////////////+dWCz4uxr+DsmhSPPr0yiwIGEWQKE2QmDIRyTFpqr79//19jWVFNsrxgpGSwzFjBWMg4KIyGojgGSsDh6DkcZRTHDGRGjBQKQ5IHC2Eo');
+  background-position: center;
+  background-size: 100px 100px;
+  opacity: 0.7;
+  z-index: -1;
+}
+
+/* Chalk dust effect for the bottom of the board */
+.sticky-board.fullscreen::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.07));
+  z-index: 1;
+}
+
+/* Navigation list */
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Original spacing */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Navigation item */
+.nav-item {
+  display: inline-block;
+}
+
+/* Nav links and text */
+.nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 20px;
+  position: relative;
+  padding: 5px 2px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #ffea5c;
+  opacity: 0.7;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffea5c;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-text {
+  color: #ffea5c; /* Premium yellow */
+  font-size: 20px;
+  font-weight: bold; /* Standout weight */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9); /* Stronger shadow for premium effect */
+  padding: 5px 2px; /* Match nav-link padding */
+  transition: all 0.3s ease;
+}
+
+/* Full-screen content area */
+.content.fullscreen {
+  flex: 1;
   position: relative;
   overflow: hidden;
 }
 
-/* Input container */
-.input-container {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background-color: rgba(26, 42, 42, 0.8);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* Full-screen chalkboard */
+.sticky-board.fullscreen {
+  position: relative;
   width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
+  height: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+  background-color: #2a3636;
+  overflow: hidden;
 }
 
-/* Textarea */
+/* Realistic chalkboard texture */
+.sticky-board.fullscreen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(42, 54, 54, 0.5), rgba(42, 54, 54, 0.8)),
+    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqPiEhJkSJgIz1LxfZ4n5ZTRFLDQXCLcPGLmD3ZiDiVAkwchRVswI/VJrYEJHzPKgYfYkBZDXhS3SO9ks2ykUJ6sjCA0zbxfMx/jUBb0/CKwyeJyOZGx77ccCU8mQUlbGpXSo55oy7SqW5JJbPbWQ0Z0lQHWUkg8VkZqWOl5dpSDm8OnvDSdqXK86qi5Sg9s1v2EipGBk3Nr/5atOOFjLuiHEC8UVN6w4k2A8WwzxlSW6wS+DYj/ZrtljMm3MB3xB2FbyYUOXt3Vfto3FmUTcT5IHIkeScoTZCbvU/Cl3XV9JsR1FL3YU5d1xAFLpe5YMnMVz9b4PfJ7k3lhwg+MXLZsR4zoDhMCu/7knmKkpyO9V3Mvmk1TmuGCXpXshF9Be+X7GbHcH3HkR+1E/LJlPO9kdsYHj/ES3DifdSp2DEypT3jIQQO2K8pIicSAFQJ01clZg4sboQgl3zZ4/zdECgKvNEQGWcLWx1k7xVC4tBUxK0jUfXUzxYGPRK6iWzUGahm4PaHUhWNUHA2RmRQ8JJQrQosDSQ43RW1Xeo3n3/Y8lY8kCWpCozVIGaQW7zCOr3gRVa3dPsDJN6p4Uhpc4SXTvPVGHCnF1QIYoa09kVs1wp/RygCUiRQmm+4GpwxCJbAOmK/kFiSkBH8Yi8ElhQ5/L4rCEwTJhAJ8Oy0HkCFiGPgOt+PsRlnlKhHZnQMGmio0ksK2FJAiUdBnVnmJVWtBSuVq6XklFh9svUNWUNhL7ov3z01cioXTEFy6B0nPZjGIVQsQkTuCEAjx5AKQylpMQZPcoHAoGJnO4QdURvL17FYA2RVSYCMUWw5Wz6KmSGFQDv97QNJgV9Wobae5ug8vYW2gWAlRkcxEEIEYpCOCEfXZMI6PLQ/4mX2SRjm1qFQsVWKQQoTDoDnHW9MSQhtO0cvINQ9KEaPdidbMuUjdTy7IEXAgq188pYDNp8HDR67uLwO9LLzR1qu8uHX8SLGIb5KWrK3VvQVVzV29fj8dvS9i7S2PsYvcJzhUE6OaJlTS1v6n0j2wCbaxreNmi6lXM8Cw9LTQh5QLSZmBE+UGFVh8SAa+qIDBkxmtkrMjQppSWpJmMS6oKTkSY1Eo5HezIX7KLgnvjnGppJiNFcTKRQlHPYOhZH6dKZCFIUQhEUZmEIdDpCDaw4KYBt46LCiMEZQGQhS1qFHEBSEMEEUSFIWhZCBYRKggQifQSDFgUkdCEDmDQjAURSiKIigMQvCxFcY2rE1DdRx9wMGZ1Lcu5v+eQC+NS07gYlPeA0JQAisgSPkF2kQ5KqEA4TSCyDIEBxSIopAiCGQdDAJRpkgxFMXDIAZ9zPMwSL//////////NaYKBNxCqM0rxD1PdKiAIYjxP1lGImCGSSlGR4jiiKIw5GUoZFwxj0LGoDDI+ggFIfUhBaFoJYGo2JCUCQTKQqQYhMJgyPGvl//DX1f/MYrjP2T94WjJl8DEIxGEg+J8I56EYrgSUo5hmJQEMSSZZgjFXxT8X/qf+Z/ef9p/Qv+JYtyAYh//////////////+dWCz4uxr+DsmhSPPr0yiwIGEWQKE2QmDIRyTFpqr79//19jWVFNsrxgpGSwzFjBWMg4KIyGojgGSsDh6DkcZRTHDGRGjBQKQ5IHC2Eo');
+  background-position: center;
+  background-size: 100px 100px;
+  opacity: 0.4;
+  z-index: 0;
+}
+
+/* Input container */
+.input-container {
+  position: relative;
+  z-index: 10;
+  background-color: rgba(26, 42, 42, 0.6);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Textarea with chalk-like appearance */
 .textarea {
   width: 100%;
   height: 80px;
-  padding: 10px;
-  border: 2px dashed #e0e0e0;
-  border-radius: 10px;
-  background-color: rgba(77, 77, 77, 0.2);
+  padding: 12px;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
   color: #ffffff;
-  font-family: 'Chalkduster', cursive;
-  font-size: 16px;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 18px;
+  line-height: 1.4;
   resize: none;
   outline: none;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .textarea:focus {
   border-color: #ffea5c;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 8px rgba(255, 234, 92, 0.3);
 }
 
 /* Add note button */
@@ -142,53 +302,131 @@ html, body {
   background-color: #ffea5c;
   color: #1a2a2a;
   border: none;
-  border-radius: 5px;
-  padding: 10px;
+  border-radius: 8px;
+  padding: 10px 15px;
   cursor: pointer;
-  font-family: 'Chalkduster', cursive;
-  font-size: 16px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Chalk particle effect on button hover */
+.add-note-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  z-index: 0;
 }
 
 .add-note-button:hover {
   background-color: #fff176;
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.add-note-button:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.add-note-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Notes container */
 .notes-container {
-  margin-top: 10px;
-  flex: 1;
   position: relative;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 150px);
+  z-index: 5;
 }
 
 /* Notes title */
 .notes-title {
   font-weight: bold;
   color: #ffea5c;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-  font-size: 24px;
-  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  font-size: 32px;
+  margin-bottom: 20px;
   text-align: center;
+  letter-spacing: 1px;
+  position: relative;
+  display: inline-block;
+  padding: 0 15px;
 }
 
-/* Sticky note (draggable notes) */
+/* Underline effect for notes title */
+.notes-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 80%;
+  height: 2px;
+  background-color: rgba(255, 234, 92, 0.6);
+  transform: translateX(-50%);
+}
+
+/* Realistic sticky note */
 .sticky-note {
   position: absolute;
-  width: 150px;
-  height: 120px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 10px;
-  font-family: 'Chalkduster', cursive;
-  color: #1a2a2a;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  width: 180px;
+  height: 140px;
+  border-radius: 2px;
+  padding: 15px;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #333;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
   cursor: grab;
   -webkit-user-select: none;
   user-select: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  background-color: #ffc;
+  transform: rotate(var(--rotation, -2deg));
+}
+
+/* Generate random rotation for sticky notes */
+.sticky-note:nth-child(3n) {
+  --rotation: 2deg;
+  background-color: #ffc;
+}
+
+.sticky-note:nth-child(3n+1) {
+  --rotation: -1deg;
+  background-color: #cfc;
+}
+
+.sticky-note:nth-child(3n+2) {
+  --rotation: 1deg;
+  background-color: #ccf;
+}
+
+.sticky-note::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 28px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 2px 2px 0 0;
+  z-index: -1;
 }
 
 .sticky-note:active {
@@ -196,136 +434,127 @@ html, body {
 }
 
 .sticky-note:hover {
-  transform: scale(1.02);
+  transform: scale(1.05) rotate(var(--rotation, -2deg));
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
-}
-
-/* Chalk dust overlay for sticky board */
-.sticky-board::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('https://www.transparenttextures.com/patterns/chalk-dust.png');
-  opacity: 0.05;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Ensure elements stay above the overlay */
-.textarea,
-.add-note-button,
-.notes-container,
-.sticky-note {
-  z-index: 1;
+  z-index: 20;
 }
 
 /* Note content */
 .note-content {
   flex: 1;
   overflow-wrap: break-word;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
+  font-weight: 400;
 }
 
 /* Container for like/dislike buttons */
 .note-actions {
   display: flex;
   justify-content: space-between;
-  gap: 5px;
-  padding-top: 5px;
-  border-top: 1px solid #e0e0e0;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.2);
 }
 
 /* Like button */
 .like-button {
-  background-color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.8);
   color: white;
   border: none;
-  border-radius: 3px;
-  padding: 5px 10px;
+  border-radius: 4px;
+  padding: 4px 8px;
   cursor: pointer;
   font-size: 12px;
-  transition: background-color 0.3s ease;
+  font-family: 'Gochi Hand', cursive;
+  transition: all 0.2s ease;
 }
 
 .like-button:hover {
-  background-color: #45a049;
+  background-color: rgba(76, 175, 80, 1);
+  transform: translateY(-2px);
 }
 
 /* Dislike button */
 .dislike-button {
-  background-color: #f44336;
+  background-color: rgba(244, 67, 54, 0.8);
   color: white;
   border: none;
-  border-radius: 3px;
-  padding: 5px 10px;
+  border-radius: 4px;
+  padding: 4px 8px;
   cursor: pointer;
   font-size: 12px;
-  transition: background-color 0.3s ease;
+  font-family: 'Gochi Hand', cursive;
+  transition: all 0.2s ease;
 }
 
 .dislike-button:hover {
-  background-color: #da190b;
+  background-color: rgba(244, 67, 54, 1);
+  transform: translateY(-2px);
 }
 
-/* Updated Top Notes Styles */
+/* Top Notes Styles */
 .top-notes-list {
   list-style: none;
-  padding: 20px;
+  padding: 15px;
   margin: 0 auto;
   max-width: 800px;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 150px);
   overflow-y: auto;
+  z-index: 5;
+  position: relative;
 }
 
 .top-note-item {
   position: relative;
-  width: auto;
-  min-height: 40px;
-  margin: 12px 0;
-  padding: 15px;
+  width: 100%;
+  min-height: 50px;
+  margin: 15px 0;
+  padding: 12px 15px 12px 60px;
   border: none;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.95);
-  font-family: 'Chalkduster', cursive;
-  color: #1a2a2a;
-  box-shadow: 
-    0 4px 6px rgba(0, 0, 0, 0.1),
-    0 1px 3px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  background: rgba(255, 252, 204, 0.95);
+  font-family: 'Gochi Hand', cursive;
+  color: #333;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 15px;
+  transform: rotate(-0.5deg);
+}
+
+.top-note-item:nth-child(odd) {
+  transform: rotate(0.5deg);
+  background: rgba(204, 255, 204, 0.95);
 }
 
 .top-note-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 7px 14px rgba(0, 0, 0, 0.1),
-    0 3px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px) rotate(0);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
 }
 
 .rank-number {
-  font-size: 24px;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
   font-weight: bold;
-  color: #1a2a2a;
-  text-shadow: none;
-  min-width: 40px;
-  height: 40px;
-  background: #ffea5c;
+  color: #fff;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 234, 92, 0.9);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .top-note-item .note-content {
   flex: 1;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.5;
   margin: 0 10px;
 }
 
@@ -340,9 +569,9 @@ html, body {
 
 .like-count,
 .dislike-count {
-  font-size: 13px;
-  padding: 4px 8px;
-  border-radius: 15px;
+  font-size: 14px;
+  padding: 3px 8px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -358,6 +587,7 @@ html, body {
   color: #c62828;
 }
 
+/* Custom scrollbar for better chalk theme integration */
 .top-notes-list::-webkit-scrollbar {
   width: 8px;
 }
@@ -376,12 +606,40 @@ html, body {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Specific override for TopNotes scrolling */
-.top-notes-container .sticky-board.fullscreen {
-  overflow: hidden;
+/* Chalk drawing effect */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.top-notes-container .top-notes-list {
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
+.notes-title, 
+.textarea,
+.add-note-button,
+.sticky-note,
+.top-note-item {
+  animation: fade-in 0.5s ease-out;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .nav-list {
+    gap: 15px;
+  }
+  
+  .nav-link, .nav-text {
+    font-size: 18px;
+  }
+  
+  .input-container {
+    max-width: 90%;
+  }
+  
+  .sticky-note {
+    width: 150px;
+    height: 120px;
+  }
+  
+  .top-notes-list {
+    max-width: 95%;
+  }
 }

@@ -29,14 +29,14 @@ const App = () => {
     setNotes((prevNotes) =>
       prevNotes.map((note) =>
         note.id === id ? { ...note, dislikes: (note.dislikes || 0) + 1 } : note
-      )
+      ).filter((note) => note.dislikes < 100)
     );
   }, []);
 
   return (
     <Router>
       <div className="app-container">
-        <NavBar />
+        <NavBar notes={notes} />
         <main className="content fullscreen">
           <Routes>
             <Route
