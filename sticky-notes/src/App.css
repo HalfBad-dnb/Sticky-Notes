@@ -134,109 +134,7 @@ html, body {
   padding: 30px;
   box-sizing: border-box;
   background-color: #2a3636;
-  overflow: hidden;
-}
-
-/* Realistic chalkboard texture */
-.sticky-board.fullscreen::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(rgba(42, 54, 54, 0.5), rgba(42, 54, 54, 0.8)),
-    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqPiEhJkSJgIz1LxfZ4n5ZTRFLDQXCLcPGLmD3ZiDiVAkwchRVswI/VJrYEJHzPKgYfYkBZDXhS3SO9ks2ykUJ6sjCA0zbxfMx/jUBb0/CKwyeJyOZGx77ccCU8mQUlbGpXSo55oy7SqW5JJbPbWQ0Z0lQHWUkg8VkZqWOl5dpSDm8OnvDSdqXK86qi5Sg9s1v2EipGBk3Nr/5atOOFjLuiHEC8UVN6w4k2A8WwzxlSW6wS+DYj/ZrtljMm3MB3xB2FbyYUOXt3Vfto3FmUTcT5IHIkeScoTZCbvU/Cl3XV9JsR1FL3YU5d1xAFLpe5YMnMVz9b4PfJ7k3lhwg+MXLZsR4zoDhMCu/7knmKkpyO9V3Mvmk1TmuGCXpXshF9Be+X7GbHcH3HkR+1E/LJlPO9kdsYHj/ES3DifdSp2DEypT3jIQQO2K8pIicSAFQJ01clZg4sboQgl3zZ4/zdECgKvNEQGWcLWx1k7xVC4tBUxK0jUfXUzxYGPRK6iWzUGahm4PaHUhWNUHA2RmRQ8JJQrQosDSQ43RW1Xeo3n3/Y8lY8kCWpCozVIGaQW7zCOr3gRVa3dPsDJN6p4Uhpc4SXTvPVGHCnF1QIYoa09kVs1wp/RygCUiRQmm+4GpwxCJbAOmK/kFiSkBH8Yi8ElhQ5/L4rCEwTJhAJ8Oy0HkCFiGPgOt+PsRlnlKhHZnQMGmio0ksK2FJAiUdBnVnmJVWtBSuVq6XklFh9svUNWUNhL7ov3z01cioXTEFy6B0nPZjGIVQsQkTuCEAjx5AKQylpMQZPcoHAoGJnO4QdURvL17FYA2RVSYCMUWw5Wz6KmSGFQDv97QNJgV9Wobae5ug8vYW2gWAlRkcxEEIEYpCOCEfXZMI6PLQ/4mX2SRjm1qFQsVWKQQoTDoDnHW9MSQhtO0cvINQ9KEaPdidbMuUjdTy7IEXAgq188pYDNp8HDR67uLwO9LLzR1qu8uHX8SLGIb5KWrK3VvQVVzV29fj8dvS9i7S2PsYvcJzhUE6OaJlTS1v6n0j2wCbaxreNmi6lXM8Cw9LTQh5QLSZmBE+UGFVh8SAa+qIDBkxmtkrMjQppSWpJmMS6oKTkSY1Eo5HezIX7KLgnvjnGppJiNFcTKRQlHPYOhZH6dKZCFIUQhEUZmEIdDpCDaw4KYBt46LCiMEZQGQhS1qFHEBSEMEEUSFIWhZCBYRKggQifQSDFgUkdCEDmDQjAURSiKIigMQvCxFcY2rE1DdRx9wMGZ1Lcu5v+eQC+NS07gYlPeA0JQAisgSPkF2kQ5KqEA4TSCyDIEBxSIopAiCGQdDAJRpkgxFMXDIAZ9zPMwSL//////////NaYKBNxCqM0rxD1PdKiAIYjxP1lGImCGSSlGR4jiiKIw5GUoZFwxj0LGoDDI+ggFIfUhBaFoJYGo2JCUCQTKQqQYhMJgyPGvl//DX1f/MYrjP2T94WjJl8DEIxGEg+J8I56EYrgSUo5hmJQEMSSZZgjFXxT8X/qf+Z/ef9p/Qv+JYtyAYh//////////////+dWCz4uxr+DsmhSPPr0yiwIGEWQKE2QmDIRyTFpqr79//19jWVFNsrxgpGSwzFjBWMg4KIyGojgGSsDh6DkcZRTHDGRGjBQKQ5IHC2Eo');
-  background-position: center;
-  background-size: 100px 100px;
-  opacity: 0.7;
-  z-index: -1;
-}
-
-/* Chalk dust effect for the bottom of the board */
-.sticky-board.fullscreen::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 40px;
-  background: linear-gradient(transparent, rgba(255, 255, 255, 0.07));
-  z-index: 1;
-}
-
-/* Navigation list */
-.nav-list {
-  display: flex;
-  align-items: center;
-  gap: 30px; /* Original spacing */
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* Navigation item */
-.nav-item {
-  display: inline-block;
-}
-
-/* Nav links and text */
-.nav-link {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  font-size: 20px;
-  position: relative;
-  padding: 5px 2px;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
-  transition: all 0.3s ease;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: #ffea5c;
-  opacity: 0.7;
-  transition: width 0.3s ease;
-}
-
-.nav-link:hover {
-  color: #ffea5c;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-text {
-  color: #ffea5c; /* Premium yellow */
-  font-size: 20px;
-  font-weight: bold; /* Standout weight */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9); /* Stronger shadow for premium effect */
-  padding: 5px 2px; /* Match nav-link padding */
-  transition: all 0.3s ease;
-}
-
-/* Full-screen content area */
-.content.fullscreen {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Full-screen chalkboard */
-.sticky-board.fullscreen {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 30px;
-  box-sizing: border-box;
-  background-color: #2a3636;
-  overflow: hidden;
+  overflow: auto; /* Changed to auto to allow scrolling when zoomed */
 }
 
 /* Realistic chalkboard texture */
@@ -254,6 +152,18 @@ html, body {
   background-size: 100px 100px;
   opacity: 0.4;
   z-index: 0;
+}
+
+/* Chalk dust effect for the bottom of the board */
+.sticky-board.fullscreen::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.07));
+  z-index: 1;
 }
 
 /* Input container */
@@ -349,6 +259,42 @@ html, body {
   width: 100%;
   height: calc(100% - 150px);
   z-index: 5;
+  transition: transform 0.3s ease; /* Smooth zoom transition */
+}
+
+/* Zoom controls styling */
+.zoom-controls {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.zoom-controls button {
+  background-color: #ffea5c;
+  color: #1a2a2a;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.zoom-controls button:hover {
+  background-color: #fff176;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.zoom-controls button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Notes title */
@@ -641,5 +587,14 @@ html, body {
   
   .top-notes-list {
     max-width: 95%;
+  }
+
+  .zoom-controls {
+    gap: 5px;
+  }
+
+  .zoom-controls button {
+    padding: 6px 10px;
+    font-size: 14px;
   }
 }

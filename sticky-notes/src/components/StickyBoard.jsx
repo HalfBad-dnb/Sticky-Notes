@@ -6,11 +6,10 @@ import '../App.css';
 const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   const [newNoteText, setNewNoteText] = useState('');
   const [error, setError] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const getRandomColor = useCallback(() => {
-    const colors = [
-      '#ffea5c', '#ffb6c1', '#98fb98', '#add8e6', '#dda0dd', '#f0e68c',
-    ];
+    const colors = ['#ffea5c', '#ffb6c1', '#98fb98', '#add8e6', '#dda0dd', '#f0e68c'];
     return colors[Math.floor(Math.random() * colors.length)];
   }, []);
 
@@ -21,9 +20,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       headers: { 'Content-Type': 'application/json' },
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         return response.json();
       })
       .then((data) => {
@@ -56,7 +53,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       dislikes: 0,
     };
 
-    console.log('Sending new note:', newNote);
     fetch('http://localhost:9090/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -67,75 +63,94 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         return response.json();
       })
       .then((savedNote) => {
-        console.log('Saved note:', savedNote);
         setNotes((prevNotes) => [...prevNotes, savedNote]);
         setNewNoteText('');
       })
       .catch((error) => console.error('Error saving note:', error));
   }, [newNoteText, getRandomColor, setNotes]);
 
-  const handleDragWithBackend = useCallback((id, x, y) => {
-    onDrag(id, x, y);
-    fetch(`http://localhost:9090/api/comments/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ x, y }),
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to update position');
-        return response.json();
+  const handleDragWithBackend = useCallback(
+    (id, x, y) => {
+      onDrag(id, x, y);
+      fetch(`http://localhost:9090/api/comments/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ x, y }),
       })
-      .then((updatedNote) => {
-        console.log('Position updated:', updatedNote);
-        setNotes((prevNotes) =>
-          prevNotes.map((note) => (note.id === id ? updatedNote : note))
-        );
-      })
-  }, [onDrag, setNotes]);
-
-  const handleLikeWithBackend = useCallback((id) => {
-    onLike(id);
-    fetch(`http://localhost:9090/api/comments/${id}/like`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to like note');
-        return response.json();
-      })
-      .then((updatedNote) => {
-        console.log('Liked note:', updatedNote);
-        setNotes((prevNotes) =>
-          prevNotes.map((note) => (note.id === id ? updatedNote : note))
-        );
-      })
-      .catch((error) => console.error('Error liking note:', error));
-  }, [onLike, setNotes]);
-
-  const handleDislikeWithBackend = useCallback((id) => {
-    onDislike(id); // Call the provided onDislike function
-    fetch(`http://localhost:9090/api/comments/${id}/dislike`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to dislike note');
-        return response.json();
-      })
-      .then((updatedNote) => {
-        console.log('Disliked note:', updatedNote);
-        if (updatedNote.dislikes >= 100) {
-          // If dislikes reach 100, delete the comment
-          setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
-        } else {
-          // Update the notes if dislikes are less than 100
+        .then((response) => {
+          if (!response.ok) throw new Error('Failed to update position');
+          return response.json();
+        })
+        .then((updatedNote) => {
           setNotes((prevNotes) =>
             prevNotes.map((note) => (note.id === id ? updatedNote : note))
           );
-        }
+        })
+        .catch((error) => console.error('Error updating position:', error));
+    },
+    [onDrag, setNotes]
+  );
+
+  const handleLikeWithBackend = useCallback(
+    (id) => {
+      onLike(id);
+      fetch(`http://localhost:9090/api/comments/${id}/like`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
       })
-      .catch((error) => console.error('Error disliking note:', error));
-  }, [onDislike, setNotes]);
+        .then((response) => {
+          if (!response.ok) throw new Error('Failed to like note');
+          return response.json();
+        })
+        .then((updatedNote) => {
+          setNotes((prevNotes) =>
+            prevNotes.map((note) => (note.id === id ? updatedNote : note))
+          );
+        })
+        .catch((error) => console.error('Error liking note:', error));
+    },
+    [onLike, setNotes]
+  );
+
+  const handleDislikeWithBackend = useCallback(
+    (id) => {
+      onDislike(id);
+      fetch(`http://localhost:9090/api/comments/${id}/dislike`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error('Failed to dislike note');
+          return response.json();
+        })
+        .then((updatedNote) => {
+          setNotes((prevNotes) =>
+            prevNotes.map((note) => (note.id === id ? updatedNote : note)).filter(
+              (note) => note.dislikes < 100
+            )
+          );
+        })
+        .catch((error) => console.error('Error disliking note:', error));
+    },
+    [onDislike, setNotes]
+  );
+
+  // Zoom controls
+  const zoomStep = 0.1;
+  const maxZoom = 2;
+  const minZoom = 0.5;
+
+  const handleZoomIn = () => {
+    setZoomLevel((prev) => Math.min(prev + zoomStep, maxZoom));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel((prev) => Math.max(prev - zoomStep, minZoom));
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(1);
+  };
 
   return (
     <div className="sticky-board fullscreen">
@@ -151,9 +166,21 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         </button>
       </div>
 
+      <div className="zoom-controls">
+        <button onClick={handleZoomIn}>Zoom In</button>
+        <button onClick={handleZoomOut}>Zoom Out</button>
+        <button onClick={handleResetZoom}>Reset Zoom</button>
+      </div>
+
       {error && <div style={{ color: 'red' }}>Error: {error}</div>}
 
-      <div className="notes-container">
+      <div
+        className="notes-container"
+        style={{
+          transform: `scale(${zoomLevel})`,
+          transformOrigin: 'top left',
+        }}
+      >
         {notes.length === 0 && !error ? (
           <p>No notes yet. Add one above!</p>
         ) : (

@@ -51,10 +51,7 @@ const App = () => {
                 />
               }
             />
-            <Route
-              path="/top-notes"
-              element={<TopNotes notes={notes} />}
-            />
+            <Route path="/top-notes" element={<TopNotes notes={notes} />} />
             <Route
               path="/"
               element={
