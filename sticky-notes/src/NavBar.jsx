@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import './App.css'; // Assuming App.css is in src/
 
 const NavBar = ({ notes }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const getRandomColor = () => {
     const colors = ['#ffea5c', '#ffb6c1', '#98fb98', '#add8e6', '#dda0dd', '#f0e68c'];
     return colors[Math.floor(Math.random() * colors.length)];
@@ -15,30 +18,51 @@ const NavBar = ({ notes }) => {
     boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.2)',
     transform: 'rotate(-2deg)',
     transition: 'transform 0.2s ease',
-    display: 'inline-block',
-    margin: '0 10px',
+    display: 'block', // Stack items vertically
+    margin: '5px 0', // Vertical spacing
+    width: '100%', // Full width
+  };
+
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen((prev) => !prev); // Toggle on click
   };
 
   return (
-    <nav className="navbar">
-      <ul className="nav-list">
-        <li className="nav-item" style={stickyNoteStyle}>
-          <Link to="/board" className="nav-link" style={{ color: '#000', textDecoration: 'none' }}>
+    <div className="popup-menu">
+      <button
+        className="menu-trigger"
+        style={{ ...stickyNoteStyle, border: 'none', cursor: 'pointer', color: '#000' }}
+        onClick={handleDropdownToggle}
+      >
+        Menu
+      </button>
+      {isDropdownOpen && (
+        <div className="menu-content">
+          <Link
+            to="/board"
+            className="menu-item"
+            style={{ ...stickyNoteStyle, color: '#000', textDecoration: 'none' }}
+            onClick={() => setIsDropdownOpen(false)} // Close menu on selection
+          >
             Board
           </Link>
-        </li>
-        <li className="nav-item" style={stickyNoteStyle}>
-          <Link to="/top-notes" className="nav-link" style={{ color: '#000', textDecoration: 'none' }}>
+          <Link
+            to="/top-notes"
+            className="menu-item"
+            style={{ ...stickyNoteStyle, color: '#000', textDecoration: 'none' }}
+            onClick={() => setIsDropdownOpen(false)} // Close menu on selection
+          >
             Top Notes
           </Link>
-        </li>
-        <li className="nav-item" style={stickyNoteStyle}>
-          <span className="nav-text" style={{ color: '#000' }}>
+          <div
+            className="menu-item"
+            style={{ ...stickyNoteStyle, color: '#000' }}
+          >
             Sticky Notes ({notes.length})
-          </span>
-        </li>
-      </ul>
-    </nav>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

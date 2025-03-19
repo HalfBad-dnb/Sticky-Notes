@@ -28,15 +28,49 @@ html, body {
   height: 100vh;
 }
 
-/* Navigation bar */
-.navbar {
-  background-color: #0e1515; /* Dark chalkboard base */
+/* Pop-up menu container */
+.popup-menu {
   position: relative;
-  padding: 10px 20px; /* Slightly reduced padding for minimalism */
-  z-index: 100;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Subtle shadow for premium feel */
+  display: inline-block;
 }
 
+/* Button or trigger for the menu */
+.menu-trigger {
+  background-color: #0e1515; /* Dark chalkboard base fallback */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Gochi Hand', cursive;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Pop-up menu content */
+.menu-content {
+  position: absolute;
+  background-color: #0e1515; /* Dark chalkboard base */
+  min-width: 200px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  padding: 10px;
+  border-radius: 5px;
+  top: 100%; /* Position below the trigger */
+  left: 0;
+}
+
+/* Menu items */
+.menu-item {
+  color: white;
+  padding: 5px 10px;
+  text-decoration: none;
+  display: block;
+  font-family: 'Gochi Hand', cursive;
+}
+
+/* Hover effect for menu items */
+.menu-item:hover {
+  background-color: #1a2525; /* Slightly lighter for contrast */
+}
 /* Chalkboard texture for navbar */
 .navbar::before {
   content: '';
