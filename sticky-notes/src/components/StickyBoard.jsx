@@ -53,7 +53,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       dislikes: 0,
     };
 
-    fetch('http://localhost:9090/api/comments', {
+    fetch('http://localhost:8081/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newNote),
@@ -72,7 +72,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   const handleDragWithBackend = useCallback(
     (id, x, y) => {
       onDrag(id, x, y);
-      fetch(`http://localhost:9090/api/comments/${id}`, {
+      fetch(`http://localhost:8081/api/comments/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ x, y }),
@@ -94,7 +94,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   const handleLikeWithBackend = useCallback(
     (id) => {
       onLike(id);
-      fetch(`http://localhost:9090/api/comments/${id}/like`, {
+      fetch(`http://localhost:8081/api/comments/${id}/like`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -115,7 +115,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   const handleDislikeWithBackend = useCallback(
     (id) => {
       onDislike(id);
-      fetch(`http://localhost:9090/api/comments/${id}/dislike`, {
+      fetch(`http://localhost:8081/api/comments/${id}/dislike`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
       })
