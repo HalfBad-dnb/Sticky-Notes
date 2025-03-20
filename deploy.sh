@@ -1,50 +1,98 @@
 #!/bin/bash
 
-# Exit on error
-set -e
-
-# Project and Cloud Run service names
+# Set variables
 PROJECT_ID="rasyk-ka-nori"
-REGION="us-central1"
-BACKEND_SERVICE="backend"
-FRONTEND_SERVICE="frontend"
+FRONTEND_IMAGE_NAME="sticky-notes"
+BACKEND_IMAGE_NAME="sticky_notes"
+REGION="europe-west1"
+FRONTEND_SERVICE_NAME="sticky-notes"
+BACKEND_SERVICE_NAME="sticky_notes"
+FRONTEND_DIR="sticky-notes"
+BACKEND_DIR="sticky_notes"
 
-# Build and deploy backend
-echo "📦 Building Backend..."
-mvn clean package -DskipTests
-
-if [ ! -f "target/myapp.jar" ]; then
-    echo "❌ Error: target/myapp.jar not found. Build failed."
-    exit 1
+# Ensure the directories and Dockerfiles exist
+if [ ! -f "${FRONTEND_DIR}/Dockerfile" ]; then
+  echo "Frontend Dockerfile not found in ${FRONTEND_DIR}!"
+  exit 1
 fi
 
-echo "🚀 Building and pushing Backend Docker image..."
-docker build -t gcr.io/$PROJECT_ID/$BACKEND_SERVICE -f backend/Dockerfile .
-docker push gcr.io/$PROJECT_ID/$BACKEND_SERVICE
+if [ ! -f "${BACKEND_DIR}/Dockerfile" ]; then
+  echo "Backend Dockerfile not found in ${BACKEND_DIR}!"
+  exit 1
+fi
 
-echo "🚀 Deploying Backend to Cloud Run..."
-gcloud run deploy $BACKEND_SERVICE \
-    --image gcr.io/$PROJECT_ID/$BACKEND_SERVICE \
-    --platform managed \
-    --region $REGION \
-    --allow-unauthenticated
+# Build Docker image for the frontend
+echo "Building frontend Docker image..."
+docker build --platform linux/amd64 -t ${FRONTEND_IMAGE_NAME}-image ${FRONTEND_DIR}
+if [ $? -ne 0 ]; then
+  echo "Failed to build frontend Docker image!"
+  exit 1
+fi
 
-# Build and deploy frontend
-echo "📦 Building Frontend..."
-cd frontend
-npm install
-npm run build
-cd ..
+# Build Docker image for the backend
+echo "Building backend Docker image..."
+docker build --platform linux/amd64 -t ${BACKEND_IMAGE_NAME}-image ${BACKEND_DIR}
+if [ $? -ne 0 ]; then
+  echo "Failed to build backend Docker image!"
+  exit 1
+fi
 
-echo "🚀 Building and pushing Frontend Docker image..."
-docker build -t gcr.io/$PROJECT_ID/$FRONTEND_SERVICE -f frontend/Dockerfile .
-docker push gcr.io/$PROJECT_ID/$FRONTEND_SERVICE
+# Tag the images for Google Artifact Registry
+echo "Tagging frontend Docker image..."
+docker tag ${FRONTEND_IMAGE_NAME}-image gcr.io/${PROJECT_ID}/${FRONTEND_IMAGE_NAME}-image:latest
+if [ $? -ne 0 ]; then
+  echo "Failed to tag frontend Docker image!"
+  exit 1
+fi
 
-echo "🚀 Deploying Frontend to Cloud Run..."
-gcloud run deploy $FRONTEND_SERVICE \
-    --image gcr.io/$PROJECT_ID/$FRONTEND_SERVICE \
-    --platform managed \
-    --region $REGION \
-    --allow-unauthenticated
+echo "Tagging backend Docker image..."
+docker tag ${BACKEND_IMAGE_NAME}-image gcr.io/${PROJECT_ID}/${BACKEND_IMAGE_NAME}-image:latest
+if [ $? -ne 0 ]; then
+  echo "Failed to tag backend Docker image!"
+  exit 1
+fi
 
-echo "✅ Deployment successful!"
+# Push the images to Google Cloud
+echo "Pushing frontend Docker image to Google Cloud..."
+docker push gcr.io/${PROJECT_ID}/${FRONTEND_IMAGE_NAME}-image:latest
+if [ $? -ne 0 ]; then
+  echo "Failed to push frontend Docker image!"
+  exit 1
+fi
+
+echo "Pushing backend Docker image to Google Cloud..."
+docker push gcr.io/${PROJECT_ID}/${BACKEND_IMAGE_NAME}-image:latest
+if [ $? -ne 0 ]; then
+  echo "Failed to push backend Docker image!"
+  exit 1
+fi
+
+# Deploy frontend to Google Cloud Run with port 80 (for frontend)
+echo "Deploying frontend to Google Cloud Run..."
+gcloud run deploy ${FRONTEND_SERVICE_NAME} \
+  --image gcr.io/${PROJECT_ID}/${FRONTEND_IMAGE_NAME}-image:latest \
+  --platform managed \
+  --region ${REGION} \
+  --allow-unauthenticated \
+  --port 80
+if [ $? -ne 0 ]; then
+  echo "Failed to deploy frontend to Google Cloud Run!"
+  exit 1
+fi
+
+# Deploy backend to Google Cloud Run with port 8080 (for backend)
+echo "Deploying backend to Google Cloud Run..."
+gcloud run deploy ${BACKEND_SERVICE_NAME} \
+  --image gcr.io/${PROJECT_ID}/${BACKEND_IMAGE_NAME}-image:latest \
+  --platform managed \
+  --region ${REGION} \
+  --allow-unauthenticated \
+  --port 8080
+if [ $? -ne 0 ]; then
+  echo "Failed to deploy backend to Google Cloud Run!"
+  exit 1
+fi
+
+# List deployed services
+echo "Listing deployed services..."
+gcloud run services list --platform managed --region ${REGION}

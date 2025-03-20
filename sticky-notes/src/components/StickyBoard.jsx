@@ -14,8 +14,8 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   }, []);
 
   useEffect(() => {
-    console.log('Fetching notes from http://localhost:9090/api/comments...');
-    fetch('http://localhost:9090/api/comments', {
+    console.log('Fetching notes from http://localhost:8081/api/comments...');
+    fetch('http://localhost:8081/api/comments', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     })
