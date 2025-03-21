@@ -27,6 +27,10 @@ public class Comment {
     private Integer likes;
 
     private Integer dislikes; // Added dislikes field
+    
+    private String username; // Added username field to associate comments with users
+    
+    private Boolean isPrivate = false; // Flag to indicate if the note is private
 
     // Default constructor for JPA
     public Comment() {
@@ -87,5 +91,21 @@ public class Comment {
 
     public void setDislikes(Integer dislikes) {
         this.dislikes = dislikes;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+    
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    public Boolean getIsPrivate() {
+        return isPrivate;
+    }
+    
+    public void setIsPrivate(Boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 }

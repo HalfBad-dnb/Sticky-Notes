@@ -13,11 +13,32 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:5173"); // Your frontend URL
-        config.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, etc.)
-        config.addAllowedHeader("*"); // Allow all headers
-        config.setAllowCredentials(true); // If you need credentials like cookies or authorization headers
-        source.registerCorsConfiguration("/**", config); // Allow all API routes
+        
+        // Allow specific origins
+        config.addAllowedOrigin("http://localhost:5173"); // Development frontend URL
+        config.addAllowedOrigin("http://localhost:5174"); // Development frontend URL (Vite)
+        config.addAllowedOrigin("http://localhost:8081"); // Production frontend URL
+        config.addAllowedOrigin("http://localhost:8082"); // Additional frontend URL
+        
+        // Allow all HTTP methods
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("OPTIONS");
+        
+        // Allow all headers
+        config.addAllowedHeader("*");
+        
+        // Allow credentials
+        config.setAllowCredentials(true);
+        
+        // Set max age for preflight requests
+        config.setMaxAge(3600L);
+        
+        // Apply to all endpoints
+        source.registerCorsConfiguration("/**", config);
+        
         return new CorsFilter(source);
     }
 }

@@ -21,10 +21,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF for non-browser clients (like mobile or API)
+            .cors(cors -> cors.disable()) // Disable Spring Security's CORS handling as we're using a custom filter
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
                     .requestMatchers("/api/auth/**").permitAll() // Allow authentication routes without authentication
+                    .requestMatchers("/api/registration/**").permitAll() // Allow registration endpoints without authentication
                     .requestMatchers("/api/comments/**").permitAll() // Allow comments endpoint without authentication
+                    .requestMatchers("/api/profile/**").permitAll() // Allow profile endpoint without authentication
                     .anyRequest().authenticated() // Require authentication for all other requests
             )
             .httpBasic(Customizer.withDefaults()) // Use HTTP Basic authentication

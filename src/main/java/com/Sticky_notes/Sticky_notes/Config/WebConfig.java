@@ -14,10 +14,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**") // Allow CORS for all endpoints
-                .allowedOrigins("http://localhost:5173") // Frontend origin (Vite)
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // Supported HTTP methods
+                .allowedOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:8081", "http://localhost:8082") // Frontend origins
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Supported HTTP methods
                 .allowedHeaders("*") // Allow all headers
-                .allowCredentials(false) // No credentials needed
+                .allowCredentials(true) // Allow credentials
                 .maxAge(3600); // Cache CORS preflight for 1 hour
     }
 }

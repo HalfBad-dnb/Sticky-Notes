@@ -1,10 +1,17 @@
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css'; // Assuming App.css is in src/
 
 const NavBar = ({ notes }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('authToken');
+    setIsAuthenticated(!!token);
+  }, []);
 
   const getRandomColor = () => {
     const colors = ['#ffea5c', '#ffb6c1', '#98fb98', '#add8e6', '#dda0dd', '#f0e68c'];
@@ -25,6 +32,13 @@ const NavBar = ({ notes }) => {
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen((prev) => !prev); // Toggle on click
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('username');
+    setIsAuthenticated(false);
+    window.location.href = '/login'; // Redirect to login page
   };
 
   return (
@@ -54,6 +68,47 @@ const NavBar = ({ notes }) => {
           >
             Top Notes
           </Link>
+          {!isAuthenticated ? (
+            <>
+              <Link
+                to="/login"
+                className="menu-item"
+                style={{ ...stickyNoteStyle, color: '#000', textDecoration: 'none' }}
+                onClick={() => setIsDropdownOpen(false)} // Close menu on selection
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="menu-item"
+                style={{ ...stickyNoteStyle, color: '#000', textDecoration: 'none' }}
+                onClick={() => setIsDropdownOpen(false)} // Close menu on selection
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <button
+              className="menu-item"
+              style={{ ...stickyNoteStyle, color: '#000', textDecoration: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+              onClick={() => {
+                setIsDropdownOpen(false);
+                handleLogout();
+              }}
+            >
+              Logout
+            </button>
+          )}
+          {isAuthenticated && (
+            <Link
+              to="/profile"
+              className="menu-item"
+              style={{ ...stickyNoteStyle, color: '#000', textDecoration: 'none' }}
+              onClick={() => setIsDropdownOpen(false)} // Close menu on selection
+            >
+              Profile
+            </Link>
+          )}
           <div
             className="menu-item"
             style={{ ...stickyNoteStyle, color: '#000' }}

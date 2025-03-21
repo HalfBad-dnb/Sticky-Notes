@@ -3,7 +3,12 @@ import { useState, useCallback } from 'react';
 import NavBar from './NavBar';
 import StickyBoard from './components/StickyBoard';
 import TopNotes from './components/TopNotes';
+import Login from './profile/login'; // Importing Login component
+import Register from './profile/register'; // Importing Register component
+import Profile from './profile/profile'; // Importing Profile component
+import './profile/profile.css'; // Import the shared profile CSS
 import './App.css';
+
 
 const App = () => {
   const [notes, setNotes] = useState([]); // Empty initial state; fetched by StickyBoard
@@ -39,6 +44,7 @@ const App = () => {
         <NavBar notes={notes} />
         <main className="content fullscreen">
           <Routes>
+            {/* Routes for pages */}
             <Route
               path="/board"
               element={
@@ -64,6 +70,11 @@ const App = () => {
                 />
               }
             />
+            
+            {/* Routes for profile, login, and register */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>
       </div>

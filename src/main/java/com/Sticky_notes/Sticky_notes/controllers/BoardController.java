@@ -14,6 +14,7 @@ import com.Sticky_notes.Sticky_notes.repository.UserRepository;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:8081", "http://localhost:8082"})
 @RequestMapping("/api/board")
 public class BoardController {
 

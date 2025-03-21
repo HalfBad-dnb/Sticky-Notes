@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 
 const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
   const noteRef = useRef(null);
-  const [zIndex, setZIndex] = useState(note.zIndex || 1);
-  const [position, setPosition] = useState({ x: note.x || 0, y: note.y || 0 });
+  // Ensure note is defined before accessing properties
+  const [zIndex, setZIndex] = useState(note && note.zIndex !== undefined ? note.zIndex : 1);
+  const [position, setPosition] = useState({ x: note && note.x !== undefined ? note.x : 0, y: note && note.y !== undefined ? note.y : 0 });
   const dragStartRef = useRef(null);
   const lastUpdateRef = useRef(0);
 
@@ -19,8 +20,10 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
 
   // Sync position with props from backend
   useEffect(() => {
-    setPosition({ x: note.x || 0, y: note.y || 0 });
-  }, [note.x, note.y]);
+    if (note) {
+      setPosition({ x: note.x !== undefined ? note.x : 0, y: note.y !== undefined ? note.y : 0 });
+    }
+  }, [note]);
 
   const handleDragStart = useCallback((e) => {
     e.preventDefault();
@@ -46,8 +49,10 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
     const newY = Math.max(0, Math.min(clientY - dragStartRef.current.y, window.innerHeight - 120));
 
     setPosition({ x: newX, y: newY });
-    debounceUpdate(note.id, newX, newY);
-  }, [note.id, debounceUpdate]);
+    if (note && note.id !== undefined) {
+      debounceUpdate(note.id, newX, newY);
+    }
+  }, [note, debounceUpdate]);
 
   const handleDragEnd = useCallback((e) => {
     if (!dragStartRef.current || !noteRef.current) return;
@@ -58,10 +63,12 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
     const newY = Math.max(0, Math.min(clientY - dragStartRef.current.y, window.innerHeight - 120));
 
     setPosition({ x: newX, y: newY });
-    onDrag(note.id, newX, newY); // Final update to backend
-    setZIndex(note.zIndex || 1); // Reset z-index
+    if (note && note.id !== undefined) {
+      onDrag(note.id, newX, newY); // Final update to backend
+    }
+    setZIndex(note && note.zIndex !== undefined ? note.zIndex : 1); // Reset z-index
     dragStartRef.current = null;
-  }, [note.id, note.zIndex, onDrag]);
+  }, [note, onDrag]);
 
   // Add/remove event listeners
   useEffect(() => {
@@ -97,7 +104,7 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
         position: 'absolute',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        backgroundColor: note.color || '#ffffff',
+        backgroundColor: note && note.color ? note.color : '#ffffff',
         zIndex,
         width: '150px',
         height: '120px',
@@ -107,14 +114,17 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
       onTouchStart={handleDragStart}
     >
       <div className="note-content">
-        <p>{note.text || 'No text'}</p>
+        {note && note.isPrivate && (
+          <div className="private-indicator" title="Private Note">🔒</div>
+        )}
+        <p>{note && note.text ? note.text : 'No text'}</p>
       </div>
       <div className="note-actions">
-        <button className="like-button" onClick={() => onLike(note.id)}>
-          👍 {note.likes || 0}
+        <button className="like-button" onClick={() => note && note.id ? onLike(note.id) : null}>
+          👍 {note && note.likes !== undefined ? note.likes : 0}
         </button>
-        <button className="dislike-button" onClick={() => onDislike(note.id)}>
-          👎 {note.dislikes || 0}
+        <button className="dislike-button" onClick={() => note && note.id ? onDislike(note.id) : null}>
+          👎 {note && note.dislikes !== undefined ? note.dislikes : 0}
         </button>
       </div>
     </div>
@@ -131,6 +141,7 @@ StickyNote.propTypes = {
     likes: PropTypes.number.isRequired,
     dislikes: PropTypes.number,
     zIndex: PropTypes.number,
+    isPrivate: PropTypes.bool,
   }).isRequired,
   onDrag: PropTypes.func.isRequired,
   onLike: PropTypes.func.isRequired,

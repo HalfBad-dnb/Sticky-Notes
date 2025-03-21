@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("/api/comments")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:8081", "http://localhost:8082", "http://localhost:8083"})
 public class CommentController {
 
     private final CommentRepository commentRepository;
@@ -46,8 +46,61 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<List<Comment>> getAllComments() {
         try {
-            List<Comment> comments = commentRepository.findAll();
-            comments.sort(Comparator.comparing(Comment::getLikes, Comparator.reverseOrder()));
+            // Get all comments from the database
+            List<Comment> allComments = commentRepository.findAll();
+            
+            // Filter to include comments where isPrivate is FALSE or NULL
+            List<Comment> publicComments = allComments.stream()
+                .filter(comment -> comment.getIsPrivate() == null || !comment.getIsPrivate())
+                .sorted(Comparator.comparing(Comment::getLikes, Comparator.reverseOrder()))
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (publicComments.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            
+            return new ResponseEntity<>(publicComments, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/user/{username}")
+    public ResponseEntity<List<Comment>> getCommentsByUsername(@PathVariable String username) {
+        try {
+            // Get all comments for this user (both private and public)
+            List<Comment> comments = commentRepository.findByUsername(username);
+            if (comments.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(comments, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/user/{username}/private")
+    public ResponseEntity<List<Comment>> getPrivateCommentsByUsername(@PathVariable String username) {
+        try {
+            // Get only private comments for this user
+            List<Comment> comments = commentRepository.findByUsernameAndIsPrivateTrue(username);
+            if (comments.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(comments, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/user/{username}/public")
+    public ResponseEntity<List<Comment>> getPublicCommentsByUsername(@PathVariable String username) {
+        try {
+            // Get only public comments for this user
+            List<Comment> comments = commentRepository.findByUsernameAndIsPrivateFalse(username);
             if (comments.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -64,6 +117,7 @@ public class CommentController {
             if (comment.getLikes() == null) comment.setLikes(0);
             if (comment.getDislikes() == null) comment.setDislikes(0);
             Comment savedComment = commentRepository.save(comment);
+            sendUpdateToClients(savedComment); // Notify clients about the new comment
             return new ResponseEntity<>(savedComment, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();

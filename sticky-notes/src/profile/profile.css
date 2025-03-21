@@ -1,0 +1,594 @@
+/* profile.css - Shared styling for login, register, and profile pages */
+@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&display=swap');
+
+/* Common container for all profile pages */
+.profile-wrapper, .login-wrapper, .register-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  background-color: #0e1515; /* Dark chalkboard base */
+  position: relative;
+  font-family: 'Gochi Hand', cursive;
+}
+
+/* Chalkboard texture background */
+.profile-wrapper::before, .login-wrapper::before, .register-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(14, 21, 21, 0.7), rgba(14, 21, 21, 0.9)),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 2px, transparent 2px, transparent 4px);
+  background-position: center;
+  background-size: 100px 100px;
+  opacity: 0.7;
+  z-index: -1;
+}
+
+/* Container for form elements */
+.login-container, .register-container {
+  width: 100%;
+  max-width: 800px;
+  padding: 30px;
+  background-color: rgba(14, 21, 21, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 234, 92, 0.2);
+  overflow: auto;
+  max-height: 90vh;
+}
+
+/* Profile container with more space for fullscreen notes */
+.profile-container {
+  width: 100%;
+  max-width: 800px;
+  padding: 30px;
+  background-color: rgba(14, 21, 21, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 234, 92, 0.2);
+  overflow: auto;
+  max-height: 90vh;
+}
+
+/* Navbar styling for profile page */
+.navbar {
+  position: relative;
+  background-color: #0e1515;
+  padding: 15px 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+/* Chalkboard texture for navbar */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(14, 21, 21, 0.7), rgba(14, 21, 21, 0.9)),
+    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqPiEhJkSJgIz1LxfZ4n5ZTRFLDQXCLcPGLmD3ZiDiVAkwchRVswI/VJrYEJHzPKgYfYkBZDXhS3SO9ks2ykUJ6sjCA0zbxfMx/jUBb0/CKwyeJyOZGx77ccCU8mQUlbGpXSo55oy7SqW5JJbPbWQ0Z0lQHWUkg8VkZqWOl5dpSDm8OnvDSdqXK86qi5Sg9s1v2EipGBk3Nr/5atOOFjLuiHEC8UVN6w4k2A8WwzxlSW6wS+DYj/ZrtljMm3MB3xB2FbyYUOXt3Vfto3FmUTcT5IHIkeScoTZCbvU/Cl3XV9JsR1FL3YU5d1xAFLpe5YMnMVz9b4PfJ7k3lhwg+MXLZsR4zoDhMCu/7knmKkpyO9V3Mvmk1TmuGCXpXshF9Be+X7GbHcH3HkR+1E/LJlPO9kdsYHj/ES3DifdSp2DEypT3jIQQO2K8pIicSAFQJ01clZg4sboQgl3zZ4/zdECgKvNEQGWcLWx1k7xVC4tBUxK0jUfXUzxYGPRK6iWzUGahm4PaHUhWNUHA2RmRQ8JJQrQosDSQ43RW1Xeo3n3/Y8lY8kCWpCozVIGaQW7zCOr3gRVa3dPsDJN6p4Uhpc4SXTvPVGHCnF1QIYoa09kVs1wp/RygCUiRQmm+4GpwxCJbAOmK/kFiSkBH8Yi8ElhQ5/L4rCEwTJhAJ8Oy0HkCFiGPgOt+PsRlnlKhHZnQMGmio0ksK2FJAiUdBnVnmJVWtBSuVq6XklFh9svUNWUNhL7ov3z01cioXTEFy6B0nPZjGIVQsQkTuCEAjx5AKQylpMQZPcoHAoGJnO4QdURvL17FYA2RVSYCMUWw5Wz6KmSGFQDv97QNJgV9Wobae5ug8vYW2gWAlRkcxEEIEYpCOCEfXZMI6PLQ/4mX2SRjm1qFQsVWKQQoTDoDnHW9MSQhtO0cvINQ9KEaPdidbMuUjdTy7IEXAgq188pYDNp8HDR67uLwO9LLzR1qu8uHX8SLGIb5KWrK3VvQVVzV29fj8dvS9i7S2PsYvcJzhUE6OaJlTS1v6n0j2wCbaxreNmi6lXM8Cw9LTQh5QLSZmBE+UGFVh8SAa+qIDBkxmtkrMjQppSWpJmMS6oKTkSY1Eo5HezIX7KLgnvjnGppJiNFcTKRQlHPYOhZH6dKZCFIUQhEUZmEIdDpCDaw4KYBt46LCiMEZQGQhS1qFHEBSEMEEUSFIWhZCBYRKggQifQSDFgUkdCEDmDQjAURSiKIigMQvCxFcY2rE1DdRx9wMGZ1Lcu5v+eQC+NS07gYlPeA0JQAisgSPkF2kQ5KqEA4TSCyDIEBxSIopAiCGQdDAJRpkgxFMXDIAZ9zPMwSL//////////NaYKBNxCqM0rxD1PdKiAIYjxP1lGImCGSSlGR4jiiKIw5GUoZFwxj0LGoDDI+ggFIfUhBaFoJYGo2JCUCQTKQqQYhMJgyPGvl//DX1f/MYrjP2T94WjJl8DEIxGEg+J8I56EYrgSUo5hmJQEMSSZZgjFXxT8X/qf+Z/ef9p/Qv+JYtyAYh//////////////+dWCz4uxr+DsmhSPPr0yiwIGEWQKE2QmDIRyTFpqr79//19jWVFNsrxgpGSwzFjBWMg4KIyGojgGSsDh6DkcZRTHDGRGjBQKQ5IHC2Eo');
+  background-position: center;
+  background-size: 100px 100px;
+  opacity: 0.7;
+  z-index: -1;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.nav-left h2 {
+  margin: 0;
+  color: #ffea5c;
+  font-size: 28px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Inline user info in navbar */
+.user-info-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 234, 92, 0.3);
+  min-width: 300px;
+  text-align: center;
+}
+
+/* User name styling */
+.user-name {
+  color: #ffea5c;
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.username-display {
+  color: #ffea5c;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.user-email, .notes-count {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px 10px;
+  border-radius: 4px;
+  border-bottom: 1px solid rgba(255, 234, 92, 0.4);
+}
+
+.logout-button-inline {
+  background: linear-gradient(135deg, rgba(255, 100, 100, 0.8), rgba(255, 70, 70, 0.7));
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button-inline:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.profile-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Main content area for the board */
+.main-content {
+  flex: 1;
+  height: calc(100vh - 70px);
+  overflow: hidden;
+  background-color: #2a3636;
+}
+
+/* Board content container */
+.board-content {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  position: relative;
+}
+
+/* Board controls */
+.board-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.privacy-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+}
+
+.toggle-button.private {
+  background: linear-gradient(135deg, #ff9966, #ff5e62);
+  color: white;
+}
+
+.toggle-button.public {
+  background: linear-gradient(135deg, #56ccf2, #2f80ed);
+  color: white;
+}
+
+.toggle-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.board-status {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px 10px;
+  border-radius: 4px;
+  max-width: 250px;
+}
+
+/* Error message */
+.error-message {
+  color: #ff6b6b;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* No notes message */
+.no-notes-message {
+  color: #ffea5c;
+  font-size: 24px;
+  text-align: center;
+  margin-top: 50px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Heading styles */
+h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #ffea5c; /* Premium yellow */
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+  font-family: 'Gochi Hand', cursive;
+}
+
+/* Form group styling */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* Label styling */
+label {
+  display: block;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+/* Input styling */
+input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 234, 92, 0.3);
+  border-radius: 4px;
+  margin-top: 5px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  font-family: 'Arial', sans-serif;
+}
+
+input:focus {
+  border-color: #ffea5c;
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 234, 92, 0.5);
+}
+
+/* Button styling */
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  color: #0e1515;
+  background: linear-gradient(135deg, rgba(255, 234, 92, 0.9), rgba(255, 234, 92, 0.7));
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 25px;
+  transition: all 0.3s ease;
+  font-family: 'Gochi Hand', cursive;
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+  background: linear-gradient(135deg, rgba(255, 234, 92, 1), rgba(255, 234, 92, 0.8));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+button:disabled {
+  background: linear-gradient(135deg, rgba(150, 150, 150, 0.7), rgba(100, 100, 100, 0.5));
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Message styling */
+.message {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+}
+
+.error-message {
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.success-message {
+  color: #6bff6b;
+  background-color: rgba(107, 255, 107, 0.1);
+  border: 1px solid rgba(107, 255, 107, 0.3);
+}
+
+/* Profile header with square button */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 234, 92, 0.2);
+}
+
+/* Profile title and subtitle */
+.profile-title {
+  font-family: 'Gochi Hand', cursive;
+  font-size: 28px;
+  color: #ffea5c;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.profile-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Nav buttons container */
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.home-square-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 15px;
+  background: linear-gradient(135deg, #ffea5c, #ffd700);
+  color: #0e1515;
+  font-size: 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+/* Logout button */
+.logout-button {
+  padding: 8px 15px;
+  background: linear-gradient(135deg, rgba(255, 87, 87, 0.8), rgba(255, 50, 50, 0.7));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0;
+  width: auto;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.home-square-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #ffea5c, #ffcc00);
+}
+
+.logout-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, rgba(255, 87, 87, 1), rgba(255, 50, 50, 0.9));
+}
+
+/* Tab navigation */
+.profile-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 234, 92, 0.3);
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 18px;
+  margin-right: 10px;
+  transition: all 0.3s ease;
+  width: auto;
+  margin-top: 0;
+}
+
+.tab-button:hover {
+  color: #ffea5c;
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+
+.tab-button.active {
+  color: #ffea5c;
+  border-bottom: 3px solid #ffea5c;
+  background: transparent;
+}
+
+.tab-content {
+  padding: 10px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Profile specific styles */
+.profile-details {
+  text-align: left;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+}
+
+.profile-detail {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+.profile-label {
+  font-weight: bold;
+  color: #ffea5c;
+}
+
+/* Navigation links */
+.auth-links {
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.auth-link {
+  color: #ffea5c;
+  text-decoration: none;
+  margin: 0 10px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.auth-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #ffea5c;
+  transition: width 0.3s ease;
+}
+
+.auth-link:hover {
+  color: #fff;
+}
+
+.auth-link:hover::after {
+  width: 100%;
+}
+
+/* Profile notes section */
+.profile-notes-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 234, 92, 0.3);
+  text-align: left;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Profile board styling */
+.profile-board {
+  width: 100%;
+}
+
+/* Make sure the sticky board in profile has the same fullscreen styling */
+.sticky-board.fullscreen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.private-board-title {
+  color: #ffea5c;
+  margin-bottom: 15px;
+  font-size: 22px;
+  text-align: center;
+  border-bottom: 1px dashed rgba(255, 234, 92, 0.3);
+  padding-bottom: 10px;
+}
+
+.profile-board h3 {
+  color: #ffea5c;
+  margin-bottom: 15px;
+  font-size: 22px;
+}
+
+.profile-board .input-container {
+  margin-bottom: 20px;
+}
+
+.profile-board .sticky-board {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.no-notes-message {
+  color: #aaa;
+  text-align: center;
+  padding: 30px 0;
+  font-style: italic;
+}
+
+.logout-button {
+  margin-bottom: 20px;
+}
