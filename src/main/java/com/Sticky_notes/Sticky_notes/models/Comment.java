@@ -31,6 +31,8 @@ public class Comment {
     private String username; // Added username field to associate comments with users
     
     private Boolean isPrivate = false; // Flag to indicate if the note is private
+    
+    private String boardType = "main"; // Indicates which board the note belongs to ("main" or "profile")
 
     // Default constructor for JPA
     public Comment() {
@@ -107,5 +109,13 @@ public class Comment {
     
     public void setIsPrivate(Boolean isPrivate) {
         this.isPrivate = isPrivate;
+    }
+    
+    public String getBoardType() {
+        return boardType;
+    }
+    
+    public void setBoardType(String boardType) {
+        this.boardType = boardType;
     }
 }

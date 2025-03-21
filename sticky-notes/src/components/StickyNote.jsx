@@ -95,6 +95,19 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
       noteRef.current.style.top = `${position.y}px`;
     }
   }, [position.x, position.y]);
+  
+  // Debug note data
+  useEffect(() => {
+    console.log('StickyNote rendered with data:', {
+      id: note?.id,
+      text: note?.text,
+      position: { x: note?.x, y: note?.y },
+      color: note?.color,
+      username: note?.username,
+      isPrivate: note?.isPrivate,
+      boardType: note?.boardType
+    });
+  }, [note]);
 
   return (
     <div
@@ -142,6 +155,8 @@ StickyNote.propTypes = {
     dislikes: PropTypes.number,
     zIndex: PropTypes.number,
     isPrivate: PropTypes.bool,
+    username: PropTypes.string,
+    boardType: PropTypes.string,
   }).isRequired,
   onDrag: PropTypes.func.isRequired,
   onLike: PropTypes.func.isRequired,

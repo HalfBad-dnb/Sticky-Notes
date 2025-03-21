@@ -49,17 +49,18 @@ public class CommentController {
             // Get all comments from the database
             List<Comment> allComments = commentRepository.findAll();
             
-            // Filter to include comments where isPrivate is FALSE or NULL
-            List<Comment> publicComments = allComments.stream()
-                .filter(comment -> comment.getIsPrivate() == null || !comment.getIsPrivate())
+            // Filter to include comments where isPrivate is FALSE or NULL AND boardType is "main"
+            List<Comment> publicMainBoardComments = allComments.stream()
+                .filter(comment -> (comment.getIsPrivate() == null || !comment.getIsPrivate()))
+                .filter(comment -> comment.getBoardType() == null || "main".equals(comment.getBoardType()))
                 .sorted(Comparator.comparing(Comment::getLikes, Comparator.reverseOrder()))
                 .collect(java.util.stream.Collectors.toList());
             
-            if (publicComments.isEmpty()) {
+            if (publicMainBoardComments.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             
-            return new ResponseEntity<>(publicComments, HttpStatus.OK);
+            return new ResponseEntity<>(publicMainBoardComments, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -70,11 +71,37 @@ public class CommentController {
     public ResponseEntity<List<Comment>> getCommentsByUsername(@PathVariable String username) {
         try {
             // Get all comments for this user (both private and public)
-            List<Comment> comments = commentRepository.findByUsername(username);
-            if (comments.isEmpty()) {
+            List<Comment> allUserComments = commentRepository.findByUsername(username);
+            
+            System.out.println("Found " + allUserComments.size() + " comments for user: " + username);
+            
+            // Log all comments for debugging
+            for (Comment comment : allUserComments) {
+                System.out.println("Comment ID: " + comment.getId() + 
+                                 ", Text: " + comment.getText() + 
+                                 ", BoardType: " + comment.getBoardType() + 
+                                 ", IsPrivate: " + comment.getIsPrivate());
+            }
+            
+            // Always return all notes for this user, regardless of boardType
+            // This is a temporary fix to ensure notes are displayed
+            List<Comment> profileComments = allUserComments;
+            System.out.println("Returning all " + profileComments.size() + " notes for user");
+            
+            // Log the notes being returned
+            for (Comment comment : profileComments) {
+                System.out.println("Returning note ID: " + comment.getId() + 
+                                 ", Text: " + comment.getText() + 
+                                 ", BoardType: " + comment.getBoardType() + 
+                                 ", IsPrivate: " + comment.getIsPrivate());
+            }
+                
+            if (profileComments.isEmpty()) {
+                System.out.println("No profile comments found, returning 204 No Content");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(comments, HttpStatus.OK);
+            System.out.println("Returning " + profileComments.size() + " profile comments with HTTP 200 OK");
+            return new ResponseEntity<>(profileComments, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -85,11 +112,30 @@ public class CommentController {
     public ResponseEntity<List<Comment>> getPrivateCommentsByUsername(@PathVariable String username) {
         try {
             // Get only private comments for this user
-            List<Comment> comments = commentRepository.findByUsernameAndIsPrivateTrue(username);
-            if (comments.isEmpty()) {
+            List<Comment> privateComments = commentRepository.findByUsernameAndIsPrivateTrue(username);
+            
+            System.out.println("Found " + privateComments.size() + " private comments for user: " + username);
+            
+            // For backward compatibility, if there are no private notes with boardType="profile",
+            // return all private notes for this user
+            boolean hasPrivateProfileNotes = privateComments.stream()
+                .anyMatch(comment -> "profile".equals(comment.getBoardType()));
+                
+            List<Comment> privateProfileComments;
+            if (hasPrivateProfileNotes) {
+                // If there are private profile notes, filter to include only those
+                privateProfileComments = privateComments.stream()
+                    .filter(comment -> "profile".equals(comment.getBoardType()))
+                    .collect(java.util.stream.Collectors.toList());
+            } else {
+                // For backward compatibility, if no private profile notes exist, return all private notes
+                privateProfileComments = privateComments;
+            }
+                
+            if (privateProfileComments.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(comments, HttpStatus.OK);
+            return new ResponseEntity<>(privateProfileComments, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -114,8 +160,22 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) {
         try {
+            // Set default values if not provided
             if (comment.getLikes() == null) comment.setLikes(0);
             if (comment.getDislikes() == null) comment.setDislikes(0);
+            
+            // Ensure boardType is set
+            if (comment.getBoardType() == null) {
+                comment.setBoardType("main"); // Default to main board if not specified
+            }
+            
+            // Validate that boardType is either "main" or "profile"
+            if (!"main".equals(comment.getBoardType()) && !"profile".equals(comment.getBoardType())) {
+                comment.setBoardType("main"); // Default to main if invalid value
+            }
+            
+            System.out.println("Creating comment with boardType: " + comment.getBoardType());
+            
             Comment savedComment = commentRepository.save(comment);
             sendUpdateToClients(savedComment); // Notify clients about the new comment
             return new ResponseEntity<>(savedComment, HttpStatus.CREATED);

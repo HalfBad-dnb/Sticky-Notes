@@ -33,7 +33,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     console.log('Fetching notes from API...');
     fetch('http://localhost:8082/api/comments', {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+      }
     })
       .then((response) => {
         console.log('API response status:', response.status);
@@ -101,12 +104,16 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       likes: 0,
       dislikes: 0,
       username: currentUser?.username || 'anonymous', // Associate note with current user
+      boardType: 'main' // Set board type to main
     };
 
     console.log('Sending new note:', newNote);
     fetch('http://localhost:8082/api/comments', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+      },
       body: JSON.stringify(newNote),
     })
       .then((response) => {
@@ -165,7 +172,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     
     fetch(`http://localhost:8082/api/comments/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+      },
       body: JSON.stringify({ x, y }),
     })
       .then((response) => {
@@ -223,7 +233,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     
     fetch(`http://localhost:8082/api/comments/${id}/like`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+      },
     })
       .then((response) => {
         console.log(`Like response for note ${id}:`, response.status);
@@ -280,7 +293,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     
     fetch(`http://localhost:8082/api/comments/${id}/dislike`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+      },
     })
       .then((response) => {
         console.log(`Dislike response for note ${id}:`, response.status);
