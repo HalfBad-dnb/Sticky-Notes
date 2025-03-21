@@ -74,20 +74,20 @@ gcloud run deploy ${FRONTEND_SERVICE_NAME} \
   --platform managed \
   --region ${REGION} \
   --allow-unauthenticated \
-  --port 80
+  --port 81
 if [ $? -ne 0 ]; then
   echo "Failed to deploy frontend to Google Cloud Run!"
   exit 1
 fi
 
-# Deploy backend to Google Cloud Run with port 8080 (for backend)
+# Deploy backend to Google Cloud Run with port  (for backend)
 echo "Deploying backend to Google Cloud Run..."
 gcloud run deploy ${BACKEND_SERVICE_NAME} \
   --image gcr.io/${PROJECT_ID}/${BACKEND_IMAGE_NAME}-image:latest \
   --platform managed \
   --region ${REGION} \
   --allow-unauthenticated \
-  --port 8080
+  --port 8081
 if [ $? -ne 0 ]; then
   echo "Failed to deploy backend to Google Cloud Run!"
   exit 1

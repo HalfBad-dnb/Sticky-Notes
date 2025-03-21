@@ -17,8 +17,8 @@ FROM openjdk:17-jdk-slim
 # Copy the JAR file from the build stage
 COPY --from=build /app/target/sticky-notes-*.jar /app/sticky-notes.jar
 
-# Expose port 8080 for the backend
-EXPOSE 8080
+# Expose port  for the backend
+EXPOSE 
 
 # Run the backend app
 CMD ["java", "-jar", "/app/sticky-notes.jar"]
