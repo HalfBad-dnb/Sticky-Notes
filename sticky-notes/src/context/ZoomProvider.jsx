@@ -59,50 +59,89 @@ export function ZoomProvider({ children }) {
       }
     };
     
-    // Function to handle panning with middle mouse button - only for notes containers
+    // Function to handle panning with middle mouse button - works anywhere on the page
     const handleMouseDown = (e) => {
-      // Find if the event target is inside a notes container
-      const notesContainer = e.target.closest('.notes-container');
-      
-      // Middle mouse button (button 1) and inside a notes container
-      if (e.button === 1 && notesContainer) {
+      // Middle mouse button (button 1) - button code 1 is middle mouse
+      if (e.button === 1 || e.buttons === 4) {
         e.preventDefault();
         setIsPanning(true);
         setLastMousePosition({ x: e.clientX, y: e.clientY });
+        
+        // Change cursor to indicate panning mode
+        document.body.style.cursor = 'grabbing';
+        
+        // Disable text selection during panning
+        document.body.style.userSelect = 'none';
       }
     };
     
     const handleMouseMove = (e) => {
       if (isPanning) {
-        const notesContainer = document.querySelector('.notes-container');
-        if (notesContainer) {
+        // Apply panning to all notes containers
+        const notesContainers = document.querySelectorAll('.notes-container');
+        
+        if (notesContainers.length > 0) {
           const dx = e.clientX - lastMousePosition.x;
           const dy = e.clientY - lastMousePosition.y;
           
-          notesContainer.scrollLeft -= dx;
-          notesContainer.scrollTop -= dy;
+          // Apply panning to all notes containers
+          notesContainers.forEach(container => {
+            container.scrollLeft -= dx;
+            container.scrollTop -= dy;
+          });
           
           setLastMousePosition({ x: e.clientX, y: e.clientY });
+          
+          // Prevent default browser behavior
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
         }
       }
     };
     
     const handleMouseUp = () => {
-      setIsPanning(false);
+      if (isPanning) {
+        setIsPanning(false);
+        // Reset cursor and text selection
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
     };
     
-    // Add event listeners
+    // Add event listeners with passive: false to allow preventDefault
     window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousedown', handleMouseDown, { passive: false });
+    document.addEventListener('mousemove', handleMouseMove, { passive: false });
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    // Prevent default middle mouse behavior (autoscroll in some browsers)
+    const preventMiddleMouseScroll = (e) => {
+      if (e.button === 1) {
+        e.preventDefault();
+        return false;
+      }
+    };
+    
+    // Handle context menu during panning
+    const handleContextMenu = (e) => {
+      if (isPanning) {
+        e.preventDefault();
+        return false;
+      }
+    };
+    
+    document.addEventListener('auxclick', preventMiddleMouseScroll, { passive: false });
+    document.addEventListener('contextmenu', handleContextMenu, { passive: false });
     
     // Clean up
     return () => {
       window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('auxclick', preventMiddleMouseScroll);
+      document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, [isPanning, lastMousePosition]);
 

@@ -300,6 +300,12 @@ html, body {
   min-height: 80vh; /* Ensure there's enough space for notes */
   transform-origin: center; /* Set transform origin to center for mouse-centered zoom */
   overflow: auto; /* Allow scrolling within the zoomed container */
+  cursor: grab; /* Show grab cursor to indicate it can be panned */
+}
+
+/* When panning is active */
+.notes-container:active {
+  cursor: grabbing; /* Change cursor when actively panning */
 }
 
 /* Notes items container - actual content that gets zoomed */
