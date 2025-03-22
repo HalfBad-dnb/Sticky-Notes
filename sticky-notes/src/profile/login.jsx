@@ -45,6 +45,8 @@ const Login = () => {
           role: response.data?.role || "Standard User"
         };
         
+        console.log('Storing user data in session storage:', userData);
+        
         // Store the user object in sessionStorage
         sessionStorage.setItem("user", JSON.stringify(userData));
         

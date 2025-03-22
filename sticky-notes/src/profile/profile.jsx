@@ -24,11 +24,18 @@ const Profile = () => {
     }
 
     // Create a basic user object from localStorage data
-    const basicUser = { username: username };
+    // Try to get user data from sessionStorage first
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const basicUser = { 
+      username: username,
+      email: storedUser.email || 'Email not available'
+    };
+    console.log('Setting initial user data:', basicUser);
     setUser(basicUser);
     setLoading(false);
     
-    // Try to fetch additional profile data, but don't block on it
+    // Always try to fetch the latest profile data
+    console.log('Fetching profile data with token:', token);
     axios
       .get("http://localhost:8082/api/profile", {
         headers: {
@@ -36,14 +43,31 @@ const Profile = () => {
         }
       })
       .then((response) => {
+        console.log('Profile API response:', response);
         if (response.data && response.data.username) {
-          setUser(response.data);
-          console.log('Profile data:', response.data);
+          // Create a complete user object with all available data
+          const completeUser = {
+            ...basicUser,
+            ...response.data,
+            // Ensure these fields are always present
+            email: response.data.email || basicUser.email || 'Email not available',
+            role: response.data.role || basicUser.role || 'User'
+          };
+          
+          console.log('Setting complete user data:', completeUser);
+          setUser(completeUser);
+          // Store in session storage for persistence
+          sessionStorage.setItem('user', JSON.stringify(completeUser));
+          setLoading(false);
+        } else {
+          console.warn('Profile data missing username or is incomplete:', response.data);
+          setLoading(false);
         }
       })
       .catch((error) => {
         console.error('Profile fetch error:', error);
         // Don't redirect on error, just show the basic user data
+        setLoading(false);
       });
   }, []);
 
@@ -433,30 +457,183 @@ const Profile = () => {
       <div className="navbar">
         <div className="nav-content">
           <div className="nav-left">
-            <div className="user-info">
-              <div className="user-avatar">👤</div>
-              <div className="user-details">
-                <span className="user-name">{user.username || "User"}</span>
-                <span className="user-email">{user.email || ""}</span>
+            <div className="user-info" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              padding: '15px',
+              paddingTop: '20px', /* Extra space for the pin */
+              backgroundColor: '#FFEB3B', /* Yellow sticky note color */
+              borderRadius: '2px',
+              boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
+              transform: 'rotate(-1deg)',
+              position: 'relative',
+              minWidth: '180px',
+              minHeight: '60px',
+              backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
+              border: '1px solid rgba(0,0,0,0.1)'
+            }}>
+              {/* Pushpin effect */}
+              <div style={{
+                position: 'absolute',
+                top: '5px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                backgroundColor: '#E53935', /* Red pin head */
+                boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                border: '1px solid #B71C1C',
+                zIndex: 2
+              }}></div>
+              <div className="user-avatar" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '50%', 
+                backgroundColor: 'rgba(0,0,0,0.1)', 
+                color: '#333',
+                fontSize: '24px',
+                marginRight: '12px',
+                border: '2px solid rgba(0,0,0,0.2)'
+              }}>👤</div>
+              <div className="user-details" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <span className="user-name" style={{ 
+                  fontWeight: 'bold', 
+                  fontSize: '16px', 
+                  color: '#333',
+                  fontFamily: '"Comic Sans MS", cursive, sans-serif', /* Handwritten font style */
+                  textShadow: '1px 1px 1px rgba(0,0,0,0.1)'
+                }}>
+                  {user.username || "User"}
+                </span>
+
               </div>
             </div>
           </div>
           <div className="nav-center">
             <h2 className="profile-title">Your Profile Board</h2>
           </div>
-          <div className="nav-right">
+          <div className="nav-right" style={{ display: 'flex', gap: '12px', marginRight: '10px' }}>
               <button 
                 onClick={togglePrivacy} 
                 className="nav-button"
                 title={isPrivate ? 'Showing Private Notes' : 'Showing All Notes'}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '45px',
+                  height: '45px',
+                  borderRadius: '2px',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  backgroundColor: isPrivate ? '#FFC107' : '#81D4FA', /* Yellow or light blue sticky note */
+                  color: '#333',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '2px 2px 5px rgba(0,0,0,0.15)',
+                  transform: 'rotate(-2deg)',
+                  position: 'relative',
+                  backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)'
+                }}
               >
-                <span className="button-icon-only">{isPrivate ? '🔒' : '🌐'}</span>
+                {/* Pushpin effect */}
+                <div style={{
+                  position: 'absolute',
+                  top: '3px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1565C0', /* Blue pin head */
+                  boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
+                  border: '1px solid #0D47A1',
+                  zIndex: 2
+                }}></div>
+                <span className="button-icon-only" style={{ marginTop: '4px' }}>{isPrivate ? '🔒' : '🌐'}</span>
               </button>
-              <Link to="/" className="nav-button" title="Back to Main Board">
-                <span className="button-icon-only">🏠</span>
+              <Link 
+                to="/" 
+                className="nav-button" 
+                title="Back to Main Board"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '45px',
+                  height: '45px',
+                  borderRadius: '2px',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  backgroundColor: '#A5D6A7', /* Light green sticky note */
+                  color: '#333',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '2px 2px 5px rgba(0,0,0,0.15)',
+                  transform: 'rotate(1deg)',
+                  position: 'relative',
+                  textDecoration: 'none',
+                  backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)'
+                }}
+              >
+                {/* Pushpin effect */}
+                <div style={{
+                  position: 'absolute',
+                  top: '3px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#388E3C', /* Green pin head */
+                  boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
+                  border: '1px solid #1B5E20',
+                  zIndex: 2
+                }}></div>
+                <span className="button-icon-only" style={{ marginTop: '4px' }}>🏠</span>
               </Link>
-              <button onClick={handleLogout} className="nav-button" title="Logout">
-                <span className="button-icon-only">⏻</span>
+              <button 
+                onClick={handleLogout} 
+                className="nav-button" 
+                title="Logout"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '45px',
+                  height: '45px',
+                  borderRadius: '2px',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  backgroundColor: '#EF9A9A', /* Light red sticky note */
+                  color: '#333',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '2px 2px 5px rgba(0,0,0,0.15)',
+                  transform: 'rotate(-1deg)',
+                  position: 'relative',
+                  backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)'
+                }}
+              >
+                {/* Pushpin effect */}
+                <div style={{
+                  position: 'absolute',
+                  top: '3px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#D32F2F', /* Red pin head */
+                  boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
+                  border: '1px solid #B71C1C',
+                  zIndex: 2
+                }}></div>
+                <span className="button-icon-only" style={{ marginTop: '4px' }}>⏻</span>
               </button>
           </div>
         </div>

@@ -35,4 +35,9 @@ public class AuthService {
         // Check if password matches
         return passwordEncoder.matches(user.getPassword(), foundUser.getPassword());  // Use injected passwordEncoder
     }
+    
+    // Get user by username
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
 }

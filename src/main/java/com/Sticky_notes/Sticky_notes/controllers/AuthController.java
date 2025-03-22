@@ -34,10 +34,15 @@ public class AuthController {
             String token = java.util.Base64.getEncoder().encodeToString(
                 (user.getUsername() + ":" + System.currentTimeMillis()).getBytes());
             
+            // Fetch the complete user data to get the email
+            User fullUser = authService.getUserByUsername(user.getUsername());
+            
             // Create response object with token and user info
             java.util.Map<String, Object> response = new java.util.HashMap<>();
             response.put("token", token);
             response.put("username", user.getUsername());
+            response.put("email", fullUser != null ? fullUser.getEmail() : "");
+            response.put("role", fullUser != null ? fullUser.getRoles() : "User");
             response.put("message", "Login successful");
             
             return new ResponseEntity<>(response, HttpStatus.OK);
