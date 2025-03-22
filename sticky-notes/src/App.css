@@ -26,6 +26,8 @@ html, body {
   flex-direction: column;
   width: 100%;
   height: 100vh;
+  overflow: hidden; /* Prevent scrollbars from appearing during zoom */
+  position: relative;
 }
 
 /* Pop-up menu container */
@@ -168,7 +170,8 @@ html, body {
   padding: 30px;
   box-sizing: border-box;
   background-color: #2a3636;
-  overflow: auto; /* Changed to auto to allow scrolling when zoomed */
+  overflow: auto; /* Allow scrolling when zoomed */
+  transform-origin: 0 0; /* Set transform origin to top-left for proper zoom */
 }
 
 /* Realistic chalkboard texture */
@@ -206,6 +209,16 @@ html, body {
   max-width: 500px;
   margin: 0 auto 30px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Fixed input container at the top */
+.input-container[style*="position: sticky"] {
+  position: sticky !important;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(26, 42, 42, 0.8);
+  margin-bottom: 20px;
+  transform: scale(1) !important; /* Ensure input doesn't scale with zoom */
 }
 
 /* Textarea with chalk-like appearance */
@@ -284,6 +297,16 @@ html, body {
   height: calc(100% - 150px);
   z-index: 5;
   transition: transform 0.3s ease; /* Smooth zoom transition */
+  min-height: 80vh; /* Ensure there's enough space for notes */
+  transform-origin: center; /* Set transform origin to center for mouse-centered zoom */
+  overflow: auto; /* Allow scrolling within the zoomed container */
+}
+
+/* Notes items container - actual content that gets zoomed */
+.notes-items {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 /* Zoom controls styling */

@@ -6,11 +6,13 @@ import TopNotes from './components/TopNotes';
 import Login from './profile/login'; // Importing Login component
 import Register from './profile/register'; // Importing Register component
 import Profile from './profile/profile'; // Importing Profile component
+import { ZoomProvider } from './context/ZoomProvider'; // Import ZoomProvider
 import './profile/profile.css'; // Import the shared profile CSS
 import './App.css';
 
 
-const App = () => {
+// Main App component wrapper with zoom functionality
+const AppContent = () => {
   const [notes, setNotes] = useState([]); // Empty initial state; fetched by StickyBoard
 
   // Stabilize callback functions to prevent unnecessary re-renders
@@ -79,6 +81,15 @@ const App = () => {
         </main>
       </div>
     </Router>
+  );
+};
+
+// Wrap the AppContent with ZoomProvider
+const App = () => {
+  return (
+    <ZoomProvider>
+      <AppContent />
+    </ZoomProvider>
   );
 };
 

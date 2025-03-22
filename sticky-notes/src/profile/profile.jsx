@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import StickyNote from "../components/StickyNote";
+import { useZoom } from "../context/useZoom";
 import "../App.css";
 
 const Profile = () => {
@@ -11,6 +12,9 @@ const Profile = () => {
   const [notes, setNotes] = useState([]);
   const [newNoteText, setNewNoteText] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  
+  // Use global zoom context for the sticky board container
+  const { getBoardStyle } = useZoom();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -642,6 +646,7 @@ const Profile = () => {
         
         {/* Profile Board */}
         <div className="sticky-board fullscreen">
+          {/* Input container - not affected by zoom */}
           <div className="input-container">
             <textarea
               value={newNoteText}
@@ -653,21 +658,24 @@ const Profile = () => {
               Add Note
             </button>
           </div>
-
-          <div className="notes-container">
-            {notes.length === 0 ? (
-              <p>No {isPrivate ? 'private ' : ''}notes yet. Add one above!</p>
-            ) : (
-              notes.map((note, index) => (
-                <StickyNote
-                  key={note.id}
-                  note={{ ...note, zIndex: notes.length - index }}
-                  onDrag={handleDrag}
-                  onLike={handleLike}
-                  onDislike={handleDislike}
-                />
-              ))
-            )}
+          
+          {/* Notes container with zoom applied */}
+          <div className="notes-container" style={getBoardStyle()}>
+            <div className="notes-items">
+              {notes.length === 0 ? (
+                <p>No {isPrivate ? 'private ' : ''}notes yet. Add one above!</p>
+              ) : (
+                notes.map((note, index) => (
+                  <StickyNote
+                    key={note.id}
+                    note={{ ...note, zIndex: notes.length - index }}
+                    onDrag={handleDrag}
+                    onLike={handleLike}
+                    onDislike={handleDislike}
+                  />
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useState } from 'react';
+import { useZoom } from '../context/useZoom';
 import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
 import '../App.css';
@@ -7,6 +8,9 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [newNoteText, setNewNoteText] = useState('');
   const [error, setError] = useState(null);
+  
+  // Get zoom context for the sticky board
+  const { getBoardStyle } = useZoom();
 
   const getRandomColor = useCallback(() => {
     const colors = [
@@ -350,6 +354,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
 
   return (
     <div className="sticky-board fullscreen">
+      {/* Input container - not affected by zoom */}
       <div className="input-container">
         <textarea
           value={newNoteText}
@@ -361,23 +366,25 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           Add Note
         </button>
       </div>
-
-      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
-
-      <div className="notes-container">
-        {notes.length === 0 && !error ? (
-          <p>No notes yet. Add one above!</p>
-        ) : (
-          notes.map((note, index) => (
-            <StickyNote
-              key={note.id}
-              note={{ ...note, zIndex: notes.length - index }}
-              onDrag={handleDragWithBackend}
-              onLike={handleLikeWithBackend}
-              onDislike={handleDislikeWithBackend}
-            />
-          ))
-        )}
+      
+      {/* Notes container with zoom applied */}
+      <div className="notes-container" style={getBoardStyle()}>
+        {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+        <div className="notes-items">
+          {notes.length === 0 && !error ? (
+            <p>No notes yet. Add one above!</p>
+          ) : (
+            notes.map((note, index) => (
+              <StickyNote
+                key={note.id}
+                note={{ ...note, zIndex: notes.length - index }}
+                onDrag={handleDragWithBackend}
+                onLike={handleLikeWithBackend}
+                onDislike={handleDislikeWithBackend}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
