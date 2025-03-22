@@ -25,9 +25,17 @@ const Login = () => {
     try {
       const response = await axios.post("http://localhost:8082/api/auth/login", formData);
       
+      console.log('Login response:', response.data);
+      
       if (response.status === 200) {
-        // Store authentication token and user data
-        localStorage.setItem("authToken", "user-authenticated");
+        console.log('Login successful, response:', response.data);
+        
+        // Always use a consistent token format
+        // If server doesn't return a token, create a simple one
+        const token = response.data.token || 
+                     `user-authenticated-${formData.username}-${Date.now()}`;
+        
+        localStorage.setItem("authToken", token);
         localStorage.setItem("username", formData.username);
         
         // Create a user object and store in sessionStorage

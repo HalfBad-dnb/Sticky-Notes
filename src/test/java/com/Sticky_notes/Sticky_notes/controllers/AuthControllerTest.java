@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -62,11 +63,12 @@ class AuthControllerTest {
         when(authService.authenticateUser(any(User.class))).thenReturn(true);
 
         // Act
-        ResponseEntity<String> response = authController.login(testUser);
+        ResponseEntity<?> response = authController.login(testUser);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Login successful", response.getBody());
+        // We can't check the exact token as it's dynamic, but we can check that the response is not null
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -75,7 +77,7 @@ class AuthControllerTest {
         when(authService.authenticateUser(any(User.class))).thenReturn(false);
 
         // Act
-        ResponseEntity<String> response = authController.login(testUser);
+        ResponseEntity<?> response = authController.login(testUser);
 
         // Assert
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());

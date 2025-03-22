@@ -27,10 +27,20 @@ public class AuthController {
 
     // Endpoint for user login (using username and password)
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<?> login(@RequestBody User user) {
         boolean isAuthenticated = authService.authenticateUser(user);
         if (isAuthenticated) {
-            return new ResponseEntity<>("Login successful", HttpStatus.OK);
+            // Create a simple token (in a real app, you would use JWT or similar)
+            String token = java.util.Base64.getEncoder().encodeToString(
+                (user.getUsername() + ":" + System.currentTimeMillis()).getBytes());
+            
+            // Create response object with token and user info
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("token", token);
+            response.put("username", user.getUsername());
+            response.put("message", "Login successful");
+            
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
     }

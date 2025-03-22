@@ -14,13 +14,21 @@ const Profile = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
+    const username = localStorage.getItem("username");
 
-    if (!token) {
+    if (!token || !username) {
       setError("Unauthorized. Please log in.");
       setLoading(false);
+      // Don't redirect automatically, show login button instead
       return;
     }
 
+    // Create a basic user object from localStorage data
+    const basicUser = { username: username };
+    setUser(basicUser);
+    setLoading(false);
+    
+    // Try to fetch additional profile data, but don't block on it
     axios
       .get("http://localhost:8082/api/profile", {
         headers: {
@@ -28,15 +36,14 @@ const Profile = () => {
         }
       })
       .then((response) => {
-        setUser(response.data);
-        console.log('Profile data:', response.data);
+        if (response.data && response.data.username) {
+          setUser(response.data);
+          console.log('Profile data:', response.data);
+        }
       })
       .catch((error) => {
         console.error('Profile fetch error:', error);
-        setError("Failed to fetch profile data.");
-      })
-      .finally(() => {
-        setLoading(false);
+        // Don't redirect on error, just show the basic user data
       });
   }, []);
 
@@ -47,6 +54,8 @@ const Profile = () => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       console.error('No auth token found');
+      // Don't redirect immediately, just set error
+      setError('Authentication required. Please log in.');
       return;
     }
     
@@ -63,6 +72,14 @@ const Profile = () => {
     .then(response => {
       console.log('Profile notes response status:', response.status);
       console.log('Profile notes response headers:', [...response.headers.entries()]);
+      
+      // Handle authentication errors
+      if (response.status === 401 || response.status === 403) {
+        console.error('Authentication error:', response.status);
+        // Don't redirect immediately, just set error
+        setError('Authentication failed. Please log in again.');
+        throw new Error('Authentication failed. Please log in again.');
+      }
       
       // Handle no content response
       if (response.status === 204) {
@@ -121,6 +138,11 @@ const Profile = () => {
     })
     .catch(error => {
       console.error('Error fetching profile notes:', error);
+      if (error.message === 'Authentication failed. Please log in again.') {
+        // Already handled above
+        return;
+      }
+      setError('Failed to load notes. Please try again later.');
     });
   }, [user, isPrivate]);
   
@@ -392,7 +414,19 @@ const Profile = () => {
   }, []);
 
   if (loading) return <p>Loading profile...</p>;
-  if (error) return <p>{error}</p>;
+  if (error) return (
+    <div className="error-container" style={{ padding: '20px', textAlign: 'center' }}>
+      <p>{error}</p>
+      {error.includes('Unauthorized') || error.includes('log in') ? (
+        <button 
+          onClick={() => window.location.href = "/login"} 
+          style={{ padding: '8px 16px', margin: '10px', cursor: 'pointer', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
+        >
+          Go to Login
+        </button>
+      ) : null}
+    </div>
+  );
 
   return (
     <div className="app-container">
