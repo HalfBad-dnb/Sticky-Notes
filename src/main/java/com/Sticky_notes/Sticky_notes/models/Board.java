@@ -10,6 +10,7 @@ public class Board {
     private String code; // Unique code for the board
     private String content; // Board content
     private String title;
+    private String boardType; // Type of the board
 
     @ManyToOne
     @JoinColumn(name = "user_id") // This will join the "user_id" column with the User table
@@ -59,5 +60,13 @@ public class Board {
 
     public void setUser(User user) {
         this.user = user;  // Setter method to link a User to this Board
+    }
+    
+    public String getBoardType() {
+        return boardType;
+    }
+    
+    public void setBoardType(String boardType) {
+        this.boardType = boardType;
     }
 }

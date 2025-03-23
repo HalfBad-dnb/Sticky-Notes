@@ -14,7 +14,7 @@ import com.Sticky_notes.Sticky_notes.repository.UserRepository;
 import jakarta.validation.Valid;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:8081", "http://localhost:8082"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:8080", "http://localhost:8081"})
 @RequestMapping("/api/registration")
 public class RegistrationController {
 

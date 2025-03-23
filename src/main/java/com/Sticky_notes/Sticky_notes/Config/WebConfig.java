@@ -14,7 +14,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**") // Allow CORS for all endpoints
-                .allowedOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:8081", "http://localhost:8082") // Frontend origins
+                .allowedOrigins(
+                    "http://localhost:5173", 
+                    "http://localhost:5174", 
+                    "http://localhost:8081", 
+                    "http://localhost:8082",
+                    "https://sticky-notes-frontend-oyj73tnptq-ew.a.run.app",
+                    "https://sticky-notes-frontend-1077104673800.europe-west1.run.app"
+                ) // Frontend origins including Cloud Run
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Supported HTTP methods
                 .allowedHeaders("*") // Allow all headers
                 .allowCredentials(true) // Allow credentials

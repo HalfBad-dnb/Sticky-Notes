@@ -2,6 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { useZoom } from '../context/useZoom';
 import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
+import { getApiUrl } from '../utils/api';
 import '../App.css';
 
 const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
@@ -35,7 +36,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
 
   useEffect(() => {
     console.log('Fetching notes from API...');
-    fetch('http://localhost:8082/api/comments', {
+    fetch(getApiUrl('comments'), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     };
 
     console.log('Sending new note:', newNote);
-    fetch('http://localhost:8082/api/comments', {
+    fetch(getApiUrl('comments'), {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -174,7 +175,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(`http://localhost:8082/api/comments/${id}`, {
+    fetch(getApiUrl(`comments/${id}`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -235,7 +236,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(`http://localhost:8082/api/comments/${id}/like`, {
+    fetch(getApiUrl(`comments/${id}/like`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -295,7 +296,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(`http://localhost:8082/api/comments/${id}/dislike`, {
+    fetch(getApiUrl(`comments/${id}/dislike`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',

@@ -24,6 +24,7 @@
         <java.version>21</java.version>
         <node.version>v20.17.0</node.version> <!-- Latest LTS as of Feb 2025 assumption -->
         <npm.version>10.8.2</npm.version> <!-- Compatible with Node 20.17.0 -->
+        <frontend.skip>false</frontend.skip> <!-- Can be overridden with -Dfrontend.skip=true -->
     </properties>
 
     <!-- Dependencies -->
@@ -58,6 +59,25 @@
             <groupId>com.google.cloud.sql</groupId>
             <artifactId>postgres-socket-factory</artifactId>
             <version>1.15.1</version>
+        </dependency>
+        
+        <!-- Explicitly exclude Spring Cloud GCP to avoid compatibility issues -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
+            <version>1.2.8.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.cloud.sql</groupId>
+                    <artifactId>postgres-socket-factory</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <!-- HikariCP connection pool (explicitly defined) -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
         </dependency>
 
         <!-- Lombok for boilerplate reduction -->
@@ -161,6 +181,7 @@
                     <installDirectory>target</installDirectory>
                     <nodeVersion>${node.version}</nodeVersion>
                     <npmVersion>${npm.version}</npmVersion>
+                    <skip>${frontend.skip}</skip>
                 </configuration>
                 <executions>
                     <execution>

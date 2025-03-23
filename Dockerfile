@@ -1,24 +1,30 @@
 # Stage 1: Build the backend app
-FROM maven:3.8.4-openjdk-17-slim as build
+FROM maven:3.9.6-eclipse-temurin-21-jammy as build
 
 WORKDIR /app
 
 # Copy the pom.xml and install dependencies
 COPY pom.xml .
-RUN mvn clean install -DskipTests
+RUN mvn dependency:go-offline -B
 
 # Copy the source code and compile
 COPY src ./src
-RUN mvn package -DskipTests
+RUN mvn package -DskipTests -Dfrontend.skip=true
 
 # Stage 2: Run the backend app
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jdk-jammy
+
+WORKDIR /app
 
 # Copy the JAR file from the build stage
-COPY --from=build /app/target/sticky-notes-*.jar /app/sticky-notes.jar
+COPY --from=build /app/target/sticky-notes-*.jar /app/app.jar
 
-# Expose port 8081 for the backend
-EXPOSE 8081
+# Expose port 8080 for Cloud Run
+EXPOSE 8080
 
-# Run the backend app
-CMD ["java", "-jar", "/app/sticky-notes.jar"]
+# Copy the startup script
+COPY startup.sh /app/startup.sh
+RUN chmod +x /app/startup.sh
+
+# Run the application using the startup script
+CMD ["/app/startup.sh"]

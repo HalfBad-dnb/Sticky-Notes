@@ -19,6 +19,9 @@ public class CorsConfig {
         config.addAllowedOrigin("http://localhost:5174"); // Development frontend URL (Vite)
         config.addAllowedOrigin("http://localhost:8081"); // Production frontend URL
         config.addAllowedOrigin("http://localhost:8082"); // Additional frontend URL
+        config.addAllowedOrigin("https://sticky-notes-frontend-oyj73tnptq-ew.a.run.app"); // Cloud Run frontend URL
+        // Allow any subdomain of run.app (for Cloud Run deployments)
+        config.addAllowedOriginPattern("https://*.run.app");
         
         // Allow all HTTP methods
         config.addAllowedMethod("GET");

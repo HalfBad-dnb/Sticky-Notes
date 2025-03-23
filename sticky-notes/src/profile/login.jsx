@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "../profile/profile.css";
+import { getApiUrl } from "../utils/api";
 
 
 const Login = () => {
@@ -23,7 +24,7 @@ const Login = () => {
     setMessage(""); // Clear previous messages
 
     try {
-      const response = await axios.post("http://localhost:8082/api/auth/login", formData);
+      const response = await axios.post(getApiUrl("auth/login"), formData);
       
       console.log('Login response:', response.data);
       

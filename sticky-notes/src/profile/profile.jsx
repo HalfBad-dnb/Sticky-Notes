@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import StickyNote from "../components/StickyNote";
 import { useZoom } from "../context/useZoom";
+import { getApiUrl } from "../utils/api";
 import "../App.css";
 
 const Profile = () => {
@@ -41,7 +42,7 @@ const Profile = () => {
     // Always try to fetch the latest profile data
     console.log('Fetching profile data with token:', token);
     axios
-      .get("http://localhost:8082/api/profile", {
+      .get(getApiUrl('profile'), {
         headers: {
           'Authorization': `Bearer ${token}` // Add auth token
         }
@@ -90,7 +91,7 @@ const Profile = () => {
     console.log('Fetching profile notes for user:', user.username);
     
     // Endpoint to get user's notes
-    fetch(`http://localhost:8082/api/comments/user/${user.username}`, {
+    fetch(getApiUrl(`comments/user/${user.username}`), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -230,7 +231,7 @@ const Profile = () => {
     });
 
     console.log('Sending new profile note:', newNote);
-    fetch('http://localhost:8082/api/comments', {
+    fetch(getApiUrl('comments'), {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -297,7 +298,7 @@ const Profile = () => {
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(`http://localhost:8082/api/comments/${id}`, {
+    fetch(getApiUrl(`comments/${id}`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -347,7 +348,7 @@ const Profile = () => {
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(`http://localhost:8082/api/comments/${id}/like`, {
+    fetch(getApiUrl(`comments/${id}/like`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -396,7 +397,7 @@ const Profile = () => {
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(`http://localhost:8082/api/comments/${id}/dislike`, {
+    fetch(getApiUrl(`comments/${id}/dislike`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
