@@ -480,6 +480,22 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           </div>
         </div>
 
+        {/* Disclaimer tab */}
+        <div className="info-tab disclaimer-tab" style={{
+          display: isMobile ? 'none' : 'block'
+        }}>
+          <div className="info-content">
+            <h3>Disclaimer</h3>
+            <ul>
+              <li>Do not save sensitive data</li>
+              <li>All info exposed by notes is your responsibility</li>
+              <li>We don&apos;t know who posts notes</li>
+              <li>We just don&apos;t care who posts notes</li>
+              <li>Be aware of what you&apos;re posting</li>
+            </ul>
+          </div>
+        </div>
+
         {/* Input container - not affected by zoom */}
         <div className="input-container" style={{
           width: isMobile ? '100%' : 'auto',
@@ -579,16 +595,32 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           </div>
         </div>
 
-        {/* Right info tab (Account Info) */}
+        {/* Right info tab (Best Ways to Use) */}
         <div className="info-tab right-tab" style={{
           display: isMobile ? 'none' : 'block'
         }}>
           <div className="info-content">
-            <h3>Account Benefits</h3>
+            <h3>Project Status</h3>
             <ul>
-              <li>Register for private boards</li>
-              <li>Highlight important notes</li>
-              <li>Organize your notes how you like</li>
+              <li>Project still in beta</li>
+              <li>Some features may not work as expected</li>
+              <li>We are actively working on improvements</li>
+              <li>Expect occasional downtime</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Event Features tab */}
+        <div className="info-tab right-tab" style={{
+          display: isMobile ? 'none' : 'block'
+        }}>
+          <div className="info-content">
+            <h3>Event Features</h3>
+            <ul>
+              <li>Use for live events and presentations</li>
+              <li>Interactive Q&A sessions with audience</li>
+              <li>Real-time feedback collection</li>
+              <li>Organize brainstorming sessions</li>
             </ul>
           </div>
         </div>
@@ -599,23 +631,23 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         renderMobileNotesList()
       ) : (
         <div className="notes-container" style={getBoardStyle()}>
-        {error && <div style={{ color: 'red' }}>Error: {error}</div>}
-        <div className="notes-items">
-          {notes.length === 0 && !error ? (
-            <p>No notes yet. Add one above!</p>
-          ) : (
-            notes.map((note, index) => (
-              <StickyNote
-                key={note.id}
-                note={{ ...note, zIndex: notes.length - index }}
-                onDrag={handleDragWithBackend}
-                onLike={handleLikeWithBackend}
-                onDislike={handleDislikeWithBackend}
-              />
-            ))
-          )}
+          {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+          <div className="notes-items">
+            {notes.length === 0 && !error ? (
+              <p>No notes yet. Add one above!</p>
+            ) : (
+              notes.map((note, index) => (
+                <StickyNote
+                  key={note.id}
+                  note={{ ...note, zIndex: notes.length - index }}
+                  onDrag={handleDragWithBackend}
+                  onLike={handleLikeWithBackend}
+                  onDislike={handleDislikeWithBackend}
+                />
+              ))
+            )}
+          </div>
         </div>
-      </div>
       )}
     </div>
   );
