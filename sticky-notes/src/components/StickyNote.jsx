@@ -128,7 +128,7 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
     >
       <div className="note-content">
         {note && note.isPrivate && (
-          <div className="private-indicator" title="Private Note">🔒</div>
+          <div className="private-indicator" title="Important Note">⭐</div>
         )}
         <p>{note && note.text ? note.text : 'No text'}</p>
       </div>

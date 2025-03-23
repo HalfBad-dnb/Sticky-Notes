@@ -732,7 +732,24 @@ button:disabled {
 }
 
 .profile-board .input-container {
-  margin-bottom: 20px;
+  margin: 0 auto 20px;
+  max-width: 800px;
+  width: 80%;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-board .button-container {
+  display: flex;
+  width: 100%;
+}
+
+.profile-board .add-note-button {
+  flex: 1;
+  width: 100%;
 }
 
 .profile-board .sticky-board {

@@ -525,7 +525,7 @@ const Profile = () => {
               <button 
                 onClick={togglePrivacy} 
                 className="nav-button"
-                title={isPrivate ? 'Showing Private Notes' : 'Showing All Notes'}
+                title={isPrivate ? 'Showing Important Notes' : 'Showing All Notes'}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -559,7 +559,7 @@ const Profile = () => {
                   border: '1px solid #0D47A1',
                   zIndex: 2
                 }}></div>
-                <span className="button-icon-only" style={{ marginTop: '4px' }}>{isPrivate ? '🔒' : '🌐'}</span>
+                <span className="button-icon-only" style={{ marginTop: '4px' }}>{isPrivate ? '⭐' : '🌐'}</span>
               </button>
               <Link 
                 to="/" 
@@ -646,25 +646,27 @@ const Profile = () => {
       <div className="main-content">
         
         {/* Profile Board */}
-        <div className="sticky-board fullscreen">
+        <div className="sticky-board fullscreen profile-board">
           {/* Input container - not affected by zoom */}
-          <div className="input-container">
+          <div className="input-container" style={{ margin: '0 auto 20px', maxWidth: '800px', width: '80%' }}>
             <textarea
               value={newNoteText}
               onChange={(e) => setNewNoteText(e.target.value)}
               placeholder="Add a new note to your profile board..."
               className="textarea"
             />
-            <button onClick={addNote} className="add-note-button">
-              Add Note
-            </button>
+            <div className="button-container">
+              <button onClick={addNote} className="add-note-button">
+                Add Note
+              </button>
+            </div>
           </div>
           
           {/* Notes container with zoom applied */}
           <div className="notes-container" style={getBoardStyle()}>
             <div className="notes-items">
               {notes.length === 0 ? (
-                <p>No {isPrivate ? 'private ' : ''}notes yet. Add one above!</p>
+                <p>No {isPrivate ? 'important ' : ''}notes yet. Add one above!</p>
               ) : (
                 notes.map((note, index) => (
                   <StickyNote

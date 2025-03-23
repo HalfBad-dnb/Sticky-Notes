@@ -1,0 +1,167 @@
+/* Responsive styles for Sticky Notes app */
+
+/* Global responsive adjustments */
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 10px;
+  }
+  
+  /* Header adjustments */
+  .header {
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .logo {
+    margin-bottom: 10px;
+  }
+  
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .nav-links a {
+    margin: 5px 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Main content adjustments */
+  .main-content {
+    padding: 10px;
+  }
+  
+  /* Input container adjustments */
+  .input-container {
+    max-width: 100% !important;
+    padding: 10px;
+  }
+  
+  .textarea {
+    min-height: 80px;
+  }
+  
+  /* Button adjustments */
+  .button-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .add-note-button, 
+  .refresh-button {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+  }
+  
+  /* Notes container adjustments */
+  .notes-container {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 10px !important;
+  }
+  
+  .note {
+    min-height: 150px;
+    font-size: 14px;
+  }
+  
+  /* Profile page adjustments */
+  .profile-container {
+    padding: 10px;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .profile-info {
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  /* Info tabs adjustments */
+  .info-tabs {
+    flex-direction: column;
+  }
+  
+  .info-tab {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  /* Zoom controls adjustments */
+  .zoom-controls {
+    bottom: 10px;
+    right: 10px;
+  }
+  
+  .zoom-controls button {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+  .notes-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .note {
+    min-height: 120px;
+  }
+  
+  .note-actions {
+    opacity: 1;
+  }
+  
+  .notes-title {
+    font-size: 24px;
+  }
+  
+  .profile-board .sticky-board {
+    padding: 5px;
+  }
+  
+  /* Improve touch targets for mobile */
+  button, a, .menu-trigger {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Make popup menu more mobile-friendly */
+  .popup-menu {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+  }
+  
+  .menu-content {
+    width: 80vw;
+    max-width: 300px;
+  }
+  
+  /* Improve form elements for touch */
+  input, textarea, select {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    padding: 12px;
+  }
+  
+  /* Adjust spacing for mobile */
+  .container, .main-content, .profile-container {
+    padding: 5px;
+  }
+  
+  /* Improve scrolling experience */
+  .notes-container {
+    scroll-behavior: smooth;
+  }
+}

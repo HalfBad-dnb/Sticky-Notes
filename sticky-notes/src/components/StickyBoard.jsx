@@ -353,19 +353,87 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       });
   }, [onDislike, setNotes, notes]);
 
+  // No longer need state for info tabs as they're always visible
+
   return (
     <div className="sticky-board fullscreen">
-      {/* Input container - not affected by zoom */}
-      <div className="input-container">
-        <textarea
-          value={newNoteText}
-          onChange={(e) => setNewNoteText(e.target.value)}
-          placeholder="Add a new note..."
-          className="textarea"
-        />
-        <button onClick={addNote} className="add-note-button">
-          Add Note
-        </button>
+      {/* Top controls row with info tabs and input container */}
+      <div className="top-controls-row">
+        {/* Left info tab (Rules) */}
+        <div className="info-tab left-tab">
+          <div className="info-content">
+            <h3>Board Rules</h3>
+            <ul>
+              <li>100 dislikes will delete a note</li>
+              <li>You can like as much as you want</li>
+              <li>More likes help notes get to the top</li>
+              <li>Write whatever you want</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Input container - not affected by zoom */}
+        <div className="input-container">
+          <textarea
+            value={newNoteText}
+            onChange={(e) => setNewNoteText(e.target.value)}
+            placeholder="Add a new note..."
+            className="textarea"
+          />
+          <div className="button-container">
+            <button onClick={addNote} className="add-note-button">
+              Add Note
+            </button>
+            <button 
+              onClick={() => {
+                // Refresh board by fetching notes again
+                fetch(getApiUrl('comments'), {
+                  method: 'GET',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+                  }
+                })
+                  .then((response) => {
+                    if (response.status === 204) return [];
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) return [];
+                    
+                    return response.json().catch(error => {
+                      console.error('JSON parsing error:', error);
+                      return [];
+                    });
+                  })
+                  .then((data) => {
+                    console.log('Refreshed notes:', data);
+                    setNotes(Array.isArray(data) ? data : []);
+                    setError(null);
+                  })
+                  .catch((error) => {
+                    console.error('Refresh failed:', error);
+                    setError(`Failed to refresh notes: ${error.message}`);
+                  });
+              }} 
+              className="refresh-button"
+            >
+              Refresh Board
+            </button>
+          </div>
+        </div>
+
+        {/* Right info tab (Account Info) */}
+        <div className="info-tab right-tab">
+          <div className="info-content">
+            <h3>Account Benefits</h3>
+            <ul>
+              <li>Register for private boards</li>
+              <li>Highlight important notes</li>
+              <li>Organize your notes how you like</li>
+            </ul>
+          </div>
+        </div>
       </div>
       
       {/* Notes container with zoom applied */}

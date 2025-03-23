@@ -169,7 +169,7 @@ html, body {
   height: 100%;
   padding: 30px;
   box-sizing: border-box;
-  background-color: #2a3636;
+  background-color: #1a2424; /* Darker background color */
   overflow: auto; /* Allow scrolling when zoomed */
   transform-origin: 0 0; /* Set transform origin to top-left for proper zoom */
 }
@@ -193,6 +193,69 @@ html, body {
 
 
 
+/* Top controls row with info tabs and input container */
+.top-controls-row {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  margin-bottom: 30px;
+  gap: 10px;
+  z-index: 10;
+  position: relative;
+}
+
+/* Info tabs */
+.info-tab {
+  background-color: rgba(26, 42, 42, 0.6);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 15px;
+  width: 200px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.info-content {
+  color: #ffffff;
+}
+
+.info-content h3 {
+  font-family: 'Gochi Hand', cursive;
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 8px;
+  text-align: center;
+  color: #ffea5c;
+}
+
+.info-content ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-content li {
+  font-family: 'Gochi Hand', cursive;
+  font-size: 14px;
+  margin-bottom: 5px;
+  position: relative;
+  padding-left: 15px;
+  line-height: 1.2;
+}
+
+.info-content li:before {
+  content: '•';
+  color: #ffea5c;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
 /* Input container */
 .input-container {
   position: relative;
@@ -205,10 +268,16 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
+  flex: 1;
   max-width: 500px;
-  margin: 0 auto 30px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Button container for Add Note and Refresh Board buttons */
+.button-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
 }
 
 /* Fixed input container at the top */
@@ -259,6 +328,7 @@ html, body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
+  flex: 3; /* Takes up 75% of the space (3 out of 4 parts) */
 }
 
 /* Chalk particle effect on button hover */
@@ -286,6 +356,53 @@ html, body {
 }
 
 .add-note-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Refresh button */
+.refresh-button {
+  background-color: #ffea5c;
+  color: #1a2a2a;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  flex: 1; /* Takes up 25% of the space (1 out of 4 parts) */
+}
+
+/* Chalk particle effect on refresh button hover */
+.refresh-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  z-index: 0;
+}
+
+.refresh-button:hover {
+  background-color: #fff176;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.refresh-button:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.refresh-button:active {
   transform: translateY(1px);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -356,12 +473,48 @@ html, body {
   color: #ffea5c;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
   font-size: 32px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-align: center;
   letter-spacing: 1px;
   position: relative;
   display: inline-block;
   padding: 0 15px;
+}
+
+/* Top notes refresh button */
+.top-notes-refresh-button {
+  display: block;
+  margin: 0 auto 15px;
+  background-color: #ffea5c;
+  color: #1a2a2a;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 15px;
+  cursor: pointer;
+  font-family: 'Gochi Hand', cursive;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.top-notes-refresh-button:hover {
+  background-color: #fff176;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.top-notes-refresh-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.top-notes-refresh-button:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Underline effect for notes title */
