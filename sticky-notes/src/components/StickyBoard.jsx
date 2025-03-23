@@ -5,10 +5,30 @@ import StickyNote from './StickyNote';
 import { getApiUrl } from '../utils/api';
 import '../App.css';
 
+// Custom hook for responsive design
+const useMediaQuery = (query) => {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
+  }, [matches, query]);
+
+  return matches;
+};
+
 const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [newNoteText, setNewNoteText] = useState('');
   const [error, setError] = useState(null);
+  
+  // Check if device is mobile (screen width less than 768px)
+  const isMobile = useMediaQuery('(max-width: 768px)');
   
   // Get zoom context for the sticky board
   const { getBoardStyle } = useZoom();
@@ -355,12 +375,100 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
 
   // No longer need state for info tabs as they're always visible
 
+  // Function to render notes in list view for mobile
+  const renderMobileNotesList = () => {
+    return (
+      <div className="mobile-notes-list" style={{
+        width: '100%',
+        padding: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+        marginTop: '10px'
+      }}>
+        {notes.map(note => (
+          <div key={note.id}>
+            {/* Note content */}
+            <div 
+              className="mobile-note-content"
+              style={{
+                backgroundColor: note.color || '#ffea5c',
+                borderRadius: '4px',
+                padding: '15px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                marginBottom: '8px'
+              }}
+            >
+              <div style={{ fontSize: '16px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#000000' }}>
+                {note.text}
+              </div>
+            </div>
+            
+            {/* Buttons row - separate from note content */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end',
+              gap: '10px'
+            }}>
+              <button 
+                onClick={() => handleLikeWithBackend(note.id)}
+                style={{ 
+                  background: 'rgba(0,0,0,0.05)', 
+                  border: '1px solid rgba(0,0,0,0.1)', 
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  width: '80px',
+                  height: '44px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  fontSize: '16px',
+                  touchAction: 'manipulation'
+                }}
+              >
+                <span style={{ fontSize: '20px' }}>👍</span> {note.likes || 0}
+              </button>
+              <button 
+                onClick={() => handleDislikeWithBackend(note.id)}
+                style={{ 
+                  background: 'rgba(0,0,0,0.05)', 
+                  border: '1px solid rgba(0,0,0,0.1)', 
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  width: '80px',
+                  height: '44px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  fontSize: '16px',
+                  touchAction: 'manipulation'
+                }}
+              >
+                <span style={{ fontSize: '20px' }}>👎</span> {note.dislikes || 0}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="sticky-board fullscreen">
       {/* Top controls row with info tabs and input container */}
-      <div className="top-controls-row">
+      <div className="top-controls-row" style={{
+        flexDirection: isMobile ? 'column' : 'row',
+        padding: isMobile ? '5px' : '10px',
+        gap: isMobile ? '10px' : '20px'
+      }}>
         {/* Left info tab (Rules) */}
-        <div className="info-tab left-tab">
+        <div className="info-tab left-tab" style={{
+          display: isMobile ? 'none' : 'block'
+        }}>
           <div className="info-content">
             <h3>Board Rules</h3>
             <ul>
@@ -373,18 +481,66 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         </div>
 
         {/* Input container - not affected by zoom */}
-        <div className="input-container">
+        <div className="input-container" style={{
+          width: isMobile ? '100%' : 'auto',
+          padding: isMobile ? '5px' : '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: isMobile ? '10px' : '15px'
+        }}>
           <textarea
             value={newNoteText}
             onChange={(e) => setNewNoteText(e.target.value)}
             placeholder="Add a new note..."
             className="textarea"
+            style={{
+              width: '100%',
+              height: '40px',
+              fontSize: '16px',
+              padding: '8px 12px',
+              boxSizing: 'border-box',
+              backgroundColor: '#2a2d31',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '4px',
+              outline: 'none',
+              resize: 'none'
+            }}
           />
-          <div className="button-container">
-            <button onClick={addNote} className="add-note-button">
+          <div className="button-container" style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '10px',
+            width: '100%',
+            justifyContent: 'space-between'
+          }}>
+            <button onClick={addNote} className="add-note-button" style={{
+              width: '48%',
+              height: '40px',
+              padding: '0',
+              fontSize: '16px',
+              backgroundColor: '#FFEB3B',
+              color: '#1e2124',
+              fontWeight: 'bold',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}>
               Add Note
             </button>
             <button 
+              style={{
+                width: '48%',
+                height: '40px',
+                padding: '0',
+                fontSize: '16px',
+                backgroundColor: '#FFEB3B',
+                color: '#1e2124',
+                fontWeight: 'bold',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
               onClick={() => {
                 // Refresh board by fetching notes again
                 fetch(getApiUrl('comments'), {
@@ -424,7 +580,9 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         </div>
 
         {/* Right info tab (Account Info) */}
-        <div className="info-tab right-tab">
+        <div className="info-tab right-tab" style={{
+          display: isMobile ? 'none' : 'block'
+        }}>
           <div className="info-content">
             <h3>Account Benefits</h3>
             <ul>
@@ -436,8 +594,11 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         </div>
       </div>
       
-      {/* Notes container with zoom applied */}
-      <div className="notes-container" style={getBoardStyle()}>
+      {/* Notes container - show different views based on device */}
+      {isMobile ? (
+        renderMobileNotesList()
+      ) : (
+        <div className="notes-container" style={getBoardStyle()}>
         {error && <div style={{ color: 'red' }}>Error: {error}</div>}
         <div className="notes-items">
           {notes.length === 0 && !error ? (
@@ -455,6 +616,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 };

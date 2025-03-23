@@ -742,6 +742,27 @@ button:disabled {
   gap: 12px;
 }
 
+@media (max-width: 768px) {
+  .profile-board .input-container {
+    width: 95%;
+    margin: 0 auto 15px;
+  }
+  
+  .profile-board .profile-title {
+    font-size: 18px;
+  }
+  
+  .profile-board .nav-left,
+  .profile-board .nav-right {
+    flex: 1;
+  }
+  
+  .profile-board .nav-center {
+    flex: 2;
+    text-align: center;
+  }
+}
+
 .profile-board .button-container {
   display: flex;
   width: 100%;
@@ -757,6 +778,12 @@ button:disabled {
   border-radius: 5px;
   padding: 15px;
   margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+  .profile-board .sticky-board {
+    padding: 10px 5px;
+  }
 }
 
 .no-notes-message {

@@ -51,12 +51,35 @@ const TopNotes = ({ notes: initialNotes }) => {
     <div className="top-notes-container">
       <div className="sticky-board fullscreen">
         <div className="p-4">
-          <h1 className="notes-title" style={{ display: 'block', width: '100%', textAlign: 'center' }}>Top 10 Most Liked Notes</h1>
+          <h1 className="notes-title" style={{ 
+            display: 'block', 
+            width: '100%', 
+            textAlign: 'center',
+            color: '#FFEB3B',
+            fontWeight: 'bold',
+            marginBottom: '20px',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}>Top 10 Most Liked Notes</h1>
           <button 
             onClick={refreshTopNotes} 
             className="refresh-button"
             disabled={isLoading}
-            style={{ display: 'block', margin: '0 auto 15px', width: 'auto', flex: 'none' }}
+            style={{ 
+              display: 'block', 
+              margin: '0 auto 20px', 
+              width: 'auto', 
+              flex: 'none',
+              backgroundColor: '#1e2124',
+              color: '#FFEB3B',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '4px',
+              padding: '8px 16px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+            }}
           >
             {isLoading ? 'Refreshing...' : 'Refresh Top Notes'}
           </button>

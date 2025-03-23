@@ -6,13 +6,35 @@ import { useZoom } from "../context/useZoom";
 import { getApiUrl } from "../utils/api";
 import "../App.css";
 
+// Custom hook for responsive design
+const useMediaQuery = (query) => {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
+  }, [matches, query]);
+
+  return matches;
+};
+
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notes, setNotes] = useState([]);
+  const [allProfileNotes, setAllProfileNotes] = useState([]);
+  // We don't need these separate state variables anymore
   const [newNoteText, setNewNoteText] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  
+  // Check if device is mobile (screen width less than 768px)
+  const isMobile = useMediaQuery('(max-width: 768px)');
   
   // Use global zoom context for the sticky board container
   const { getBoardStyle } = useZoom();
@@ -146,8 +168,18 @@ const Profile = () => {
     .then(data => {
       console.log('Fetched profile notes:', data);
       
+      // Store all profile notes first (unfiltered)
+      const allNotes = Array.isArray(data) ? data : [];
+      
+      // Filter out any null or undefined notes
+      const validNotes = allNotes.filter(note => note && note.id);
+      console.log('All notes from API:', allNotes.length);
+      console.log('Valid notes:', validNotes.length);
+      
+      setAllProfileNotes(validNotes);
+      
       // Filter notes based on boardType and privacy setting
-      let filteredNotes = Array.isArray(data) ? data : [];
+      let filteredNotes = [...allNotes];
       
       // First filter by boardType (prefer profile, but if none exist, show all)
       const profileNotes = filteredNotes.filter(note => note.boardType === 'profile');
@@ -459,69 +491,113 @@ const Profile = () => {
 
   return (
     <div className="app-container">
-      <div className="navbar">
+      <div className="navbar" style={{
+        padding: isMobile ? '5px 0' : '10px 0',
+        position: 'relative'
+      }}>
         <div className="nav-content">
-          <div className="nav-left">
+          <div className="nav-left" style={{ 
+            minWidth: isMobile ? 'auto' : '350px',
+            display: isMobile ? 'none' : 'block'
+          }}>
             <div className="user-info" style={{ 
               display: 'flex', 
-              alignItems: 'center', 
-              padding: '15px',
-              paddingTop: '20px', /* Extra space for the pin */
-              backgroundColor: '#FFEB3B', /* Yellow sticky note color */
-              borderRadius: '2px',
-              boxShadow: '2px 2px 8px rgba(0,0,0,0.2)',
-              transform: 'rotate(-1deg)',
-              position: 'relative',
-              minWidth: '180px',
-              minHeight: '60px',
-              backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
-              border: '1px solid rgba(0,0,0,0.1)'
+              flexDirection: 'column',
+              padding: '10px 20px',
+              backgroundColor: '#1e2124', /* Dark background like in the image */
+              borderRadius: '4px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              width: '100%'
             }}>
-              {/* Pushpin effect */}
               <div style={{
-                position: 'absolute',
-                top: '5px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '12px',
-                height: '12px',
-                borderRadius: '50%',
-                backgroundColor: '#E53935', /* Red pin head */
-                boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                border: '1px solid #B71C1C',
-                zIndex: 2
-              }}></div>
-              <div className="user-avatar" style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                width: '40px', 
-                height: '40px', 
-                borderRadius: '50%', 
-                backgroundColor: 'rgba(0,0,0,0.1)', 
-                color: '#333',
-                fontSize: '24px',
-                marginRight: '12px',
-                border: '2px solid rgba(0,0,0,0.2)'
-              }}>👤</div>
-              <div className="user-details" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <span className="user-name" style={{ 
-                  fontWeight: 'bold', 
-                  fontSize: '16px', 
-                  color: '#333',
-                  fontFamily: '"Comic Sans MS", cursive, sans-serif', /* Handwritten font style */
-                  textShadow: '1px 1px 1px rgba(0,0,0,0.1)'
+                color: '#FFEB3B', /* Yellow text */
+                fontFamily: '"Gochi Hand", cursive',
+                display: 'grid',
+                gridTemplateColumns: 'auto auto auto',
+                alignItems: 'center',
+                columnGap: '20px',
+                fontSize: '14px'
+              }}>
+                <span style={{ 
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
                 }}>
-                  {user.username || "User"}
+                  {user.username}
                 </span>
-
+                <span style={{ whiteSpace: 'nowrap' }}>
+                  ALL NOTES: ({notes.length})
+                </span>
+                <span style={{ whiteSpace: 'nowrap' }}>
+                  IMPORTANT: ({notes.filter(note => note.isPrivate === true).length})
+                </span>
               </div>
             </div>
           </div>
-          <div className="nav-center">
-            <h2 className="profile-title">Your Profile Board</h2>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: isMobile ? '90%' : '100%',
+            margin: '0 auto',
+            gap: '10px',
+            padding: '0',
+            position: 'relative',
+            maxWidth: isMobile ? '100%' : '400px',
+            zIndex: 1
+          }}>
+            <input
+              type="text"
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              placeholder="Add a new note..."
+              className="textarea"
+              style={{
+                width: isMobile ? 'calc(100% - 55px)' : '300px',
+                height: '40px',
+                padding: '8px 12px',
+                fontSize: isMobile ? '16px' : '14px',
+                backgroundColor: '#2a2d31',
+                color: '#ffffff',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '4px',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addNote())}
+            />
+            <button 
+              onClick={addNote} 
+              className="nav-button add-note-button" 
+              title="Add Note"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '45px',
+                height: '40px',
+                borderRadius: '4px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: isMobile ? '#FFEB3B' : '#1e2124',
+                color: isMobile ? '#1e2124' : '#FFEB3B',
+                fontSize: '18px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              }}
+            >
+              <span className="button-icon-only">📌</span>
+            </button>
           </div>
-          <div className="nav-right" style={{ display: 'flex', gap: '12px', marginRight: '10px' }}>
+          <div className="nav-right" style={{ 
+            display: isMobile ? 'none' : 'flex', 
+            gap: '12px', 
+            marginRight: '10px', 
+            minWidth: '150px' 
+          }}>
               <button 
                 onClick={togglePrivacy} 
                 className="nav-button"
@@ -532,34 +608,17 @@ const Profile = () => {
                   justifyContent: 'center',
                   width: '45px',
                   height: '45px',
-                  borderRadius: '2px',
-                  border: '1px solid rgba(0,0,0,0.1)',
-                  backgroundColor: isPrivate ? '#FFC107' : '#81D4FA', /* Yellow or light blue sticky note */
-                  color: '#333',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backgroundColor: '#1e2124',
+                  color: '#FFEB3B',
                   fontSize: '18px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  boxShadow: '2px 2px 5px rgba(0,0,0,0.15)',
-                  transform: 'rotate(-2deg)',
-                  position: 'relative',
-                  backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
                 }}
               >
-                {/* Pushpin effect */}
-                <div style={{
-                  position: 'absolute',
-                  top: '3px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#1565C0', /* Blue pin head */
-                  boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
-                  border: '1px solid #0D47A1',
-                  zIndex: 2
-                }}></div>
-                <span className="button-icon-only" style={{ marginTop: '4px' }}>{isPrivate ? '⭐' : '🌐'}</span>
+                <span className="button-icon-only">{isPrivate ? '⭐' : '🌐'}</span>
               </button>
               <Link 
                 to="/" 
@@ -571,35 +630,18 @@ const Profile = () => {
                   justifyContent: 'center',
                   width: '45px',
                   height: '45px',
-                  borderRadius: '2px',
-                  border: '1px solid rgba(0,0,0,0.1)',
-                  backgroundColor: '#A5D6A7', /* Light green sticky note */
-                  color: '#333',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backgroundColor: '#1e2124',
+                  color: '#FFEB3B',
                   fontSize: '18px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  boxShadow: '2px 2px 5px rgba(0,0,0,0.15)',
-                  transform: 'rotate(1deg)',
-                  position: 'relative',
-                  textDecoration: 'none',
-                  backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  textDecoration: 'none'
                 }}
               >
-                {/* Pushpin effect */}
-                <div style={{
-                  position: 'absolute',
-                  top: '3px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#388E3C', /* Green pin head */
-                  boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
-                  border: '1px solid #1B5E20',
-                  zIndex: 2
-                }}></div>
-                <span className="button-icon-only" style={{ marginTop: '4px' }}>🏠</span>
+                <span className="button-icon-only">🏠</span>
               </Link>
               <button 
                 onClick={handleLogout} 
@@ -611,75 +653,132 @@ const Profile = () => {
                   justifyContent: 'center',
                   width: '45px',
                   height: '45px',
-                  borderRadius: '2px',
-                  border: '1px solid rgba(0,0,0,0.1)',
-                  backgroundColor: '#EF9A9A', /* Light red sticky note */
-                  color: '#333',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backgroundColor: '#1e2124',
+                  color: '#FFEB3B',
                   fontSize: '18px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  boxShadow: '2px 2px 5px rgba(0,0,0,0.15)',
-                  transform: 'rotate(-1deg)',
-                  position: 'relative',
-                  backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
                 }}
               >
-                {/* Pushpin effect */}
-                <div style={{
-                  position: 'absolute',
-                  top: '3px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#D32F2F', /* Red pin head */
-                  boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
-                  border: '1px solid #B71C1C',
-                  zIndex: 2
-                }}></div>
-                <span className="button-icon-only" style={{ marginTop: '4px' }}>⏻</span>
+                <span className="button-icon-only">🚪</span>
               </button>
           </div>
         </div>
       </div>
-      <div className="main-content">
+      <div className="main-content" style={{
+        paddingTop: isMobile ? '0' : '10px'
+      }}>
         
         {/* Profile Board */}
-        <div className="sticky-board fullscreen profile-board">
-          {/* Input container - not affected by zoom */}
-          <div className="input-container" style={{ margin: '0 auto 20px', maxWidth: '800px', width: '80%' }}>
-            <textarea
-              value={newNoteText}
-              onChange={(e) => setNewNoteText(e.target.value)}
-              placeholder="Add a new note to your profile board..."
-              className="textarea"
-            />
-            <div className="button-container">
-              <button onClick={addNote} className="add-note-button">
-                Add Note
-              </button>
-            </div>
-          </div>
+        <div className="sticky-board fullscreen profile-board" style={{
+          paddingTop: isMobile ? '10px' : '20px'
+        }}>
+          {/* Input container removed - moved to nav-center */}
           
-          {/* Notes container with zoom applied */}
-          <div className="notes-container" style={getBoardStyle()}>
-            <div className="notes-items">
+          {/* Notes container - show different views based on device */}
+          {isMobile ? (
+            <div className="mobile-notes-list" style={{
+              width: '100%',
+              padding: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '15px',
+              marginTop: '10px'
+            }}>
               {notes.length === 0 ? (
                 <p>No {isPrivate ? 'important ' : ''}notes yet. Add one above!</p>
               ) : (
-                notes.map((note, index) => (
-                  <StickyNote
-                    key={note.id}
-                    note={{ ...note, zIndex: notes.length - index }}
-                    onDrag={handleDrag}
-                    onLike={handleLike}
-                    onDislike={handleDislike}
-                  />
+                notes.map(note => (
+                  <div key={note.id}>
+                    {/* Note content */}
+                    <div 
+                      className="mobile-note-content"
+                      style={{
+                        backgroundColor: note.color || '#ffea5c',
+                        borderRadius: '4px',
+                        padding: '15px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      <div style={{ fontSize: '16px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#000000' }}>
+                        {note.text}
+                      </div>
+                    </div>
+                    
+                    {/* Buttons row - separate from note content */}
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'flex-end',
+                      gap: '10px'
+                    }}>
+                      <button 
+                        onClick={() => handleLike(note.id)}
+                        style={{ 
+                          background: 'rgba(0,0,0,0.05)', 
+                          border: '1px solid rgba(0,0,0,0.1)', 
+                          borderRadius: '8px',
+                          padding: '8px 12px',
+                          width: '80px',
+                          height: '44px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '5px',
+                          fontSize: '16px',
+                          touchAction: 'manipulation'
+                        }}
+                      >
+                        <span style={{ fontSize: '20px' }}>👍</span> {note.likes || 0}
+                      </button>
+                      <button 
+                        onClick={() => handleDislike(note.id)}
+                        style={{ 
+                          background: 'rgba(0,0,0,0.05)', 
+                          border: '1px solid rgba(0,0,0,0.1)', 
+                          borderRadius: '8px',
+                          padding: '8px 12px',
+                          width: '80px',
+                          height: '44px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '5px',
+                          fontSize: '16px',
+                          touchAction: 'manipulation'
+                        }}
+                      >
+                        <span style={{ fontSize: '20px' }}>👎</span> {note.dislikes || 0}
+                      </button>
+                    </div>
+                  </div>
                 ))
               )}
             </div>
-          </div>
+          ) : (
+            <div className="notes-container" style={getBoardStyle()}>
+              <div className="notes-items">
+                {notes.length === 0 ? (
+                  <p>No {isPrivate ? 'important ' : ''}notes yet. Add one above!</p>
+                ) : (
+                  notes.map((note, index) => (
+                    <StickyNote
+                      key={note.id}
+                      note={{ ...note, zIndex: notes.length - index }}
+                      onDrag={handleDrag}
+                      onLike={handleLike}
+                      onDislike={handleDislike}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -30,6 +30,13 @@ html, body {
   position: relative;
 }
 
+@media (max-width: 768px) {
+  .app-container {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
 /* Pop-up menu container */
 .popup-menu {
   position: relative;
@@ -100,6 +107,12 @@ html, body {
   list-style: none;
 }
 
+@media (max-width: 768px) {
+  .nav-list {
+    gap: 15px;
+  }
+}
+
 /* Navigation item */
 .nav-item {
   display: inline-block;
@@ -125,6 +138,13 @@ html, body {
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8); /* Chalkboard shadow restored */
   transition: all 0.3s ease;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .nav-link, .nav-text {
+    font-size: 16px;
+    padding: 3px 1px;
+  }
 }
 
 /* Underline effect for links */
@@ -420,6 +440,16 @@ html, body {
   cursor: grab; /* Show grab cursor to indicate it can be panned */
 }
 
+@media (max-width: 768px) {
+  .notes-container {
+    height: calc(100% - 120px);
+    min-height: 70vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain; /* Modern alternative for smooth scrolling */
+  }
+}
+
 /* When panning is active */
 .notes-container:active {
   cursor: grabbing; /* Change cursor when actively panning */
@@ -552,6 +582,15 @@ html, body {
   transform: rotate(var(--rotation, -2deg));
 }
 
+@media (max-width: 768px) {
+  .sticky-note {
+    width: 150px;
+    height: 120px;
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
 /* Generate random rotation for sticky notes */
 .sticky-note:nth-child(3n) {
   --rotation: 2deg;
@@ -599,6 +638,13 @@ html, body {
   font-weight: 400;
 }
 
+@media (max-width: 768px) {
+  .note-content {
+    padding-bottom: 5px;
+    font-size: 13px;
+  }
+}
+
 /* Container for like/dislike buttons */
 .note-actions {
   display: flex;
@@ -606,6 +652,12 @@ html, body {
   gap: 8px;
   padding-top: 8px;
   border-top: 1px dashed rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .note-actions {
+    padding-top: 5px;
+  }
 }
 
 /* Like button */
@@ -619,6 +671,13 @@ html, body {
   font-size: 12px;
   font-family: 'Gochi Hand', cursive;
   transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .like-button {
+    padding: 2px 5px;
+    font-size: 11px;
+  }
 }
 
 .like-button:hover {
@@ -637,6 +696,13 @@ html, body {
   font-size: 12px;
   font-family: 'Gochi Hand', cursive;
   transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .dislike-button {
+    padding: 2px 5px;
+    font-size: 11px;
+  }
 }
 
 .dislike-button:hover {
