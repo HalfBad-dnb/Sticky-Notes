@@ -28,7 +28,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notes, setNotes] = useState([]);
-  const [allProfileNotes, setAllProfileNotes] = useState([]);
   const [newNoteText, setNewNoteText] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -168,18 +167,13 @@ const Profile = () => {
     .then(data => {
       console.log('Fetched profile notes:', data);
       
-      // Store all profile notes first (unfiltered)
-      const allNotes = Array.isArray(data) ? data : [];
-      
       // Filter out any null or undefined notes
-      const validNotes = allNotes.filter(note => note && note.id);
-      console.log('All notes from API:', allNotes.length);
+      const validNotes = data.filter(note => note && note.id);
+      console.log('All notes from API:', data.length);
       console.log('Valid notes:', validNotes.length);
       
-      setAllProfileNotes(validNotes);
-      
       // Filter notes based on boardType and privacy setting
-      let filteredNotes = [...allNotes];
+      let filteredNotes = [...data];
       
       // First filter by boardType (prefer profile, but if none exist, show all)
       const profileNotes = filteredNotes.filter(note => note.boardType === 'profile');
@@ -730,7 +724,6 @@ const Profile = () => {
                     width: '100%', 
                     height: '40px', 
                     borderRadius: '4px', 
-                    border: '1px solid rgba(255,255,255,0.1)', 
                     backgroundColor: '#1e2124', 
                     color: '#FFEB3B', 
                     fontSize: '14px', 
