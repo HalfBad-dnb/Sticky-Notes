@@ -29,10 +29,10 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [notes, setNotes] = useState([]);
   const [allProfileNotes, setAllProfileNotes] = useState([]);
-  // We don't need these separate state variables anymore
   const [newNoteText, setNewNoteText] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
-  
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   // Check if device is mobile (screen width less than 768px)
   const isMobile = useMediaQuery('(max-width: 768px)');
   
@@ -474,6 +474,10 @@ const Profile = () => {
     setIsPrivate(prev => !prev);
   }, []);
 
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   if (loading) return <p>Loading profile...</p>;
   if (error) return (
     <div className="error-container" style={{ padding: '20px', textAlign: 'center' }}>
@@ -495,44 +499,42 @@ const Profile = () => {
         padding: isMobile ? '5px 0' : '10px 0',
         position: 'relative'
       }}>
-        <div className="nav-content">
-          <div className="nav-left" style={{ 
-            minWidth: isMobile ? 'auto' : '350px',
-            display: isMobile ? 'none' : 'block'
+        <div className="nav-content" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '5px 10px',
+          backgroundColor: '#1e2124',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          width: '100%'
+        }}>
+          <div className="user-info" style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            padding: '10px 20px',
+            backgroundColor: '#1e2124',
+            borderRadius: '4px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            width: 'auto',
+            minWidth: '200px'
           }}>
-            <div className="user-info" style={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              padding: '10px 20px',
-              backgroundColor: '#1e2124', /* Dark background like in the image */
-              borderRadius: '4px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              width: '100%'
+            <div style={{
+              color: '#FFEB3B',
+              fontFamily: '"Gochi Hand", cursive',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '14px'
             }}>
-              <div style={{
-                color: '#FFEB3B', /* Yellow text */
-                fontFamily: '"Gochi Hand", cursive',
-                display: 'grid',
-                gridTemplateColumns: 'auto auto auto',
-                alignItems: 'center',
-                columnGap: '20px',
-                fontSize: '14px'
+              <span style={{ 
+                fontWeight: 'bold',
+                fontSize: '16px',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
               }}>
-                <span style={{ 
-                  fontWeight: 'bold',
-                  fontSize: '16px',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
-                }}>
-                  {user.username}
-                </span>
-                <span style={{ whiteSpace: 'nowrap' }}>
-                  ALL NOTES: ({notes.length})
-                </span>
-                <span style={{ whiteSpace: 'nowrap' }}>
-                  IMPORTANT: ({notes.filter(note => note.isPrivate === true).length})
-                </span>
-              </div>
+                {user.username}
+              </span>
             </div>
           </div>
           <div style={{
@@ -555,7 +557,7 @@ const Profile = () => {
               placeholder="Add a new note..."
               className="textarea"
               style={{
-                width: isMobile ? 'calc(100% - 55px)' : '300px',
+                width: isMobile ? 'calc(100% - 140px)' : '300px',
                 height: '40px',
                 padding: '8px 12px',
                 fontSize: isMobile ? '16px' : '14px',
@@ -591,80 +593,185 @@ const Profile = () => {
             >
               <span className="button-icon-only">📌</span>
             </button>
-          </div>
-          <div className="nav-right" style={{ 
-            display: isMobile ? 'none' : 'flex', 
-            gap: '12px', 
-            marginRight: '10px', 
-            minWidth: '150px' 
-          }}>
-              <button 
-                onClick={togglePrivacy} 
-                className="nav-button"
-                title={isPrivate ? 'Showing Important Notes' : 'Showing All Notes'}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '45px',
-                  height: '45px',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backgroundColor: '#1e2124',
-                  color: '#FFEB3B',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                }}
-              >
-                <span className="button-icon-only">{isPrivate ? '⭐' : '🌐'}</span>
-              </button>
-              <Link 
-                to="/" 
-                className="nav-button" 
-                title="Back to Main Board"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '45px',
-                  height: '45px',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backgroundColor: '#1e2124',
-                  color: '#FFEB3B',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  textDecoration: 'none'
-                }}
-              >
-                <span className="button-icon-only">🏠</span>
-              </Link>
-              <button 
-                onClick={handleLogout} 
-                className="nav-button" 
-                title="Logout"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '45px',
-                  height: '45px',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backgroundColor: '#1e2124',
-                  color: '#FFEB3B',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                }}
-              >
-                <span className="button-icon-only">🚪</span>
-              </button>
+            <Link 
+              to="/" 
+              className="nav-button" 
+              title="Back to Main Board"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '45px',
+                height: '40px',
+                borderRadius: '4px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: '#1e2124',
+                color: '#FFEB3B',
+                fontSize: '18px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                textDecoration: 'none'
+              }}
+            >
+              <span className="button-icon-only">🏠</span>
+            </Link>
+            <button 
+              onClick={togglePrivacy} 
+              className="nav-button"
+              title={isPrivate ? 'Showing Important Notes' : 'Showing All Notes'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '45px',
+                height: '40px',
+                borderRadius: '4px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: '#1e2124',
+                color: '#FFEB3B',
+                fontSize: '18px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              }}
+            >
+              <span className="button-icon-only">{isPrivate ? '⭐' : '🌐'}</span>
+            </button>
+            <button 
+              onClick={handleDropdownToggle}
+              className="nav-button" 
+              title="Menu"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '45px',
+                height: '40px',
+                borderRadius: '4px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: '#1e2124',
+                color: '#FFEB3B',
+                fontSize: '18px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              }}
+            >
+              <span className="button-icon-only">📋</span>
+            </button>
+            {isDropdownOpen && (
+              <div className="dropdown-menu" style={{
+                position: 'absolute',
+                top: '45px',
+                right: '0',
+                backgroundColor: '#1e2124',
+                padding: '10px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '4px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                zIndex: 1,
+                minWidth: '200px'
+              }}>
+                <Link
+                  to="/board"
+                  className="menu-item"
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-start', 
+                    width: '100%', 
+                    height: '40px', 
+                    borderRadius: '4px', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    backgroundColor: '#1e2124', 
+                    color: '#FFEB3B', 
+                    fontSize: '14px', 
+                    cursor: 'pointer', 
+                    transition: 'all 0.2s ease', 
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)', 
+                    textDecoration: 'none', 
+                    padding: '8px 12px' 
+                  }}
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  Board
+                </Link>
+                <Link
+                  to="/top-notes"
+                  className="menu-item"
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-start', 
+                    width: '100%', 
+                    height: '40px', 
+                    borderRadius: '4px', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    backgroundColor: '#1e2124', 
+                    color: '#FFEB3B', 
+                    fontSize: '14px', 
+                    cursor: 'pointer', 
+                    transition: 'all 0.2s ease', 
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)', 
+                    textDecoration: 'none', 
+                    padding: '8px 12px' 
+                  }}
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  Top Notes
+                </Link>
+                <button
+                  className="menu-item"
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-start', 
+                    width: '100%', 
+                    height: '40px', 
+                    borderRadius: '4px', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    backgroundColor: '#1e2124', 
+                    color: '#FFEB3B', 
+                    fontSize: '14px', 
+                    cursor: 'pointer', 
+                    transition: 'all 0.2s ease', 
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)', 
+                    textDecoration: 'none', 
+                    padding: '8px 12px', 
+                    border: 'none' 
+                  }}
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    handleLogout();
+                  }}
+                >
+                  Logout
+                </button>
+                <div
+                  className="menu-item"
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-start', 
+                    width: '100%', 
+                    height: '40px', 
+                    borderRadius: '4px', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    backgroundColor: '#1e2124', 
+                    color: '#FFEB3B', 
+                    fontSize: '14px', 
+                    cursor: 'pointer', 
+                    transition: 'all 0.2s ease', 
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)', 
+                    textDecoration: 'none', 
+                    padding: '8px 12px' 
+                  }}
+                >
+                  Sticky Notes ({notes.length})
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

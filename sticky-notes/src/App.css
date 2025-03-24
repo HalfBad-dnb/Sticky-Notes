@@ -211,7 +211,15 @@ html, body {
   z-index: 0;
 }
 
+@media (max-width: 768px) {
+  .sticky-board.fullscreen {
+    padding: 10px;
+  }
 
+  .sticky-board.fullscreen::before {
+    display: none;
+  }
+}
 
 /* Top controls row with info tabs and input container */
 .top-controls-row {

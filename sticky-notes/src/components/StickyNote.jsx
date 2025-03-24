@@ -119,25 +119,90 @@ const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
         top: `${position.y}px`,
         backgroundColor: note && note.color ? note.color : '#ffffff',
         zIndex,
-        width: '150px',
-        height: '120px',
+        minWidth: '150px',
+        minHeight: '100px',
         transition: zIndex === 1000 ? 'none' : 'transform 0.2s ease',
+        padding: '10px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        border: '1px solid rgba(0,0,0,0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
       }}
       onMouseDown={handleDragStart}
       onTouchStart={handleDragStart}
     >
-      <div className="note-content">
+      <div className="note-content" style={{
+        flex: 1,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px'
+      }}>
         {note && note.isPrivate && (
           <div className="private-indicator" title="Important Note">⭐</div>
         )}
-        <p>{note && note.text ? note.text : 'No text'}</p>
+        <p style={{
+          margin: 0,
+          wordBreak: 'break-word',
+          fontSize: '14px',
+          lineHeight: '1.4',
+          color: '#333'
+        }}>
+          {note && note.text ? note.text : 'No text'}
+        </p>
       </div>
-      <div className="note-actions">
-        <button className="like-button" onClick={() => note && note.id ? onLike(note.id) : null}>
-          👍 {note && note.likes !== undefined ? note.likes : 0}
+      <div className="note-actions" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 'auto',
+        padding: '0 4px'
+      }}>
+        <button 
+          onClick={() => note && note.id ? onLike(note.id) : null}
+          style={{
+            background: 'rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            width: '45%',
+            height: '25px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '3px',
+            fontSize: '12px',
+            color: '#ffffff',
+            touchAction: 'manipulation'
+          }}
+        >
+          <span style={{ fontSize: '14px', color: '#4CAF50' }}>👍</span> 
+          <span style={{ color: '#4CAF50' }}>{note && note.likes !== undefined ? note.likes : 0}</span>
         </button>
-        <button className="dislike-button" onClick={() => note && note.id ? onDislike(note.id) : null}>
-          👎 {note && note.dislikes !== undefined ? note.dislikes : 0}
+        <button 
+          onClick={() => note && note.id ? onDislike(note.id) : null}
+          style={{
+            background: 'rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            width: '45%',
+            height: '25px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '3px',
+            fontSize: '12px',
+            color: '#ffffff',
+            touchAction: 'manipulation'
+          }}
+        >
+          <span style={{ fontSize: '14px', color: '#f44336' }}>👎</span> 
+          <span style={{ color: '#f44336' }}>{note && note.dislikes !== undefined ? note.dislikes : 0}</span>
         </button>
       </div>
     </div>
