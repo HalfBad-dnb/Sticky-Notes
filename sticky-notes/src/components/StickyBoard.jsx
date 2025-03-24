@@ -468,7 +468,12 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       }}>
         {/* Left info tab (Rules) */}
         <div className="info-tab left-tab" style={{
-          display: isMobile ? 'none' : 'block'
+          display: isMobile ? 'none' : 'block',
+          backgroundColor: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '4px',
+          padding: '15px',
+          minWidth: '250px'
         }}>
           <div className="info-content">
             <h3>Board Rules</h3>
@@ -483,7 +488,12 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
 
         {/* Disclaimer tab */}
         <div className="info-tab disclaimer-tab" style={{
-          display: isMobile ? 'none' : 'block'
+          display: isMobile ? 'none' : 'block',
+          backgroundColor: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '4px',
+          padding: '15px',
+          minWidth: '250px'
         }}>
           <div className="info-content">
             <h3>Disclaimer</h3>
@@ -512,16 +522,17 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
             className="textarea"
             style={{
               width: '100%',
-              height: '40px',
+              height: '120px',
               fontSize: '16px',
-              padding: '8px 12px',
+              padding: '16px 20px',
               boxSizing: 'border-box',
               backgroundColor: '#2a2d31',
               color: '#ffffff',
               border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '4px',
               outline: 'none',
-              resize: 'none'
+              resize: 'none',
+              lineHeight: '1.5'
             }}
           />
           <div className="button-container" style={{
@@ -627,7 +638,12 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
 
         {/* Right info tab (Best Ways to Use) */}
         <div className="info-tab right-tab" style={{
-          display: isMobile ? 'none' : 'block'
+          display: isMobile ? 'none' : 'block',
+          backgroundColor: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '4px',
+          padding: '15px',
+          minWidth: '250px'
         }}>
           <div className="info-content">
             <h3>Project Status</h3>
@@ -642,7 +658,12 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
 
         {/* Event Features tab */}
         <div className="info-tab right-tab" style={{
-          display: isMobile ? 'none' : 'block'
+          display: isMobile ? 'none' : 'block',
+          backgroundColor: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '4px',
+          padding: '15px',
+          minWidth: '250px'
         }}>
           <div className="info-content">
             <h3>Event Features</h3>

@@ -277,7 +277,6 @@ const Profile = () => {
       
       if (!response.ok) throw new Error(`Failed to save note: ${response.status}`);
       
-      // Check if response is empty
       const contentType = response.headers.get('content-type');
       console.log('Content-Type:', contentType);
       
@@ -505,7 +504,7 @@ const Profile = () => {
           width: '100%'
         }}>
           <div className="user-info" style={{ 
-            display: 'flex', 
+            display: isMobile ? 'none' : 'flex',
             flexDirection: 'column',
             padding: '10px 20px',
             backgroundColor: '#1e2124',
