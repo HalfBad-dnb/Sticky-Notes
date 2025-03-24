@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
 import { getApiUrl } from '../utils/api';
 import '../App.css';
+import { Link } from 'react-router-dom';
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -528,11 +529,13 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
             flexDirection: 'row',
             gap: '10px',
             width: '100%',
-            justifyContent: 'space-between'
+            justifyContent: 'space-around',
+            alignItems: 'stretch',
+            padding: '5px 0'
           }}>
             <button onClick={addNote} className="add-note-button" style={{
-              width: '48%',
-              height: '40px',
+              width: '30%',
+              height: '25px',
               padding: '0',
               fontSize: '16px',
               backgroundColor: '#FFEB3B',
@@ -540,14 +543,37 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
               fontWeight: 'bold',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: 'auto 0'
             }}>
-              Add Note
+              📝
             </button>
+            <Link to="/profile" style={{
+              width: '30%',
+              height: '25px',
+              padding: '0',
+              fontSize: '16px',
+              backgroundColor: '#FFEB3B',
+              color: '#1e2124',
+              fontWeight: 'bold',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: 'auto 0'
+            }}>
+              👤
+            </Link>
             <button 
               style={{
-                width: '48%',
-                height: '40px',
+                width: '30%',
+                height: '25px',
                 padding: '0',
                 fontSize: '16px',
                 backgroundColor: '#FFEB3B',
@@ -555,7 +581,11 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
                 fontWeight: 'bold',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: 'auto 0'
               }}
               onClick={() => {
                 // Refresh board by fetching notes again
@@ -590,7 +620,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
               }} 
               className="refresh-button"
             >
-              Refresh Board
+              🔄
             </button>
           </div>
         </div>
