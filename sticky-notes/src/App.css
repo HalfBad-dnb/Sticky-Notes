@@ -556,7 +556,8 @@ button, input, optgroup, select, textarea {
     min-height: 70vh;
     overflow-x: hidden;
     overflow-y: auto;
-    overscroll-behavior: contain; /* Modern alternative for smooth scrolling */
+    -webkit-overscroll-behavior: contain; /* For Safari/iOS */
+  overscroll-behavior: contain; /* Modern standard */
   }
 }
 

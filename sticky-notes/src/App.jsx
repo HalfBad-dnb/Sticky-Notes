@@ -9,8 +9,7 @@ import Profile from './profile/profile'; // Importing Profile component
 import { ZoomProvider } from './context/ZoomProvider'; // Import ZoomProvider
 import './profile/profile.css'; // Import the shared profile CSS
 import './App.css';
-import MainBackgroundDefault from './components/backgroundstyles/MainBackgroundDefault';
-
+import MainBackgroundDefault from "./components/backgroundstyles/theme/MainBackgroundDefault";
 
 // Main App component wrapper with zoom functionality
 const AppContent = () => {

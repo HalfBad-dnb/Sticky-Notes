@@ -6,6 +6,7 @@ import { useZoom } from "../context/useZoom";
 import { getApiUrl } from "../utils/api";
 import "../App.css";
 
+
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);

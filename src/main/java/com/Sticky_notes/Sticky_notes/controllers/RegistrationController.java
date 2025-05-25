@@ -1,11 +1,11 @@
 package com.Sticky_notes.Sticky_notes.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.Sticky_notes.Sticky_notes.models.Register;
 import com.Sticky_notes.Sticky_notes.models.User;
@@ -52,8 +52,14 @@ public class RegistrationController {
         // Save the user to the database
         User savedUser = userRepository.save(user);
         
-        // Return success response
-        return ResponseEntity.ok().body("User registered successfully");
+        // Return success response with the saved user details (excluding sensitive data)
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        response.put("userId", savedUser.getId());
+        response.put("username", savedUser.getUsername());
+        response.put("email", savedUser.getEmail());
+        
+        return ResponseEntity.ok().body(response);
     }
 
     // Optionally, you can add a check if a username is already taken
