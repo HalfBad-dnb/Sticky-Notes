@@ -30,6 +30,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // Find all public comments
     List<Comment> findByIsPrivateFalse();
     
+    // Find public comments by board type
+    List<Comment> findByIsPrivateFalseAndBoardType(String boardType);
+    
     // Count comments by username
     long countByUsername(String username);
     

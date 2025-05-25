@@ -46,21 +46,22 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<List<Comment>> getAllComments() {
         try {
-            // Get all comments from the database
-            List<Comment> allComments = commentRepository.findAll();
+            // Get all public comments for the main board
+            List<Comment> publicComments = commentRepository.findByIsPrivateFalseAndBoardType("main");
             
-            // Filter to include comments where isPrivate is FALSE or NULL AND boardType is "main"
-            List<Comment> publicMainBoardComments = allComments.stream()
-                .filter(comment -> (comment.getIsPrivate() == null || !comment.getIsPrivate()))
-                .filter(comment -> comment.getBoardType() == null || "main".equals(comment.getBoardType()))
-                .sorted(Comparator.comparing(Comment::getLikes, Comparator.reverseOrder()))
+            // Sort by likes in descending order
+            List<Comment> sortedComments = publicComments.stream()
+                .sorted(Comparator.comparing(
+                    comment -> comment.getLikes() != null ? comment.getLikes() : 0,
+                    Comparator.reverseOrder()
+                ))
                 .collect(java.util.stream.Collectors.toList());
             
-            if (publicMainBoardComments.isEmpty()) {
+            if (sortedComments.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             
-            return new ResponseEntity<>(publicMainBoardComments, HttpStatus.OK);
+            return new ResponseEntity<>(sortedComments, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

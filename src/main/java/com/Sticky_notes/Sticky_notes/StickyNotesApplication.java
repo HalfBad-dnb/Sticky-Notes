@@ -4,11 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import com.Sticky_notes.Sticky_notes.Config.JwtProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
+@EnableConfigurationProperties(JwtProperties.class)
 public class StickyNotesApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(StickyNotesApplication.class);

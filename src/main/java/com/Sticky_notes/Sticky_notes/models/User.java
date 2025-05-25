@@ -2,6 +2,9 @@ package com.Sticky_notes.Sticky_notes.models;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.ArrayList;
+import com.Sticky_notes.Sticky_notes.models.Board;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -18,7 +21,11 @@ public class User {
     private String role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Board> boards;
+    private List<Board> boards = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
 
     // Default constructor (required by JPA)
     public User() {}
@@ -87,5 +94,23 @@ public class User {
 
     public void setBoards(List<Board> boards) {
         this.boards = boards;
+    }
+    
+    public List<RefreshToken> getRefreshTokens() {
+        return refreshTokens;
+    }
+    
+    public void setRefreshTokens(List<RefreshToken> refreshTokens) {
+        this.refreshTokens = refreshTokens;
+    }
+    
+    public void addRefreshToken(RefreshToken refreshToken) {
+        refreshTokens.add(refreshToken);
+        refreshToken.setUser(this);
+    }
+    
+    public void removeRefreshToken(RefreshToken refreshToken) {
+        refreshTokens.remove(refreshToken);
+        refreshToken.setUser(null);
     }
 }

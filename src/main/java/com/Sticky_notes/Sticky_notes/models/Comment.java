@@ -28,9 +28,11 @@ public class Comment {
 
     private Integer dislikes; // Added dislikes field
     
-    private String username; // Added username field to associate comments with users
+    @NotNull
+    private String username; // Username of the user who created the comment
     
-    private Boolean isPrivate = false; // Flag to indicate if the note is private
+    @NotNull
+    private Boolean isPrivate = Boolean.FALSE; // Flag to indicate if the note is private
     
     private String boardType = "main"; // Indicates which board the note belongs to ("main" or "profile")
 

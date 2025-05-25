@@ -33,10 +33,17 @@ public class CorsConfig {
         // Allow all headers
         config.addAllowedHeader("*");
         
+        // Explicitly allow authorization header for JWT
+        config.addExposedHeader("Authorization");
+        config.addExposedHeader("Access-Control-Allow-Headers");
+        config.addExposedHeader("Access-Control-Allow-Origin");
+        config.addExposedHeader("Access-Control-Allow-Methods");
+        config.addExposedHeader("Access-Control-Allow-Credentials");
+        
         // Allow credentials
         config.setAllowCredentials(true);
         
-        // Set max age for preflight requests
+        // Set max age for preflight requests (1 hour)
         config.setMaxAge(3600L);
         
         // Apply to all endpoints

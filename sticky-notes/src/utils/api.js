@@ -5,15 +5,18 @@
  * for making API requests with proper authentication.
  */
 
-// Get the API URL from environment variables with fallback to Cloud Run URL
-let apiUrl = import.meta.env.VITE_API_URL || 'https://sticky-notes-backend-oyj73tnptq-ew.a.run.app';
+// For local development - force using local backend
+const LOCAL_API_URL = 'http://localhost:8081';
 
-// Ensure we're using HTTPS in production environment
-if (apiUrl.startsWith('http://') && apiUrl.includes('.run.app')) {
-  apiUrl = apiUrl.replace('http://', 'https://');
-}
+// Check if we're in production (on Cloud Run)
+const isProduction = window.location.hostname.includes('run.app');
 
-export const API_URL = apiUrl;
+// Use environment variable if set, otherwise use local URL
+export const API_URL = isProduction 
+  ? 'https://sticky-notes-backend-oyj73tnptq-ew.a.run.app' 
+  : LOCAL_API_URL;
+
+console.log('API base URL:', API_URL);
 
 /**
  * Get authentication headers with the current token
@@ -30,5 +33,13 @@ export const getAuthHeaders = () => {
  * @returns {string} The complete API URL
  */
 export const getApiUrl = (endpoint) => {
-  return `${API_URL}/api/${endpoint}`;
+  // Remove any leading slashes from the endpoint
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+  
+  // Check if the endpoint already includes 'api/'
+  if (cleanEndpoint.startsWith('api/')) {
+    return `${API_URL}/${cleanEndpoint}`;
+  }
+  
+  return `${API_URL}/api/${cleanEndpoint}`;
 };

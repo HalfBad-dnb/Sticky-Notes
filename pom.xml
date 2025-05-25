@@ -25,6 +25,7 @@
         <node.version>v20.17.0</node.version> <!-- Latest LTS as of Feb 2025 assumption -->
         <npm.version>10.8.2</npm.version> <!-- Compatible with Node 20.17.0 -->
         <frontend.skip>false</frontend.skip> <!-- Can be overridden with -Dfrontend.skip=true -->
+        <postgresql.version>42.7.3</postgresql.version> <!-- Explicit PostgreSQL JDBC driver version -->
     </properties>
 
     <!-- Dependencies -->
@@ -51,6 +52,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.7.3</version> <!-- Explicit version for Spring Boot 3.4.3 -->
             <scope>runtime</scope>
         </dependency>
         
@@ -93,6 +95,33 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- JWT Dependencies -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- Jakarta EE (replaces javax) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- Development Tools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

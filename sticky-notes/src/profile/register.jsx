@@ -32,14 +32,24 @@ const Register = () => {
     setMessage("");
 
     try {
-      await axios.post(getApiUrl("registration/register"), {
+      const url = getApiUrl("registration/register");
+      console.log('Making request to:', url);
+      
+      const response = await axios.post(url, {
         username: formData.username,
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        roles: "USER" // Setting default role to match the backend's getRoles() method
+        roles: ["USER"] // Changed to array to match backend's expected format
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true // Important for CORS with credentials
       });
 
+      console.log('Registration response:', response);
+      
       setMessage("Registration successful! Redirecting to login page...");
       setFormData({ username: "", email: "", password: "", confirmPassword: "" });
       
@@ -49,20 +59,37 @@ const Register = () => {
       }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers,
+          data: error.config?.data
+        },
+        response: error.response ? {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          headers: error.response.headers,
+          data: error.response.data
+        } : 'No response received'
+      });
+      
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         if (error.response.data && error.response.data.message) {
           setMessage(error.response.data.message);
         } else {
-          setMessage("Registration failed: " + (error.response.data || error.response.statusText));
+          setMessage(`Registration failed: ${error.response.status} - ${error.response.statusText}`);
         }
       } else if (error.request) {
         // The request was made but no response was received
-        setMessage("Network error. Please check your connection and try again.");
+        setMessage(`Network error: ${error.message}. Please check your connection and try again.`);
       } else {
         // Something happened in setting up the request that triggered an Error
-        setMessage("Registration failed. Please try again.");
+        setMessage(`Registration failed: ${error.message}`);
       }
     } finally {
       setLoading(false);

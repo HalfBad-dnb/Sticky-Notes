@@ -24,7 +24,34 @@ const Login = () => {
     setMessage(""); // Clear previous messages
 
     try {
-      const response = await axios.post(getApiUrl("auth/login"), formData);
+      const url = getApiUrl("auth/login");
+      console.log('Attempting login at:', url);
+      
+      // For local development, we'll send the credentials in the request body
+      // For production, we'll use Basic Auth
+      const isLocal = url.includes('localhost');
+      
+      let response;
+      if (isLocal) {
+        // Local development - send credentials in request body
+        response = await axios.post(url, {
+          username: formData.username,
+          password: formData.password
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      } else {
+        // Production - use Basic Auth
+        const token = btoa(`${formData.username}:${formData.password}`);
+        response = await axios.post(url, {}, {
+          headers: {
+            'Authorization': `Basic ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
       
       console.log('Login response:', response.data);
       
