@@ -2,6 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { useZoom } from '../context/useZoom';
 import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
+import News from './News';
 import { getApiUrl } from '../utils/api';
 import '../App.css';
 import { Link } from 'react-router-dom';
@@ -24,6 +25,31 @@ const useMediaQuery = (query) => {
 };
 
 const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
+  const handleUpdateNote = useCallback((updatedNote) => {
+    // Update the note in the database
+    fetch(getApiUrl(`comments/${updatedNote.id}`), {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      },
+      body: JSON.stringify(updatedNote),
+    })
+    .then((response) => {
+      if (!response.ok) throw new Error('Failed to update note');
+      return response.json();
+    })
+    .then((savedNote) => {
+      setNotes((prevNotes) =>
+        prevNotes.map((note) => 
+          note.id === savedNote.id ? { ...savedNote, zIndex: note.zIndex } : note
+        )
+      );
+    })
+    .catch((error) => {
+      console.error('Error updating note:', error);
+    });
+  }, [setNotes]);
   const [currentUser, setCurrentUser] = useState(null);
   const [newNoteText, setNewNoteText] = useState('');
   const [error, setError] = useState(null);
@@ -118,8 +144,15 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
     return { x: centerX, y: centerY };
   };
 
+  const MAX_NOTES = 10;
+
   const addNote = useCallback(() => {
     if (!newNoteText.trim()) return;
+    
+    if (notes.length >= MAX_NOTES) {
+      setError(`Maximum limit of ${MAX_NOTES} notes reached. Please delete some notes before adding more.`);
+      return;
+    }
 
     const { x, y } = calculateCenterPosition();
     const newNote = {
@@ -187,7 +220,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         setNewNoteText('');
       })
       .catch((error) => console.error('Error saving note:', error));
-  }, [newNoteText, getRandomColor, setNotes, currentUser?.username]);
+  }, [newNoteText, getRandomColor, setNotes, currentUser?.username, notes.length, MAX_NOTES]);
 
   const handleDragWithBackend = useCallback((id, x, y) => {
     // Apply the drag update locally first for responsive UI
@@ -328,7 +361,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         console.log(`Dislike response for note ${id}:`, response.status);
         
         if (response.status === 204) {
-          console.log('204 No Content - comment was deleted (dislikes >= 100)');
+          console.log('204 No Content - comment was deleted (dislikes >= 20)');
           return null;
         }
         
@@ -379,14 +412,18 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   // Function to render notes in list view for mobile
   const renderMobileNotesList = () => {
     return (
-      <div className="mobile-notes-list" style={{
-        width: '100%',
-        padding: '10px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px',
-        marginTop: '10px'
-      }}>
+      <div 
+        className="mobile-notes-list"
+        style={{
+          width: '100%',
+          padding: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+          marginTop: '10px',
+          fontFamily: '"Times New Roman", Times, serif'
+        }}
+      >
         {notes.map(note => (
           <div key={note.id}>
             {/* Note content */}
@@ -400,7 +437,14 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
                 marginBottom: '8px'
               }}
             >
-              <div style={{ fontSize: '16px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#000000' }}>
+              <div style={{ 
+                fontSize: '16px', 
+                whiteSpace: 'pre-wrap', 
+                wordBreak: 'break-word', 
+                color: '#000000',
+                fontFamily: '"Times New Roman", Times, serif',
+                lineHeight: '1.5'
+              }}>
                 {note.text}
               </div>
             </div>
@@ -473,15 +517,27 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: '4px',
           padding: '15px',
-          minWidth: '250px'
+          minWidth: '250px',
+          fontFamily: '"Times New Roman", Times, serif',
+          color: '#000000'
         }}>
-          <div className="info-content">
-            <h3>Board Rules</h3>
-            <ul>
-              <li>100 dislikes will delete a note</li>
-              <li>You can like as much as you want</li>
-              <li>More likes help notes get to the top</li>
-              <li>Write whatever you want</li>
+          <div className="info-content" style={{ fontFamily: 'inherit' }}>
+            <h3 style={{ 
+              fontFamily: 'inherit',
+              fontSize: '1.2rem',
+              marginBottom: '10px',
+              fontWeight: '600'
+            }}>Board Rules</h3>
+            <ul style={{ 
+              paddingLeft: '20px',
+              margin: 0,
+              fontFamily: 'inherit',
+              lineHeight: '1.6'
+            }}>
+              <li style={{ fontFamily: 'inherit' }}>20 dislikes will delete a note</li>
+              <li style={{ fontFamily: 'inherit' }}>Down below you can find more info and updates about the board</li>
+              <li style={{ fontFamily: 'inherit' }}>Most liked notes are shown in Top Notes section</li>
+              <li style={{ fontFamily: 'inherit' }}>Board are limited to 10 notes</li>
             </ul>
           </div>
         </div>
@@ -493,16 +549,28 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: '4px',
           padding: '15px',
-          minWidth: '250px'
+          minWidth: '250px',
+          fontFamily: '"Times New Roman", Times, serif',
+          color: '#000000'
         }}>
-          <div className="info-content">
-            <h3>Disclaimer</h3>
-            <ul>
-              <li>Do not save sensitive data</li>
-              <li>All info exposed by notes is your responsibility</li>
-              <li>We don&apos;t know who posts notes</li>
-              <li>We just don&apos;t care who posts notes</li>
-              <li>Be aware of what you&apos;re posting</li>
+          <div className="info-content" style={{ fontFamily: 'inherit' }}>
+            <h3 style={{ 
+              fontFamily: 'inherit',
+              fontSize: '1.2rem',
+              marginBottom: '10px',
+              fontWeight: '600'
+            }}>Disclaimer</h3>
+            <ul style={{ 
+              paddingLeft: '20px',
+              margin: 0,
+              fontFamily: 'inherit',
+              lineHeight: '1.6'
+            }}>
+              <li style={{ fontFamily: 'inherit' }}>Do not save sensitive data</li>
+              <li style={{ fontFamily: 'inherit' }}>All info exposed by notes is your responsibility</li>
+              <li style={{ fontFamily: 'inherit' }}>We don&apos;t know who posts notes</li>
+              <li style={{ fontFamily: 'inherit' }}>We just don&apos;t care who posts notes</li>
+              <li style={{ fontFamily: 'inherit' }}>Be aware of what you&apos;re posting</li>
             </ul>
           </div>
         </div>
@@ -518,7 +586,9 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           <textarea
             value={newNoteText}
             onChange={(e) => setNewNoteText(e.target.value)}
-            placeholder="Add a new note..."
+            placeholder={notes.length >= MAX_NOTES 
+              ? `Maximum ${MAX_NOTES} notes reached` 
+              : 'Add a new note...'}
             className="textarea"
             style={{
               width: '100%',
@@ -526,14 +596,19 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
               fontSize: '16px',
               padding: '16px 20px',
               boxSizing: 'border-box',
-              backgroundColor: '#2a2d31',
-              color: '#ffffff',
+              backgroundColor: notes.length >= MAX_NOTES ? '#3a3d41' : '#2a2d31',
+              color: notes.length >= MAX_NOTES ? '#666' : '#ffffff',
               border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '4px',
               outline: 'none',
               resize: 'none',
-              lineHeight: '1.5'
+              lineHeight: '1.5',
+              fontFamily: '"Times New Roman", Times, serif',
+              fontWeight: '500',
+              cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'text',
+              opacity: notes.length >= MAX_NOTES ? 0.7 : 1
             }}
+            disabled={notes.length >= MAX_NOTES}
           />
           <div className="button-container" style={{
             display: 'flex',
@@ -544,29 +619,38 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
             alignItems: 'stretch',
             padding: '5px 0'
           }}>
-            <button onClick={addNote} className="add-note-button" style={{
-              width: '30%',
-              height: '25px',
-              padding: '0',
-              fontSize: '16px',
-              backgroundColor: '#FFEB3B',
-              color: '#1e2124',
-              fontWeight: 'bold',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: 'auto 0'
-            }}>
-              📝
+            <button 
+              onClick={addNote} 
+              className="add-note-button" 
+              disabled={notes.length >= MAX_NOTES}
+              style={{
+                width: '30%',
+                height: '25px',
+                padding: '0',
+                fontSize: '14px',
+                backgroundColor: notes.length >= MAX_NOTES ? '#555' : '#FFEB3B',
+                color: notes.length >= MAX_NOTES ? '#999' : '#1e2124',
+                fontWeight: 'bold',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: 'auto 0',
+                fontFamily: '"Times New Roman", Times, serif',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                opacity: notes.length >= MAX_NOTES ? 0.7 : 1
+              }}
+            >
+              {notes.length >= MAX_NOTES ? 'Limit Reached' : 'Add Note'}
             </button>
             <Link to="/profile" style={{
               width: '30%',
               height: '25px',
               padding: '0',
-              fontSize: '16px',
+              fontSize: '14px',
               backgroundColor: '#FFEB3B',
               color: '#1e2124',
               fontWeight: 'bold',
@@ -574,9 +658,12 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
               borderRadius: '4px',
               cursor: 'pointer',
               textDecoration: 'none',
+              fontFamily: '"Times New Roman", Times, serif',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
               margin: 'auto 0'
             }}>
               👤
@@ -586,7 +673,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
                 width: '30%',
                 height: '25px',
                 padding: '0',
-                fontSize: '16px',
+                fontSize: '14px',
                 backgroundColor: '#FFEB3B',
                 color: '#1e2124',
                 fontWeight: 'bold',
@@ -596,7 +683,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: 'auto 0'
+                margin: 'auto 0',
+                fontFamily: '"Times New Roman", Times, serif',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}
               onClick={() => {
                 // Refresh board by fetching notes again
@@ -631,48 +721,81 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
               }} 
               className="refresh-button"
             >
-              🔄
+              Refresh
             </button>
           </div>
         </div>
 
-        {/* Right info tab (Best Ways to Use) */}
-        <div className="info-tab right-tab" style={{
-          display: isMobile ? 'none' : 'block',
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '4px',
-          padding: '15px',
-          minWidth: '250px'
+        {/* Right side tabs container */}
+        <div style={{
+          display: isMobile ? 'none' : 'flex',
+          flexDirection: 'row',
+          gap: '20px',
+          minWidth: '520px',
+          maxWidth: '600px'
         }}>
-          <div className="info-content">
-            <h3>Project Status</h3>
-            <ul>
-              <li>Project still in beta</li>
-              <li>Some features may not work as expected</li>
-              <li>We are actively working on improvements</li>
-              <li>Expect occasional downtime</li>
-            </ul>
+          {/* Project Status tab */}
+          <div className="info-tab right-tab" style={{
+            backgroundColor: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '4px',
+            padding: '15px',
+            fontFamily: '"Times New Roman", Times, serif',
+            color: '#000000',
+            flex: 1,
+            minWidth: '250px'
+          }}>
+            <div className="info-content" style={{ fontFamily: 'inherit' }}>
+              <h3 style={{ 
+                fontFamily: 'inherit',
+                fontSize: '1.2rem',
+                marginBottom: '10px',
+                fontWeight: '600'
+              }}>Project Status</h3>
+              <ul style={{ 
+                paddingLeft: '20px',
+                margin: 0,
+                fontFamily: 'inherit',
+                lineHeight: '1.6'
+              }}>
+                <li style={{ fontFamily: 'inherit' }}>Project still in beta</li>
+                <li style={{ fontFamily: 'inherit' }}>Some features may not work as expected</li>
+                <li style={{ fontFamily: 'inherit' }}>We are actively working on improvements</li>
+                <li style={{ fontFamily: 'inherit' }}>Expect occasional downtime</li>
+              </ul>
+            </div>
           </div>
-        </div>
 
-        {/* Event Features tab */}
-        <div className="info-tab right-tab" style={{
-          display: isMobile ? 'none' : 'block',
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '4px',
-          padding: '15px',
-          minWidth: '250px'
-        }}>
-          <div className="info-content">
-            <h3>Event Features</h3>
-            <ul>
-              <li>Use for live events and presentations</li>
-              <li>Interactive Q&A sessions with audience</li>
-              <li>Real-time feedback collection</li>
-              <li>Organize brainstorming sessions</li>
-            </ul>
+          {/* Event Features tab */}
+          <div className="info-tab right-tab" style={{
+            backgroundColor: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '4px',
+            padding: '15px',
+            fontFamily: '"Times New Roman", Times, serif',
+            color: '#000000',
+            flex: 1,
+            minWidth: '250px'
+          }}>
+            <div className="info-content" style={{ fontFamily: 'inherit' }}>
+              <h3 style={{ 
+                fontFamily: 'inherit',
+                fontSize: '1.2rem',
+                marginBottom: '10px',
+                fontWeight: '600'
+              }}>Event Features</h3>
+              <ul style={{ 
+                paddingLeft: '20px',
+                margin: 0,
+                fontFamily: 'inherit',
+                lineHeight: '1.6'
+              }}>
+                <li style={{ fontFamily: 'inherit' }}>Use for live events and presentations</li>
+                <li style={{ fontFamily: 'inherit' }}>Interactive Q&A sessions with audience</li>
+                <li style={{ fontFamily: 'inherit' }}>Real-time feedback collection</li>
+                <li style={{ fontFamily: 'inherit' }}>Organize brainstorming sessions</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -694,12 +817,23 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
                   onDrag={handleDragWithBackend}
                   onLike={handleLikeWithBackend}
                   onDislike={handleDislikeWithBackend}
+                  onUpdateNote={handleUpdateNote}
                 />
               ))
             )}
           </div>
         </div>
       )}
+
+      {/* News Section */}
+      <div style={{ 
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '20px auto',
+        padding: '0 15px'
+      }}>
+        <News />
+      </div>
     </div>
   );
 };
@@ -708,12 +842,14 @@ StickyBoard.propTypes = {
   notes: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      text: PropTypes.string.isRequired,
       x: PropTypes.number.isRequired,
       y: PropTypes.number.isRequired,
-      text: PropTypes.string.isRequired,
-      color: PropTypes.string.isRequired,
-      likes: PropTypes.number.isRequired,
+      color: PropTypes.string,
+      likes: PropTypes.number,
       dislikes: PropTypes.number,
+      username: PropTypes.string,
+      boardType: PropTypes.string,
       zIndex: PropTypes.number,
     })
   ).isRequired,
@@ -721,6 +857,7 @@ StickyBoard.propTypes = {
   onDrag: PropTypes.func.isRequired,
   onLike: PropTypes.func.isRequired,
   onDislike: PropTypes.func.isRequired,
+  onUpdateNote: PropTypes.func,
 };
 
 export default StickyBoard;

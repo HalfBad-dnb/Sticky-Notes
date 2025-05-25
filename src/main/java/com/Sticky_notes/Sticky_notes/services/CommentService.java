@@ -32,8 +32,8 @@ public class CommentService {
         // Increase dislikes
         comment.setDislikes(comment.getDislikes() + 1);
 
-        // If dislikes reach 100, delete the comment and return null
-        if (comment.getDislikes() >= 100) {
+        // If dislikes reach 20, delete the comment and return null
+        if (comment.getDislikes() >= 20) {
             commentRepository.deleteById(id);
             return null;
         }

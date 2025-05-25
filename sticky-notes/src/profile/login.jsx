@@ -58,33 +58,32 @@ const Login = () => {
       if (response.status === 200) {
         console.log('Login successful, response:', response.data);
         
-        // Always use a consistent token format
-        // If server doesn't return a token, create a simple one
-        const token = response.data.token || 
-                     `user-authenticated-${formData.username}-${Date.now()}`;
+        // Extract token and user data from response
+        const { token, username, email, role } = response.data;
         
+        if (!token) {
+          throw new Error('No token received from server');
+        }
+        
+        // Store token and user data
         localStorage.setItem("authToken", token);
-        localStorage.setItem("username", formData.username);
+        localStorage.setItem("username", username || formData.username);
         
         // Create a user object and store in sessionStorage
         const userData = {
-          username: formData.username,
-          email: response.data?.email || "",
-          role: response.data?.role || "Standard User"
+          username: username || formData.username,
+          email: email || `${formData.username}@example.com`,
+          role: role || "USER"
         };
         
         console.log('Storing user data in session storage:', userData);
-        
-        // Store the user object in sessionStorage
         sessionStorage.setItem("user", JSON.stringify(userData));
         
-        setMessage("Login successful!");
-        setFormData({ username: "", password: "" }); // Reset form data on successful login
+        setMessage("Login successful! Redirecting...");
+        setFormData({ username: "", password: "" });
 
-        // Redirect user to profile page after successful login
-        setTimeout(() => {
-          window.location.href = "/profile"; // Redirect to profile page after successful login
-        }, 1500);
+        // Redirect to profile page after successful login
+        window.location.href = "/profile";
       } else {
         setMessage("Invalid credentials.");
       }

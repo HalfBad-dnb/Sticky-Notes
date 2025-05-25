@@ -235,8 +235,8 @@ public class CommentController {
             Comment comment = commentOpt.get();
             comment.setDislikes(comment.getDislikes() + 1);
 
-            // If dislikes reach 100, delete the comment and notify clients
-            if (comment.getDislikes() >= 100) {
+            // If dislikes reach 20, delete the comment and notify clients
+            if (comment.getDislikes() >= 20) {
                 commentRepository.deleteById(id);  // Automatically remove comment
                 sendDeleteUpdateToClients(id);     // Notify clients about deletion
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // No content response

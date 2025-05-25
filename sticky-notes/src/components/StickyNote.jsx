@@ -1,231 +1,181 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import NoteDefault from './backgroundstyles/notestyles/NoteDefault';
 
-const StickyNote = ({ note, onDrag, onLike, onDislike }) => {
+const StickyNote = ({ note, onDrag, onLike, onDislike, onUpdateNote }) => {
   const noteRef = useRef(null);
-  // Ensure note is defined before accessing properties
-  const [zIndex, setZIndex] = useState(note && note.zIndex !== undefined ? note.zIndex : 1);
-  const [position, setPosition] = useState({ x: note && note.x !== undefined ? note.x : 0, y: note && note.y !== undefined ? note.y : 0 });
-  const dragStartRef = useRef(null);
-  const lastUpdateRef = useRef(0);
-
-  // Debounce backend updates to avoid excessive requests
-  const debounceUpdate = useCallback((id, x, y) => {
-    const now = Date.now();
-    if (now - lastUpdateRef.current >= 250) {
-      onDrag(id, x, y);
-      lastUpdateRef.current = now;
-    }
-  }, [onDrag]);
-
-  // Sync position with props from backend
-  useEffect(() => {
-    if (note) {
-      setPosition({ x: note.x !== undefined ? note.x : 0, y: note.y !== undefined ? note.y : 0 });
-    }
-  }, [note]);
-
-  const handleDragStart = useCallback((e) => {
-    e.preventDefault();
-    setZIndex(1000); // Bring note to front
-    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-    if (!clientX || !clientY || !noteRef.current) return;
-
-    dragStartRef.current = {
-      x: clientX - position.x,
-      y: clientY - position.y,
-    };
-  }, [position.x, position.y]);
-
-  const handleDragMove = useCallback((e) => {
-    if (!dragStartRef.current || !noteRef.current) return;
-
-    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-    if (!clientX || !clientY) return;
-
-    const newX = Math.max(0, Math.min(clientX - dragStartRef.current.x, window.innerWidth - 150));
-    const newY = Math.max(0, Math.min(clientY - dragStartRef.current.y, window.innerHeight - 120));
-
-    setPosition({ x: newX, y: newY });
-    if (note && note.id !== undefined) {
-      debounceUpdate(note.id, newX, newY);
-    }
-  }, [note, debounceUpdate]);
-
-  const handleDragEnd = useCallback((e) => {
-    if (!dragStartRef.current || !noteRef.current) return;
-
-    const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-    const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
-    const newX = Math.max(0, Math.min(clientX - dragStartRef.current.x, window.innerWidth - 150));
-    const newY = Math.max(0, Math.min(clientY - dragStartRef.current.y, window.innerHeight - 120));
-
-    setPosition({ x: newX, y: newY });
-    if (note && note.id !== undefined) {
-      onDrag(note.id, newX, newY); // Final update to backend
-    }
-    setZIndex(note && note.zIndex !== undefined ? note.zIndex : 1); // Reset z-index
-    dragStartRef.current = null;
-  }, [note, onDrag]);
-
-  // Add/remove event listeners
-  useEffect(() => {
-    const handleGlobalMove = (e) => handleDragMove(e);
-    const handleGlobalEnd = (e) => handleDragEnd(e);
-
-    document.addEventListener('mousemove', handleGlobalMove);
-    document.addEventListener('mouseup', handleGlobalEnd);
-    document.addEventListener('touchmove', handleGlobalMove, { passive: false });
-    document.addEventListener('touchend', handleGlobalEnd);
-
-    return () => {
-      document.removeEventListener('mousemove', handleGlobalMove);
-      document.removeEventListener('mouseup', handleGlobalEnd);
-      document.removeEventListener('touchmove', handleGlobalMove);
-      document.removeEventListener('touchend', handleGlobalEnd);
-    };
-  }, [handleDragMove, handleDragEnd]);
-
-  // Apply position to DOM
-  useEffect(() => {
-    if (noteRef.current) {
-      noteRef.current.style.left = `${position.x}px`;
-      noteRef.current.style.top = `${position.y}px`;
-    }
-  }, [position.x, position.y]);
+  const isDragging = useRef(false);
+  const startPos = useRef({ x: 0, y: 0 });
+  const currentPos = useRef({
+    x: typeof note.x === 'number' ? note.x : 50,
+    y: typeof note.y === 'number' ? note.y : 50
+  });
   
-  // Debug note data
-  useEffect(() => {
-    console.log('StickyNote rendered with data:', {
-      id: note?.id,
-      text: note?.text,
-      position: { x: note?.x, y: note?.y },
-      color: note?.color,
-      username: note?.username,
-      isPrivate: note?.isPrivate,
-      boardType: note?.boardType
+  // Calculate note dimensions based on text length
+  const calculateNoteSize = useCallback((text) => {
+    const charCount = text?.length || 0;
+    const words = text?.split(/\s+/) || [];
+    const wordCount = words.length;
+    const avgWordLength = wordCount > 0 ? charCount / wordCount : 0;
+    
+    // Base dimensions
+    const minWidth = 200;
+    const maxWidth = 400;
+    const minHeight = 150;
+    const lineHeight = 24; // px per line
+    const charWidth = 8; // average px width per character
+    const padding = 40; // horizontal padding
+    
+    // Calculate ideal width based on content
+    let idealWidth;
+    if (charCount === 0) {
+      idealWidth = minWidth;
+    } else if (avgWordLength > 10) {
+      // For longer words (like URLs), use wider notes
+      idealWidth = Math.min(maxWidth, Math.max(minWidth, charCount * charWidth * 0.5 + padding));
+    } else {
+      // For normal text
+      idealWidth = Math.min(maxWidth, Math.max(minWidth, Math.sqrt(charCount) * charWidth * 0.8 + padding));
+    }
+    
+    // Calculate height based on text wrapping
+    const availableWidth = idealWidth - padding;
+    let lineCount = 1;
+    let currentLineLength = 0;
+    
+    words.forEach(word => {
+      const wordWidth = word.length * charWidth;
+      if (currentLineLength + wordWidth > availableWidth) {
+        lineCount++;
+        currentLineLength = wordWidth;
+      } else {
+        currentLineLength += wordWidth + charWidth; // Add space width
+      }
     });
-  }, [note]);
+    
+    // Add some extra lines for better spacing
+    const extraLines = text ? Math.ceil(wordCount / 10) : 2;
+    const calculatedHeight = Math.max(minHeight, (lineCount + extraLines) * lineHeight);
+    
+    return {
+      width: Math.ceil(idealWidth / 10) * 10, // Round to nearest 10px
+      height: Math.ceil(calculatedHeight / 10) * 10 // Round to nearest 10px
+    };
+  }, []);
+  
+  // Get dimensions for current note
+  const { width, height } = calculateNoteSize(note.text);
+  
+  // Update position from props if not dragging
+  useEffect(() => {
+    if (!isDragging.current) {
+      currentPos.current = {
+        x: typeof note.x === 'number' ? note.x : 50,
+        y: typeof note.y === 'number' ? note.y : 50
+      };
+      if (noteRef.current) {
+        noteRef.current.style.left = `${currentPos.current.x}px`;
+        noteRef.current.style.top = `${currentPos.current.y}px`;
+      }
+    }
+  }, [note.x, note.y]);
+  
+  const handleMouseDown = useCallback((e) => {
+    if (e.button !== 0) return; // Only left click
+    e.preventDefault();
+    
+    isDragging.current = true;
+    startPos.current = {
+      x: e.clientX - currentPos.current.x,
+      y: e.clientY - currentPos.current.y
+    };
+    
+    document.body.style.cursor = 'grabbing';
+    
+    const onMouseMove = (e) => {
+      if (!isDragging.current) return;
+      
+      const x = e.clientX - startPos.current.x;
+      const y = e.clientY - startPos.current.y;
+      
+      // Keep within viewport
+      const boundedX = Math.max(0, Math.min(window.innerWidth - 200, x));
+      const boundedY = Math.max(0, Math.min(window.innerHeight - 200, y));
+      
+      currentPos.current = { x: boundedX, y: boundedY };
+      
+      if (noteRef.current) {
+        noteRef.current.style.left = `${boundedX}px`;
+        noteRef.current.style.top = `${boundedY}px`;
+      }
+    };
+    
+    const onMouseUp = () => {
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      onDrag(note.id, currentPos.current.x, currentPos.current.y);
+    };
+    
+    document.addEventListener('mousemove', onMouseMove, { passive: false });
+    document.addEventListener('mouseup', onMouseUp, { once: true });
+    
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [note.id, onDrag]);
+
+  if (!note) return null;
 
   return (
     <div
       ref={noteRef}
-      className="sticky-note"
       style={{
-        position: 'absolute',
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        backgroundColor: note && note.color ? note.color : '#ffffff',
-        zIndex,
-        minWidth: '150px',
-        minHeight: '100px',
-        transition: zIndex === 1000 ? 'none' : 'transform 0.2s ease',
-        padding: '10px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        border: '1px solid rgba(0,0,0,0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
+        position: 'fixed',
+        left: `${currentPos.current.x}px`,
+        top: `${currentPos.current.y}px`,
+        width: `${width}px`,
+        minHeight: `${height}px`,
+        touchAction: 'none',
+        pointerEvents: 'auto',
+        cursor: 'grab',
       }}
-      onMouseDown={handleDragStart}
-      onTouchStart={handleDragStart}
+      onMouseDown={handleMouseDown}
     >
-      <div className="note-content" style={{
-        flex: 1,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px'
-      }}>
-        {note && note.isPrivate && (
-          <div className="private-indicator" title="Important Note">⭐</div>
-        )}
-        <p style={{
-          margin: 0,
-          wordBreak: 'break-word',
-          fontSize: '14px',
-          lineHeight: '1.4',
-          color: '#333'
-        }}>
-          {note && note.text ? note.text : 'No text'}
-        </p>
-      </div>
-      <div className="note-actions" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 'auto',
-        padding: '0 4px'
-      }}>
-        <button 
-          onClick={() => note && note.id ? onLike(note.id) : null}
-          style={{
-            background: 'rgba(0,0,0,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            width: '45%',
-            height: '25px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '3px',
-            fontSize: '12px',
-            color: '#ffffff',
-            touchAction: 'manipulation'
-          }}
-        >
-          <span style={{ fontSize: '14px', color: '#4CAF50' }}>👍</span> 
-          <span style={{ color: '#4CAF50' }}>{note && note.likes !== undefined ? note.likes : 0}</span>
-        </button>
-        <button 
-          onClick={() => note && note.id ? onDislike(note.id) : null}
-          style={{
-            background: 'rgba(0,0,0,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            width: '45%',
-            height: '25px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '3px',
-            fontSize: '12px',
-            color: '#ffffff',
-            touchAction: 'manipulation'
-          }}
-        >
-          <span style={{ fontSize: '14px', color: '#f44336' }}>👎</span> 
-          <span style={{ color: '#f44336' }}>{note && note.dislikes !== undefined ? note.dislikes : 0}</span>
-        </button>
-      </div>
+      <NoteDefault 
+        note={{
+          ...note,
+          text: note.text || 'Double click to edit...',
+          width: '100%',
+          height: '100%'
+        }}
+        onLike={onLike}
+        onDislike={onDislike}
+        onUpdateNote={onUpdateNote}
+      />
     </div>
   );
 };
 
+// Add PropTypes for better development experience
 StickyNote.propTypes = {
   note: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    text: PropTypes.string.isRequired,
-    color: PropTypes.string.isRequired,
-    likes: PropTypes.number.isRequired,
+    text: PropTypes.string,
+    x: PropTypes.number,
+    y: PropTypes.number,
+    likes: PropTypes.number,
     dislikes: PropTypes.number,
+    rotation: PropTypes.number,
     zIndex: PropTypes.number,
-    isPrivate: PropTypes.bool,
-    username: PropTypes.string,
-    boardType: PropTypes.string,
+    createdAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
   }).isRequired,
   onDrag: PropTypes.func.isRequired,
   onLike: PropTypes.func.isRequired,
   onDislike: PropTypes.func.isRequired,
+  onUpdateNote: PropTypes.func.isRequired,
 };
 
 export default StickyNote;

@@ -9,6 +9,7 @@ import Profile from './profile/profile'; // Importing Profile component
 import { ZoomProvider } from './context/ZoomProvider'; // Import ZoomProvider
 import './profile/profile.css'; // Import the shared profile CSS
 import './App.css';
+import MainBackgroundDefault from './components/backgroundstyles/MainBackgroundDefault';
 
 
 // Main App component wrapper with zoom functionality
@@ -36,15 +37,16 @@ const AppContent = () => {
     setNotes((prevNotes) =>
       prevNotes.map((note) =>
         note.id === id ? { ...note, dislikes: (note.dislikes || 0) + 1 } : note
-      ).filter((note) => note.dislikes < 100)
+      ).filter((note) => note.dislikes < 20)
     );
   }, []);
 
   return (
     <Router>
-      <div className="app-container">
-        <NavBar notes={notes} />
-        <main className="content fullscreen">
+      <div className="app-container" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+        <MainBackgroundDefault />
+        <NavBar />
+        <main className="content fullscreen" style={{ fontFamily: 'inherit' }}>
           <Routes>
             {/* Routes for pages */}
             <Route
