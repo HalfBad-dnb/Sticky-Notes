@@ -240,46 +240,40 @@ const NavBar = () => {
           }}
           onClose={closeMenu}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 16px' }}>
             <Link 
               to="/board" 
               onClick={closeMenu}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '10px 16px',
+                padding: '12px 16px',
                 borderRadius: '8px',
                 transition: 'background-color 0.2s',
                 textDecoration: 'none',
                 color: 'rgba(255, 255, 255, 0.9)',
+                display: 'block',
                 ':hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.08)'
                 }
               }}
             >
-              <span style={{ fontSize: '20px', width: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📋</span>
-              <span>Board</span>
+              Board
             </Link>
             <Link 
               to="/top-notes" 
               onClick={closeMenu}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '10px 16px',
+                padding: '12px 16px',
                 borderRadius: '8px',
                 transition: 'background-color 0.2s',
                 textDecoration: 'none',
                 color: 'rgba(255, 255, 255, 0.9)',
+                display: 'block',
                 ':hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.08)'
                 }
               }}
             >
-              <span style={{ fontSize: '20px', width: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🏆</span>
-              <span>Top Notes</span>
+              Top Notes
             </Link>
           </div>
           
@@ -293,9 +287,22 @@ const NavBar = () => {
           }}>
             {isAuthenticated ? (
               <>
-                <Link to="/profile" onClick={closeMenu}>
-                  <span style={{ fontSize: '20px', display: 'inline-block', width: '24px' }}>👤</span>
-                  <span>Profile</span>
+                <Link 
+                  to="/profile" 
+                  onClick={closeMenu}
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    transition: 'background-color 0.2s',
+                    textDecoration: 'none',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    display: 'block',
+                    ':hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                    }
+                  }}
+                >
+                  Profile
                 </Link>
                 <div style={{ margin: '16px 0', padding: '0 8px' }}>
                   <div style={{ 
@@ -317,10 +324,10 @@ const NavBar = () => {
                     padding: '0 8px'
                   }}>
                     {[
-                      { key: THEMES.TRIANGLES, label: 'Triangles', emoji: '🔺' },
-                      { key: THEMES.BUBBLES, label: 'Bubbles', emoji: '🫧' },
-                      { key: THEMES.HEARTS, label: 'Hearts', emoji: '❤️' }
-                    ].map(({ key, label, emoji }) => (
+                      { key: THEMES.TRIANGLES, label: 'Triangles' },
+                      { key: THEMES.BUBBLES, label: 'Bubbles' },
+                      { key: THEMES.HEARTS, label: 'Hearts' }
+                    ].map(({ key, label }) => (
                       <button 
                         key={key}
                         onClick={(e) => {
@@ -346,14 +353,6 @@ const NavBar = () => {
                           }
                         }}
                       >
-                        <span style={{ 
-                          fontSize: '20px', 
-                          display: 'inline-block', 
-                          width: '24px',
-                          opacity: theme === key ? 1 : 0.8
-                        }}>
-                          {emoji}
-                        </span>
                         <span>{label}</span>
                         {theme === key && (
                           <span style={{ 
@@ -371,51 +370,68 @@ const NavBar = () => {
                 <div style={{ 
                   marginTop: 'auto',
                   padding: '16px 8px',
-                  borderTop: '1px solid rgba(255,255,255,0.1)',
-                  position: 'sticky',
-                  bottom: 0,
-                  background: 'rgba(40, 40, 50, 0.95)',
-                  backdropFilter: 'blur(10px)'
+                  borderTop: '1px solid rgba(255,255,255,0.1)'
                 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 16px' }}>
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleLogout();
-                      }}
-                      style={{
-                        background: 'transparent',
-                        color: '#ff6b6b',
-                        border: 'none',
-                        padding: '10px 16px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        transition: 'all 0.2s ease',
-                        width: '100%',
-                        textAlign: 'left',
-                        ':hover': {
-                          backgroundColor: 'rgba(255, 59, 48, 0.1)'
-                        }
-                      }}
-                    >
-                      <span style={{ fontSize: '20px', width: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🚪</span>
-                      <span>Log Out</span>
-                    </button>
-                  </div>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLogout();
+                    }}
+                    style={{
+                      background: 'transparent',
+                      color: '#ff6b6b',
+                      border: 'none',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      width: '100%',
+                      textAlign: 'left',
+                      display: 'block',
+                      ':hover': {
+                        backgroundColor: 'rgba(255, 59, 48, 0.1)'
+                      }
+                    }}
+                  >
+                    Log Out
+                  </button>
                 </div>
               </>
             ) : (
               <>
-                <Link to="/login" onClick={closeMenu}>
-                  <span style={{ fontSize: '20px', display: 'inline-block', width: '24px' }}>🔑</span>
-                  <span>Login</span>
+                <Link 
+                  to="/login" 
+                  onClick={closeMenu}
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    transition: 'background-color 0.2s',
+                    textDecoration: 'none',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    display: 'block',
+                    ':hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                    }
+                  }}
+                >
+                  Login
                 </Link>
-                <Link to="/register" onClick={closeMenu}>
-                  <span style={{ fontSize: '20px', display: 'inline-block', width: '24px' }}>✍️</span>
-                  <span>Register</span>
+                <Link 
+                  to="/register" 
+                  onClick={closeMenu}
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    transition: 'background-color 0.2s',
+                    textDecoration: 'none',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    display: 'block',
+                    ':hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                    }
+                  }}
+                >
+                  Register
                 </Link>
               </>
             )}
