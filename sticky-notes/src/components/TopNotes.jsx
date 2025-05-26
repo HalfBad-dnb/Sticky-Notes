@@ -2,6 +2,7 @@ import { useState } from 'react';
 import '../App.css';
 import PropTypes from 'prop-types';
 import { getApiUrl } from '../utils/api';
+import NoteDefault from './backgroundstyles/notestyles/NoteDefault';
 
 const TopNotes = ({ notes: initialNotes }) => {
   const [notes, setNotes] = useState(initialNotes);
@@ -88,24 +89,56 @@ const TopNotes = ({ notes: initialNotes }) => {
             <p className="text-white text-center">No notes yet!</p>
           ) : (
             <ul className="top-notes-list mt-4 space-y-3">
-              {topNotes.map((note, index) => (
-                <li
-                  key={note.id}
-                  className="top-note-item"
-                  style={{ backgroundColor: note.color }}
-                >
-                  <div className="flex items-center justify-between p-2">
-                    <span className="rank-number">#{index + 1}</span>
-                    <div className="note-content flex-1 mx-2">
-                      <p>{note.text}</p>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '20px',
+                width: '100%',
+                padding: '20px 0'
+              }}>
+                {topNotes.map((note, index) => (
+                  <div 
+                    key={note.id}
+                    style={{
+                      position: 'relative',
+                      transform: `rotate(${index % 2 === 0 ? '-1' : '1'}deg)`,
+                      transition: 'transform 0.2s ease',
+                      height: '100%',
+                      minHeight: '200px'
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute',
+                      top: '-10px',
+                      left: '-10px',
+                      backgroundColor: '#ffeb3b',
+                      color: '#1a1a1a',
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 'bold',
+                      fontSize: '16px',
+                      zIndex: 10,
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                    }}>
+                      {index + 1}
                     </div>
-                    <div className="note-actions flex items-center gap-3">
-                      <span className="like-count">{note.likes} 👍</span>
-                      <span className="dislike-count">{note.dislikes} 👎</span>
-                    </div>
+                    <NoteDefault 
+                      note={{
+                        ...note,
+                        width: '100%',
+                        height: '100%',
+                        text: note.text || 'No content'
+                      }}
+                      onLike={() => {}}
+                      onDislike={() => {}}
+                    />
                   </div>
-                </li>
-              ))}
+                ))}
+              </div>
             </ul>
           )}
         </div>
@@ -118,10 +151,10 @@ TopNotes.propTypes = {
   notes: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      text: PropTypes.string.isRequired,
-      color: PropTypes.string.isRequired,
-      likes: PropTypes.number.isRequired,
-      dislikes: PropTypes.number.isRequired,
+      text: PropTypes.string,
+      color: PropTypes.string,
+      likes: PropTypes.number,
+      dislikes: PropTypes.number,
     })
   ).isRequired,
 };
