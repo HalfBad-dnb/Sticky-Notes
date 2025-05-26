@@ -562,6 +562,20 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
             }}
             disabled={notes.length >= MAX_NOTES}
           />
+          {/* No notes message - shown when there are no notes */}
+          {notes.length === 0 && !error && (
+            <div style={{
+              textAlign: 'center',
+              color: '#ffffff',
+              fontFamily: '"Times New Roman", Times, serif',
+              fontSize: '16px',
+              margin: '10px 0',
+              opacity: 0.8
+            }}>
+              No notes yet. Add one above!
+            </div>
+          )}
+          
           <div className="button-container" style={{
             display: 'flex',
             flexDirection: 'row',
@@ -759,20 +773,16 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         <div className="notes-container" style={getBoardStyle()}>
           {error && <div style={{ color: 'red' }}>Error: {error}</div>}
           <div className="notes-items">
-            {notes.length === 0 && !error ? (
-              <p>No notes yet. Add one above!</p>
-            ) : (
-              notes.map((note, index) => (
-                <StickyNote
-                  key={note.id}
-                  note={{ ...note, zIndex: notes.length - index }}
-                  onDrag={handleDragWithBackend}
-                  onLike={handleLikeWithBackend}
-                  onDislike={handleDislikeWithBackend}
-                  onUpdateNote={handleUpdateNote}
-                />
-              ))
-            )}
+            {notes.length > 0 && notes.map((note, index) => (
+              <StickyNote
+                key={note.id}
+                note={{ ...note, zIndex: notes.length - index }}
+                onDrag={handleDragWithBackend}
+                onLike={handleLikeWithBackend}
+                onDislike={handleDislikeWithBackend}
+                onUpdateNote={handleUpdateNote}
+              />
+            ))}
           </div>
         </div>
       )}

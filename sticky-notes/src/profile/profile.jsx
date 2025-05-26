@@ -651,14 +651,30 @@ const Profile = () => {
           {isMobile ? (
             <div className="mobile-notes-list" style={{
               width: '100%',
+              height: 'calc(100vh - 200px)', // Adjust based on your header/nav height
               padding: '10px',
               display: 'flex',
               flexDirection: 'column',
               gap: '15px',
-              marginTop: '10px'
+              marginTop: '10px',
+              position: 'relative', // Add this to contain absolute children
+              minHeight: '300px' // Ensure minimum height for visibility
             }}>
               {notes.length === 0 ? (
-                <p>No {isPrivate ? 'important ' : ''}notes yet. Add one above!</p>
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  textAlign: 'center',
+                  fontSize: '1.2rem',
+                  color: '#666',
+                  width: '100%',
+                  padding: '20px',
+                  fontFamily: '"Times New Roman", Times, serif'
+                }}>
+                  No {isPrivate ? 'important ' : ''}notes yet. Add one above!
+                </div>
               ) : (
                 notes.map(note => (
                   <div key={note.id}>
@@ -730,22 +746,47 @@ const Profile = () => {
               )}
             </div>
           ) : (
-            <div className="notes-container" style={getBoardStyle()}>
-              <div className="notes-items">
-                {notes.length === 0 ? (
-                  <p>No {isPrivate ? 'important ' : ''}notes yet. Add one above!</p>
-                ) : (
-                  notes.map((note, index) => (
-                    <StickyNote
-                      key={note.id}
-                      note={{ ...note, zIndex: notes.length - index }}
-                      onDrag={handleDrag}
-                      onLike={handleLike}
-                      onDislike={handleDislike}
-                    />
-                  ))
-                )}
-              </div>
+            <div style={{
+              position: 'relative',
+              minHeight: '400px',
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden'
+            }}>
+              {notes.length === 0 ? (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  textAlign: 'center',
+                  fontSize: '1.2rem',
+                  color: '#666',
+                  width: '100%',
+                  padding: '20px',
+                  fontFamily: '"Times New Roman", Times, serif',
+                  zIndex: 1000
+                }}>
+                  No {isPrivate ? 'important ' : ''}notes yet. Add one above!
+                </div>
+              ) : (
+                <div className="notes-container" style={getBoardStyle()}>
+                  <div className="notes-items" style={{
+                    height: '100%',
+                    position: 'relative'
+                  }}>
+                    {notes.map((note, index) => (
+                      <StickyNote
+                        key={note.id}
+                        note={{ ...note, zIndex: notes.length - index }}
+                        onDrag={handleDrag}
+                        onLike={handleLike}
+                        onDislike={handleDislike}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
