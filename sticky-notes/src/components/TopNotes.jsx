@@ -77,6 +77,7 @@ const TopNotes = ({ notes: initialNotes }) => {
               borderRadius: '4px',
               padding: '8px 16px',
               fontSize: '14px',
+              fontFamily: '"Times New Roman", Times, serif',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               boxShadow: '0 2px 4px rgba(0,0,0,0.3)'

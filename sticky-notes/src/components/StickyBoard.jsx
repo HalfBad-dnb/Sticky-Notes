@@ -2,6 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { useZoom } from '../context/useZoom';
 import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
+import NoteDefault from './backgroundstyles/notestyles/NoteDefault';
 import News from './News';
 import { getApiUrl } from '../utils/api';
 import '../App.css';
@@ -416,86 +417,37 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         className="mobile-notes-list"
         style={{
           width: '100%',
-          padding: '10px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '15px',
-          marginTop: '10px',
-          fontFamily: '"Times New Roman", Times, serif'
+          padding: '15px',
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: '20px',
+          marginTop: '10px'
         }}
       >
-        {notes.map(note => (
-          <div key={note.id}>
-            {/* Note content */}
-            <div 
-              className="mobile-note-content"
-              style={{
-                backgroundColor: note.color || '#ffea5c',
-                borderRadius: '4px',
-                padding: '15px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                marginBottom: '8px'
+        {notes.map((note, index) => (
+          <div 
+            key={note.id}
+            style={{
+              position: 'relative',
+              transform: `rotate(${index % 2 === 0 ? '-1' : '1'}deg)`,
+              transition: 'transform 0.2s ease',
+              height: '100%',
+              minHeight: '200px',
+              width: '100%',
+              maxWidth: '400px',
+              margin: '0 auto'
+            }}
+          >
+            <NoteDefault 
+              note={{
+                ...note,
+                width: '100%',
+                height: '100%',
+                text: note.text || 'No content'
               }}
-            >
-              <div style={{ 
-                fontSize: '16px', 
-                whiteSpace: 'pre-wrap', 
-                wordBreak: 'break-word', 
-                color: '#000000',
-                fontFamily: '"Times New Roman", Times, serif',
-                lineHeight: '1.5'
-              }}>
-                {note.text}
-              </div>
-            </div>
-            
-            {/* Buttons row - separate from note content */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'flex-end',
-              gap: '10px'
-            }}>
-              <button 
-                onClick={() => handleLikeWithBackend(note.id)}
-                style={{ 
-                  background: 'rgba(0,0,0,0.05)', 
-                  border: '1px solid rgba(0,0,0,0.1)', 
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  width: '80px',
-                  height: '44px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '5px',
-                  fontSize: '16px',
-                  touchAction: 'manipulation'
-                }}
-              >
-                <span style={{ fontSize: '20px' }}>👍</span> {note.likes || 0}
-              </button>
-              <button 
-                onClick={() => handleDislikeWithBackend(note.id)}
-                style={{ 
-                  background: 'rgba(0,0,0,0.05)', 
-                  border: '1px solid rgba(0,0,0,0.1)', 
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  width: '80px',
-                  height: '44px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '5px',
-                  fontSize: '16px',
-                  touchAction: 'manipulation'
-                }}
-              >
-                <span style={{ fontSize: '20px' }}>👎</span> {note.dislikes || 0}
-              </button>
-            </div>
+              onLike={handleLikeWithBackend}
+              onDislike={handleDislikeWithBackend}
+            />
           </div>
         ))}
       </div>
