@@ -483,9 +483,23 @@ const Profile = () => {
   );
 
   return (
-    <div className="app-container">
+    <div className="app-container" style={{
+      paddingTop: isMobile ? '80px' : '20px',
+      paddingBottom: isMobile ? '20px' : '40px',
+      minHeight: '100vh',
+      boxSizing: 'border-box',
+      position: 'relative',
+      zIndex: 1
+    }}>
       {/* Theme Background - Handled by App.jsx */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: -2 }}>
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        zIndex: -2 
+      }}>
         <div style={{
           position: 'fixed',
           top: 0,
@@ -499,156 +513,214 @@ const Profile = () => {
       </div>
 
       <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        padding: '15px 20px',
-        gap: '12px',
-        position: 'fixed',
-        top: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        maxWidth: '90%',
-        width: '600px',
-        zIndex: 1000,
-        backgroundColor: theme === 'bubbles' ? 'rgba(20, 20, 25, 0.95)' : 'rgba(25, 25, 30, 0.95)',
-        borderRadius: '12px',
-        boxShadow: theme === 'bubbles' 
-          ? '0 8px 32px rgba(0, 0, 0, 0.6)' 
-          : '0 8px 32px rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        position: 'relative',
+        width: '100%',
+        maxWidth: '600px',
+        margin: '0 auto',
+        padding: isMobile ? '0 15px' : '0',
+        zIndex: 1
       }}>
-        <input
-          type="text"
-          value={newNoteText}
-          onChange={(e) => setNewNoteText(e.target.value)}
-          placeholder="Add a new note..."
-          style={{
-            flex: 1,
-            height: '44px',
-            padding: '0 16px',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: '8px',
-            outline: 'none',
-            maxWidth: '100%',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            color: '#e0e0e0',
-            fontSize: '15px',
-            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
-            '::placeholder': {
-              color: 'rgba(255, 255, 255, 0.5)'
-            },
-            ':focus': {
-              borderColor: 'rgba(100, 181, 246, 0.8)',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              boxShadow: '0 0 0 2px rgba(100, 181, 246, 0.3)'
-            }
-          }}
-          onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addNote())}
-        />
-        <button 
-          onClick={addNote} 
-          title="Add Note"
-          style={{
-            width: '44px',
-            height: '44px',
-            border: 'none',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            color: '#e0e0e0',
-            cursor: 'pointer',
-            fontSize: '20px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            ':hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            },
-            ':active': {
-              transform: 'translateY(0)',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)'
-            }
-          }}
-        >
-          📌
-        </button>
-        <Link 
-          to="/" 
-          title="Back to Main Board"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '44px',
-            height: '44px',
-            border: 'none',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            textDecoration: 'none',
-            color: '#e0e0e0',
-            fontSize: '20px',
-            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            ':hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            },
-            ':active': {
-              transform: 'translateY(0)',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)'
-            }
-          }}
-        >
-          🏠
-        </Link>
-        <button 
-          onClick={togglePrivacy} 
-          title={isPrivate ? 'Showing Important Notes' : 'Showing All Notes'}
-          style={{
-            width: '44px',
-            height: '44px',
-            border: 'none',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            color: '#e0e0e0',
-            cursor: 'pointer',
-            fontSize: '20px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            ':hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            },
-            ':active': {
-              transform: 'translateY(0)',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)'
-            }
-          }}
-        >
-          {isPrivate ? '⭐' : '🌐'}
-        </button>
-
-      </div>
-      <div className="main-content" style={{
-        paddingTop: isMobile ? '0' : '10px'
-      }}>
-        
-        {/* Profile Board */}
-        <div className="sticky-board fullscreen profile-board" style={{
-          paddingTop: isMobile ? '10px' : '20px'
+        <div style={{
+          width: '100%',
+          backgroundColor: theme === 'bubbles' ? 'rgba(20, 20, 25, 0.95)' : 'rgba(25, 25, 30, 0.95)',
+          borderRadius: '12px',
+          boxShadow: theme === 'bubbles' 
+            ? '0 8px 32px rgba(0, 0, 0, 0.6)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          padding: isMobile ? '15px' : '20px',
+          marginBottom: isMobile ? '20px' : '30px',
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
-          {/* Input container removed - moved to nav-center */}
+        {/* Input and Buttons Container */}
+        <div style={{
+          width: '100%',
+          order: isMobile ? 2 : 1,
+          marginTop: isMobile ? '10px' : '0'
+        }}>
+          {/* Input Row */}
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            width: '100%',
+            marginBottom: isMobile ? '10px' : '0'
+          }}>
+            <input
+              type="text"
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              placeholder="Add a new note..."
+              style={{
+                flex: 1,
+                height: '44px',
+                padding: '0 16px',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '8px',
+                outline: 'none',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: '#e0e0e0',
+                fontSize: '15px',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                '::placeholder': {
+                  color: 'rgba(255, 255, 255, 0.5)'
+                },
+                ':focus': {
+                  borderColor: 'rgba(100, 181, 246, 0.8)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  boxShadow: '0 0 0 2px rgba(100, 181, 246, 0.3)'
+                }
+              }}
+              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addNote())}
+            />
+            {!isMobile && (
+              <button 
+                onClick={addNote} 
+                title="Add Note"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  flexShrink: 0,
+                  border: 'none',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#e0e0e0',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  ':hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                  },
+                  ':active': {
+                    transform: 'translateY(0)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }
+                }}
+              >
+                📌
+              </button>
+            )}
+          </div>
           
-          {/* Notes container - show different views based on device */}
-          {isMobile ? (
+          {/* Action Buttons Row - shown for all screen sizes */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%',
+            gap: isMobile ? '15px' : '20px',
+            marginTop: '15px',
+            padding: isMobile ? '0 10px' : '0',
+            marginBottom: '15px'
+          }}>
+              {/* Add Note Button */}
+              <button 
+                onClick={addNote} 
+                title="Add Note"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  border: 'none',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#e0e0e0',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  ':hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                  },
+                  ':active': {
+                    transform: 'translateY(0)'
+                  }
+                }}
+              >
+                📌
+              </button>
+              
+              {/* Toggle Privacy Button */}
+              <button 
+                onClick={togglePrivacy} 
+                title={isPrivate ? 'Show All Notes' : 'Show Important Only'}
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  border: 'none',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#e0e0e0',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  ':hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                  },
+                  ':active': {
+                    transform: 'translateY(0)'
+                  }
+                }}
+              >
+                {isPrivate ? '🌐' : '⭐'}
+              </button>
+              
+              {/* Back to Main Board Button */}
+              <Link 
+                to="/" 
+                title="Back to Main Board"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  border: 'none',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  textDecoration: 'none',
+                  color: '#e0e0e0',
+                  fontSize: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  ':hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                  },
+                  ':active': {
+                    transform: 'translateY(0)'
+                  }
+                }}
+              >
+                🏠
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="main-content" style={{
+          paddingTop: isMobile ? '180px' : '10px'
+        }}>
+          {/* Profile Board */}
+          <div className="sticky-board fullscreen profile-board" style={{
+            paddingTop: isMobile ? '10px' : '20px'
+          }}>
+            {/* Input container removed - moved to nav-center */}
+            
+            {/* Notes container - show different views based on device */}
+            {isMobile ? (
             <div className="mobile-notes-list" style={{
               width: '100%',
               height: 'calc(100vh - 200px)', // Adjust based on your header/nav height
@@ -789,6 +861,7 @@ const Profile = () => {
               )}
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

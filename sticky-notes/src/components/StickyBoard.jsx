@@ -455,12 +455,20 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
   };
 
   return (
-    <div className="sticky-board fullscreen">
+    <div className="sticky-board fullscreen" style={{
+      paddingTop: isMobile ? '80px' : '20px',
+      paddingBottom: isMobile ? '20px' : '40px',
+      minHeight: '100vh',
+      boxSizing: 'border-box'
+    }}>
       {/* Top controls row with info tabs and input container */}
       <div className="top-controls-row" style={{
         flexDirection: isMobile ? 'column' : 'row',
-        padding: isMobile ? '5px' : '10px',
-        gap: isMobile ? '10px' : '20px'
+        padding: isMobile ? '10px' : '10px',
+        gap: isMobile ? '15px' : '20px',
+        marginBottom: isMobile ? '15px' : '20px',
+        position: 'relative',
+        zIndex: 1000
       }}>
         {/* Left info tab (Rules) */}
         <div className="info-tab left-tab" style={{
@@ -530,38 +538,48 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         {/* Input container - not affected by zoom */}
         <div className="input-container" style={{
           width: isMobile ? '100%' : 'auto',
-          padding: isMobile ? '5px' : '10px',
+          padding: isMobile ? '0' : '10px',
           display: 'flex',
           flexDirection: 'column',
-          gap: isMobile ? '10px' : '15px'
+          gap: isMobile ? '15px' : '15px',
+          position: 'relative',
+          zIndex: 1000
         }}>
-          <textarea
-            value={newNoteText}
-            onChange={(e) => setNewNoteText(e.target.value)}
-            placeholder={notes.length >= MAX_NOTES 
-              ? `Maximum ${MAX_NOTES} notes reached` 
-              : 'Add a new note...'}
-            className="textarea"
-            style={{
-              width: '100%',
-              height: '120px',
-              fontSize: '16px',
-              padding: '16px 20px',
-              boxSizing: 'border-box',
-              backgroundColor: notes.length >= MAX_NOTES ? '#3a3d41' : '#2a2d31',
-              color: notes.length >= MAX_NOTES ? '#666' : '#ffffff',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '4px',
-              outline: 'none',
-              resize: 'none',
-              lineHeight: '1.5',
-              fontFamily: '"Times New Roman", Times, serif',
-              fontWeight: '500',
-              cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'text',
-              opacity: notes.length >= MAX_NOTES ? 0.7 : 1
-            }}
-            disabled={notes.length >= MAX_NOTES}
-          />
+          <div style={{
+            width: '100%',
+            position: 'relative',
+            marginTop: isMobile ? '10px' : '0',
+            marginBottom: isMobile ? '10px' : '0'
+          }}>
+            <textarea
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              placeholder={notes.length >= MAX_NOTES 
+                ? `Maximum ${MAX_NOTES} notes reached` 
+                : 'Add a new note...'}
+              className="textarea"
+              style={{
+                width: '100%',
+                height: '120px',
+                fontSize: '16px',
+                padding: '16px 20px',
+                boxSizing: 'border-box',
+                backgroundColor: notes.length >= MAX_NOTES ? '#3a3d41' : '#2a2d31',
+                color: notes.length >= MAX_NOTES ? '#666' : '#ffffff',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '4px',
+                outline: 'none',
+                resize: 'none',
+                lineHeight: '1.5',
+                fontFamily: '"Times New Roman", Times, serif',
+                fontWeight: '500',
+                cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'text',
+                opacity: notes.length >= MAX_NOTES ? 0.7 : 1,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+              }}
+              disabled={notes.length >= MAX_NOTES}
+            />
+          </div>
           {/* No notes message - shown when there are no notes */}
           {notes.length === 0 && !error && (
             <div style={{
@@ -579,80 +597,98 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
           <div className="button-container" style={{
             display: 'flex',
             flexDirection: 'row',
-            gap: '10px',
+            gap: '15px',
             width: '100%',
-            justifyContent: 'space-around',
-            alignItems: 'stretch',
-            padding: '5px 0'
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '10px 0',
+            marginTop: '5px'
           }}>
             <button 
               onClick={addNote} 
               className="add-note-button" 
               disabled={notes.length >= MAX_NOTES}
               style={{
-                width: '30%',
-                height: '25px',
-                padding: '0',
+                minWidth: '100px',
+                height: '36px',
+                padding: '0 16px',
                 fontSize: '14px',
-                backgroundColor: notes.length >= MAX_NOTES ? '#555' : '#FFEB3B',
-                color: notes.length >= MAX_NOTES ? '#999' : '#1e2124',
-                fontWeight: 'bold',
-                border: 'none',
-                borderRadius: '4px',
+                backgroundColor: notes.length >= MAX_NOTES ? '#555' : 'rgba(255, 255, 255, 0.1)',
+                color: notes.length >= MAX_NOTES ? '#999' : '#e0e0e0',
+                fontWeight: '500',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '8px',
                 cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: 'auto 0',
                 fontFamily: '"Times New Roman", Times, serif',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                opacity: notes.length >= MAX_NOTES ? 0.7 : 1
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                opacity: notes.length >= MAX_NOTES ? 0.7 : 1,
+                ':hover': notes.length < MAX_NOTES ? {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                } : {},
+                ':active': notes.length < MAX_NOTES ? {
+                  transform: 'translateY(0)'
+                } : {}
               }}
             >
               {notes.length >= MAX_NOTES ? 'Limit Reached' : 'Add Note'}
             </button>
             <Link to="/profile" style={{
-              width: '30%',
-              height: '25px',
+              minWidth: '44px',
+              height: '44px',
               padding: '0',
-              fontSize: '14px',
-              backgroundColor: '#FFEB3B',
-              color: '#1e2124',
-              fontWeight: 'bold',
-              border: 'none',
-              borderRadius: '4px',
+              fontSize: '20px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: '#e0e0e0',
+              fontWeight: 'normal',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: '50%',
               cursor: 'pointer',
               textDecoration: 'none',
-              fontFamily: '"Times New Roman", Times, serif',
+              fontFamily: 'sans-serif',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              margin: 'auto 0'
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              ':hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+              },
+              ':active': {
+                transform: 'translateY(0)'
+              }
             }}>
               👤
             </Link>
             <button 
               style={{
-                width: '30%',
-                height: '25px',
+                minWidth: '44px',
+                height: '44px',
                 padding: '0',
-                fontSize: '14px',
-                backgroundColor: '#FFEB3B',
-                color: '#1e2124',
-                fontWeight: 'bold',
-                border: 'none',
-                borderRadius: '4px',
+                fontSize: '20px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: '#e0e0e0',
+                fontWeight: 'normal',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '50%',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: 'auto 0',
-                fontFamily: '"Times New Roman", Times, serif',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                ':hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                },
+                ':active': {
+                  transform: 'translateY(0)'
+                }
               }}
               onClick={() => {
                 // Refresh board by fetching notes again
