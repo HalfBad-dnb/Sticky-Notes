@@ -1,15 +1,79 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState, useCallback } from 'react';
+import { useTheme } from './context/themeUtils';
 import NavBar from './NavBar';
 import StickyBoard from './components/StickyBoard';
 import TopNotes from './components/TopNotes';
-import Login from './profile/login'; // Importing Login component
-import Register from './profile/register'; // Importing Register component
-import Profile from './profile/profile'; // Importing Profile component
-import { ZoomProvider } from './context/ZoomProvider'; // Import ZoomProvider
-import './profile/profile.css'; // Import the shared profile CSS
+import Login from './profile/login';
+import Register from './profile/register';
+import Profile from './profile/profile';
+import { ZoomProvider } from './context/ZoomProvider';
+import { ThemeProvider } from './context/ThemeContext';
+import './profile/profile.css';
 import './App.css';
-import MainBackgroundDefault from "./components/backgroundstyles/theme/MainBackgroundDefault";
+import BubbleBackgroundTheme from "./components/backgroundstyles/theme/BubleBackgroundTheme";
+import HeartBackgroundTheme from "./components/backgroundstyles/theme/HeartBackgroundTheme";
+import TriangleBackgroundTheme from "./components/backgroundstyles/theme/TriangleBackgroundTheme";
+import { THEMES } from "./constants/themes";
+
+// Background component that renders the selected theme
+const Background = () => {
+  const { theme } = useTheme();
+  
+  const getBackgroundComponent = () => {
+    switch (theme) {
+      case THEMES.BUBBLES:
+        return <BubbleBackgroundTheme />;
+      case THEMES.HEARTS:
+        return <HeartBackgroundTheme />;
+      case THEMES.TRIANGLES:
+      default:
+        return <TriangleBackgroundTheme />;
+    }
+  };
+
+  // Adjust overlay based on theme
+  const getOverlayStyle = () => {
+    switch (theme) {
+      case THEMES.BUBBLES:
+        return { 
+          backgroundColor: 'rgba(15, 15, 20, 0.7)', // Darker overlay for better contrast
+          backdropFilter: 'blur(2px)' // Subtle blur for depth
+        };
+      case THEMES.HEARTS:
+        return { 
+          backgroundColor: 'rgba(10, 10, 10, 0.3)',
+          backdropFilter: 'blur(1px)'
+        };
+      case THEMES.TRIANGLES:
+        return { 
+          backgroundColor: 'rgba(10, 10, 15, 0.6)', // Slightly darker for triangles
+          backdropFilter: 'blur(1.5px)'
+        };
+      default:
+        return { 
+          backgroundColor: 'rgba(15, 15, 20, 0.7)',
+          backdropFilter: 'blur(2px)'
+        };
+    }
+  };
+
+  return (
+    <>
+      {getBackgroundComponent()}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        ...getOverlayStyle(),
+        zIndex: -1,
+        pointerEvents: 'none'
+      }} />
+    </>
+  );
+};
 
 // Main App component wrapper with zoom functionality
 const AppContent = () => {
@@ -43,7 +107,7 @@ const AppContent = () => {
   return (
     <Router>
       <div className="app-container" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-        <MainBackgroundDefault />
+        <Background />
         <NavBar />
         <main className="content fullscreen" style={{ fontFamily: 'inherit' }}>
           <Routes>
@@ -85,12 +149,15 @@ const AppContent = () => {
   );
 };
 
-// Wrap the AppContent with ZoomProvider
+// Main App component with providers
 const App = () => {
   return (
-    <ZoomProvider>
-      <AppContent />
-    </ZoomProvider>
+    <ThemeProvider>
+      <Background />
+      <ZoomProvider>
+        <AppContent />
+      </ZoomProvider>
+    </ThemeProvider>
   );
 };
 

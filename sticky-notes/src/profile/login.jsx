@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../profile/profile.css";
 import { getApiUrl } from "../utils/api";
-
-
+import { useTheme } from "../context/themeUtils";
+import { THEMES } from "../constants/themes";
+import BubbleBackgroundTheme from "../components/backgroundstyles/theme/BubleBackgroundTheme";
+import HeartBackgroundTheme from "../components/backgroundstyles/theme/HeartBackgroundTheme";
+import TriangleBackgroundTheme from "../components/backgroundstyles/theme/TriangleBackgroundTheme";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -105,47 +108,94 @@ const Login = () => {
     }
   };
 
+  const { theme } = useTheme();
+  const navigate = useNavigate();
+
+  // Redirect to profile if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      navigate('/profile');
+    }
+  }, [navigate]);
+
+  const getBackgroundComponent = () => {
+    switch (theme) {
+      case THEMES.BUBBLES:
+        return <BubbleBackgroundTheme />;
+      case THEMES.HEARTS:
+        return <HeartBackgroundTheme />;
+      case THEMES.TRIANGLES:
+      default:
+        return <TriangleBackgroundTheme />;
+    }
+  };
+
+  const getOverlayStyle = () => {
+    switch (theme) {
+      case THEMES.BUBBLES:
+        return { backgroundColor: 'rgba(15, 15, 20, 0.7)' };
+      case THEMES.HEARTS:
+        return { backgroundColor: 'rgba(10, 10, 10, 0.3)' };
+      case THEMES.TRIANGLES:
+      default:
+        return { backgroundColor: 'rgba(10, 10, 15, 0.6)' };
+    }
+  };
+
   return (
-    <div className="login-wrapper">
-      <div className="login-container">
-        <h2>Login to Sticky Notes</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              placeholder="Enter your username"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
-
-        {message && <p className={`message ${message.includes("successful") ? "success-message" : "error-message"}`}>{message}</p>}
-        
-        <div className="auth-links">
-          <span>Don&apos;t have an account? </span>
-          <Link to="/register" className="auth-link">Register</Link>
+    <div className="login-page">
+      {getBackgroundComponent()}
+      <div className="login-overlay" style={getOverlayStyle()}></div>
+      <div className="login-wrapper">
+        <div className="login-container">
+          <h2>Welcome Back</h2>
+          {message && (
+            <div className={`message ${message.includes('success') ? 'success' : 'error'}`}>
+              {message}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="form-input"
+                placeholder="Enter your username"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="form-input"
+                placeholder="••••••••"
+              />
+            </div>
+            <button type="submit" disabled={loading} className="primary-button">
+              {loading ? (
+                <span className="button-loading">Logging in...</span>
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </form>
+          <p className="auth-link">
+            Don&apos;t have an account?{' '}
+            <Link to="/register" className="auth-link-text">
+              Create one
+            </Link>
+          </p>
         </div>
       </div>
     </div>

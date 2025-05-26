@@ -1,3 +1,9 @@
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Modern Sticky Notes App - Base Styles */
 :root {
   /* Modern Color Palette */
@@ -55,6 +61,17 @@ button, input, optgroup, select, textarea {
   font-size: 100%;
   line-height: 1.15;
   margin: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+textarea {
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 /* Layout */
