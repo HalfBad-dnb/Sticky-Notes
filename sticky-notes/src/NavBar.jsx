@@ -162,20 +162,6 @@ const NavBar = () => {
               </div>
             )}
           </button>
-          <div style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            backgroundColor: '#4a90e2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: '14px'
-          }}>
-            {userInitial}
-          </div>
         </div>
       </div>
 
