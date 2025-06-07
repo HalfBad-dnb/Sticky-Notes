@@ -6,24 +6,7 @@ import { useZoom } from "../context/useZoom";
 import { useTheme } from "../context/themeUtils";
 import { getApiUrl } from "../utils/api";
 import "../App.css";
-
-
-// Custom hook for responsive design
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
-    const listener = () => setMatches(media.matches);
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
-  }, [matches, query]);
-
-  return matches;
-};
+import useMediaQuery from "../hooks/useMediaQuery";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
