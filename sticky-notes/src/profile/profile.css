@@ -563,10 +563,55 @@
 
 /* Profile board specific styles */
 .profile-board {
+  position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: transparent !important;
+  overflow: visible;
+  transform-origin: 0 0;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+/* Notes container in profile board */
+.profile-board .notes-container {
+  height: auto !important;
+  min-height: 100%;
+  overflow: visible;
+  transform: none !important;
+}
+
+/* Notes items in profile board */
+.profile-board .notes-items {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  transform: none !important;
+}
+
+/* Sticky note in profile board */
+.profile-board .sticky-note {
+  position: absolute;
+  transform: none !important;
+  margin: 10px;
+}
+
+/* Remove chalkboard texture */
+.profile-board::before {
+  content: none;
+}
+
+@media (max-width: 768px) {
+  .profile-board {
+    padding: 10px;
+  }
+  
+  .profile-board .notes-container {
+    height: auto !important;
+    min-height: calc(100vh - 200px);
+  }
 }
 
 .profile-board h3 {

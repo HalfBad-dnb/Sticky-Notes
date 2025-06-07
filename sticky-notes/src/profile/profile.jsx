@@ -574,38 +574,6 @@ const Profile = () => {
               }}
               onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addNote())}
             />
-            {!isMobile && (
-              <button 
-                onClick={addNote} 
-                title="Add Note"
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  flexShrink: 0,
-                  border: 'none',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#e0e0e0',
-                  cursor: 'pointer',
-                  fontSize: '20px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  ':hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                  },
-                  ':active': {
-                    transform: 'translateY(0)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                  }
-                }}
-              >
-                📌
-              </button>
-            )}
           </div>
           
           {/* Action Buttons Row - shown for all screen sizes */}

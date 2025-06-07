@@ -666,30 +666,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
               👤
             </Link>
             <button 
-              style={{
-                minWidth: '44px',
-                height: '44px',
-                padding: '0',
-                fontSize: '20px',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: '#e0e0e0',
-                fontWeight: 'normal',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '50%',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                ':hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                },
-                ':active': {
-                  transform: 'translateY(0)'
-                }
-              }}
               onClick={() => {
                 // Refresh board by fetching notes again
                 fetch(getApiUrl('comments'), {
@@ -721,9 +697,30 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
                     setError(`Failed to refresh notes: ${error.message}`);
                   });
               }} 
-              className="refresh-button"
+              style={{
+                width: '44px',
+                height: '44px',
+                border: 'none',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: '#e0e0e0',
+                cursor: 'pointer',
+                fontSize: '20px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                ':hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                },
+                ':active': {
+                  transform: 'translateY(0)'
+                }
+              }}
             >
-              Refresh
+              🔄
             </button>
           </div>
         </div>
