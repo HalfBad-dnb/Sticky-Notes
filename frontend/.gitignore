@@ -18,6 +18,12 @@ dist-ssr
 .idea
 .DS_Store
 *.suo
+
+# TypeScript
+*.tsbuildinfo
+*.ts
+*.tsx
+!jest.config.ts
 *.ntvs*
 *.njsproj
 *.sln

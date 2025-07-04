@@ -206,7 +206,7 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.15.0</version> <!-- Latest as of Feb 2025 assumption -->
                 <configuration>
-                    <workingDirectory>sticky-notes</workingDirectory> <!-- Updated to match your frontend directory -->
+                    <workingDirectory>frontend</workingDirectory> <!-- Updated to point to the correct frontend directory -->
                     <installDirectory>target</installDirectory>
                     <nodeVersion>${node.version}</nodeVersion>
                     <npmVersion>${npm.version}</npmVersion>
