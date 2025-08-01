@@ -1,4 +1,4 @@
-package com.Sticky_notes.Sticky_notes.Config;
+package com.Sticky_notes.Sticky_notes.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,7 +1,9 @@
-package com.Sticky_notes.Sticky_notes.Config;
+package com.Sticky_notes.Sticky_notes.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
+@Component
 @ConfigurationProperties(prefix = "app")
 public class JwtProperties {
     private String jwtSecret;

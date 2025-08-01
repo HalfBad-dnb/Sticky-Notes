@@ -1,6 +1,6 @@
 package com.Sticky_notes.Sticky_notes.security;
 
-import com.Sticky_notes.Sticky_notes.Config.JwtProperties;
+import com.Sticky_notes.Sticky_notes.config.JwtProperties;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

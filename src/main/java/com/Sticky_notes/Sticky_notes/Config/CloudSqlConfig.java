@@ -1,4 +1,4 @@
-package com.Sticky_notes.Sticky_notes.Config;
+package com.Sticky_notes.Sticky_notes.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
