@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:8080", "http://localhost:8081"}, 
@@ -26,6 +28,7 @@ import java.util.HashMap;
     allowCredentials = "true")
 @RequestMapping("/api/auth")
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private AuthService authService;
@@ -43,7 +46,7 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         try {
             // Log the login attempt
-            System.out.println("Login attempt for user: " + loginRequest.getUsername());
+            logger.info("Login attempt for user: {}", loginRequest.getUsername());
             
             // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
@@ -59,11 +62,11 @@ public class AuthController {
             // Get user details
             User user = authService.getUserByUsername(loginRequest.getUsername());
             if (user == null) {
-                System.out.println("User not found in database after authentication");
+                logger.error("User not found in database after authentication for username: {}", loginRequest.getUsername());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User not found in database after authentication");
             }
             
-            System.out.println("User found: " + user.getUsername() + " with role: " + user.getRoles());
+            logger.debug("User found: {} with roles: {}", user.getUsername(), user.getRoles());
             
             // Generate JWT token and refresh token
             String jwt = tokenProvider.generateToken(authentication);
@@ -79,7 +82,7 @@ public class AuthController {
             }
             
             // Log successful authentication
-            System.out.println("Authentication successful for user: " + user.getUsername());
+            logger.info("Authentication successful for user: {}", user.getUsername());
             
             // Create response with both tokens
             Map<String, Object> response = new HashMap<>();
@@ -93,11 +96,11 @@ public class AuthController {
             return ResponseEntity.ok(response);
             
         } catch (BadCredentialsException e) {
-            System.out.println("Bad credentials for user: " + loginRequest.getUsername());
+            logger.warn("Bad credentials for user: {}", loginRequest.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
             
         } catch (Exception e) {
-            System.out.println("Error during authentication: " + e.getMessage());
+            logger.error("Error during authentication for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during authentication");
         }

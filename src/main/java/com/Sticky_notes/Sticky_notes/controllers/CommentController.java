@@ -16,10 +16,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/comments")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:8080", "http://localhost:8081"})
 public class CommentController {
+    private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
 
     private final CommentRepository commentRepository;
 
@@ -74,34 +77,28 @@ public class CommentController {
             // Get all comments for this user (both private and public)
             List<Comment> allUserComments = commentRepository.findByUsername(username);
             
-            System.out.println("Found " + allUserComments.size() + " comments for user: " + username);
+            logger.debug("Found {} comments for user: {}", allUserComments.size(), username);
             
             // Log all comments for debugging
             for (Comment comment : allUserComments) {
-                System.out.println("Comment ID: " + comment.getId() + 
-                                 ", Text: " + comment.getText() + 
-                                 ", BoardType: " + comment.getBoardType() + 
-                                 ", IsPrivate: " + comment.getIsPrivate());
+                logger.trace("Comment ID: {}, Text: {}, BoardType: {}, IsPrivate: {}", comment.getId(), comment.getText(), comment.getBoardType(), comment.getIsPrivate());
             }
             
             // Always return all notes for this user, regardless of boardType
             // This is a temporary fix to ensure notes are displayed
             List<Comment> profileComments = allUserComments;
-            System.out.println("Returning all " + profileComments.size() + " notes for user");
+            logger.debug("Returning all {} notes for user", profileComments.size());
             
             // Log the notes being returned
             for (Comment comment : profileComments) {
-                System.out.println("Returning note ID: " + comment.getId() + 
-                                 ", Text: " + comment.getText() + 
-                                 ", BoardType: " + comment.getBoardType() + 
-                                 ", IsPrivate: " + comment.getIsPrivate());
+                logger.trace("Returning note ID: {}, Text: {}, BoardType: {}, IsPrivate: {}", comment.getId(), comment.getText(), comment.getBoardType(), comment.getIsPrivate());
             }
                 
             if (profileComments.isEmpty()) {
-                System.out.println("No profile comments found, returning 204 No Content");
+                logger.info("No profile comments found, returning 204 No Content");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            System.out.println("Returning " + profileComments.size() + " profile comments with HTTP 200 OK");
+            logger.debug("Returning {} profile comments with HTTP 200 OK", profileComments.size());
             return new ResponseEntity<>(profileComments, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,7 +112,7 @@ public class CommentController {
             // Get only private comments for this user
             List<Comment> privateComments = commentRepository.findByUsernameAndIsPrivateTrue(username);
             
-            System.out.println("Found " + privateComments.size() + " private comments for user: " + username);
+            logger.debug("Found {} private comments for user: {}", privateComments.size(), username);
             
             // For backward compatibility, if there are no private notes with boardType="profile",
             // return all private notes for this user
@@ -175,7 +172,7 @@ public class CommentController {
                 comment.setBoardType("main"); // Default to main if invalid value
             }
             
-            System.out.println("Creating comment with boardType: " + comment.getBoardType());
+            logger.debug("Creating comment with boardType: {}", comment.getBoardType());
             
             Comment savedComment = commentRepository.save(comment);
             sendUpdateToClients(savedComment); // Notify clients about the new comment

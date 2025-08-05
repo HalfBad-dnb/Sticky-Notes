@@ -25,7 +25,7 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     private User testUser;
     private User savedUser;
