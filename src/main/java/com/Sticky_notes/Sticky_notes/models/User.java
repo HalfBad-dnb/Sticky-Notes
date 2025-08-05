@@ -3,7 +3,7 @@ package com.Sticky_notes.Sticky_notes.models;
 import jakarta.persistence.*;
 import java.util.List;
 import java.util.ArrayList;
-import com.Sticky_notes.Sticky_notes.models.Board;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
