@@ -18,11 +18,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // Optional: Custom query to find comments containing specific text (case-insensitive)
     List<Comment> findByTextContainingIgnoreCase(String text);
     
-    // Find comments by username
-    List<Comment> findByUsername(String username);
+    // Find comments by username and board type
+    List<Comment> findByUsernameAndBoardType(String username, String boardType);
     
     // Find private comments by username
     List<Comment> findByUsernameAndIsPrivateTrue(String username);
+    
+    // Find comments by username (keeping for backward compatibility)
+    List<Comment> findByUsername(String username);
     
     // Find public comments by username
     List<Comment> findByUsernameAndIsPrivateFalse(String username);

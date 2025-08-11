@@ -13,6 +13,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 
+import org.springframework.http.HttpStatus;
+
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -51,6 +55,7 @@ class RegistrationControllerTest {
     @Test
     void registerUserSuccess() {
         // Arrange
+        testUser.setId(1L); // Set an ID for the test user
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
@@ -59,8 +64,18 @@ class RegistrationControllerTest {
 
         // Assert
         assertNotNull(response);
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("User registered successfully", response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        
+        // Check response body is a Map with the expected fields
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        
+        assertEquals("User registered successfully", responseBody.get("message"));
+        assertEquals(1L, responseBody.get("userId"));
+        assertEquals("testuser", responseBody.get("username"));
+        assertEquals("testuser@example.com", responseBody.get("email"));
+        
         // Verify that the password was encoded
         verify(passwordEncoder).encode("password123");
         // Verify that the user was saved

@@ -1,0 +1,77 @@
+src/
+└── main/
+    ├── java/
+    │   └── com/
+    │       └── yourcompany/
+    │           └── yourapp/
+    │               ├── config/                # Security & App config
+    │               │   ├── SecurityConfig.java
+    │               │   ├── CorsConfig.java
+    │               │   └── AppProperties.java
+    │               │
+    │               ├── controller/            # REST Controllers
+    │               │   ├── AuthController.java
+    │               │   ├── BoardController.java
+    │               │   ├── CommentController.java
+    │               │   ├── ProfileController.java
+    │               │   └── HealthCheckController.java
+    │               │
+    │               ├── dto/                   # Request/Response DTOs
+    │               │   ├── Auth/
+    │               │   ├── Board/
+    │               │   ├── Comment/
+    │               │   └── Profile/
+    │               │
+    │               ├── exception/             # Custom exceptions & handlers
+    │               │   ├── GlobalExceptionHandler.java
+    │               │   ├── ResourceNotFoundException.java
+    │               │   ├── JwtAuthenticationException.java
+    │               │   └── ...
+    │               │
+    │               ├── model/                 # Entities (JPA)
+    │               │   ├── User.java
+    │               │   ├── Role.java
+    │               │   ├── Board.java
+    │               │   ├── Comment.java
+    │               │   ├── Profile.java
+    │               │   └── RefreshToken.java
+    │               │
+    │               ├── repository/            # JPA Repositories
+    │               │   ├── UserRepository.java
+    │               │   ├── RoleRepository.java
+    │               │   ├── BoardRepository.java
+    │               │   ├── CommentRepository.java
+    │               │   └── RefreshTokenRepository.java
+    │               │
+    │               ├── security/              # JWT and auth-related
+    │               │   ├── JwtTokenProvider.java
+    │               │   ├── JwtAuthenticationFilter.java
+    │               │   ├── CustomUserDetailsService.java
+    │               │   └── UserPrincipal.java
+    │               │
+    │               ├── service/               # Business logic
+    │               │   ├── AuthService.java
+    │               │   ├── BoardService.java
+    │               │   ├── CommentService.java
+    │               │   ├── ProfileService.java
+    │               │   └── RefreshTokenService.java
+    │               │
+    │               ├── util/                  # Utility classes
+    │               │   └── JwtUtils.java
+    │               │
+    │               └── YourAppApplication.java  # Main Spring Boot class
+    │
+    └── resources/
+        ├── application.yml                    # YAML config for all envs
+        ├── application-dev.yml
+        ├── application-prod.yml
+        ├── static/
+        ├── templates/
+        └── logback-spring.xml                 # Optional logging config
+
+test/
+└── java/com/yourcompany/yourapp/
+    ├── controller/
+    ├── service/
+    ├── security/
+    └── ...

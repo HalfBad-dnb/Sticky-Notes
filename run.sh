@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Set JAVA_HOME automatically if not set
+if [ -z "$JAVA_HOME" ]; then
+    export JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null)
+    if [ -z "$JAVA_HOME" ]; then
+        echo "Error: JAVA_HOME is not set and could not be determined automatically"
+        exit 1
+    fi
+    echo "Using Java from: $JAVA_HOME"
+fi
+
 # Load environment variables from .env file
 if [ -f .env ]; then
     export $(grep -v '^#' .env | xargs)
@@ -15,7 +25,7 @@ if [ -z "$SPRING_DATASOURCE_URL" ] || [ -z "$SPRING_DATASOURCE_USERNAME" ] || [ 
 fi
 
 echo "Building the application..."
-mvn clean install -DskipTests=true
+JAVA_HOME=$(/usr/libexec/java_home) ./mvnw clean install -DskipTests=true
 
 if [ $? -ne 0 ]; then
     echo "Build failed. Please check the errors above."
@@ -23,5 +33,5 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Starting the application..."
-mvn spring-boot:run -DskipTests=true
+JAVA_HOME=$(/usr/libexec/java_home) ./mvnw spring-boot:run -DskipTests=true
 

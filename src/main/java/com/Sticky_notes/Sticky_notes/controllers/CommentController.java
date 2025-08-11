@@ -2,7 +2,6 @@ package com.Sticky_notes.Sticky_notes.controllers;
 
 import com.Sticky_notes.Sticky_notes.models.Comment;
 import com.Sticky_notes.Sticky_notes.repository.CommentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +28,6 @@ public class CommentController {
     // List of connected SSE clients
     private final CopyOnWriteArrayList<SseEmitter> clients = new CopyOnWriteArrayList<>();
 
-    @Autowired
     public CommentController(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
     }
@@ -74,28 +72,19 @@ public class CommentController {
     @GetMapping("/user/{username}")
     public ResponseEntity<List<Comment>> getCommentsByUsername(@PathVariable String username) {
         try {
-            // Get all comments for this user (both private and public)
-            List<Comment> allUserComments = commentRepository.findByUsername(username);
+            // Get only profile board comments for this user
+            List<Comment> profileComments = commentRepository.findByUsernameAndBoardType(username, "profile");
             
-            logger.debug("Found {} comments for user: {}", allUserComments.size(), username);
+            logger.debug("Found {} profile comments for user: {}", profileComments.size(), username);
             
-            // Log all comments for debugging
-            for (Comment comment : allUserComments) {
-                logger.trace("Comment ID: {}, Text: {}, BoardType: {}, IsPrivate: {}", comment.getId(), comment.getText(), comment.getBoardType(), comment.getIsPrivate());
-            }
-            
-            // Always return all notes for this user, regardless of boardType
-            // This is a temporary fix to ensure notes are displayed
-            List<Comment> profileComments = allUserComments;
-            logger.debug("Returning all {} notes for user", profileComments.size());
-            
-            // Log the notes being returned
+            // Log all profile comments for debugging
             for (Comment comment : profileComments) {
-                logger.trace("Returning note ID: {}, Text: {}, BoardType: {}, IsPrivate: {}", comment.getId(), comment.getText(), comment.getBoardType(), comment.getIsPrivate());
+                logger.trace("Profile Comment - ID: {}, Text: {}, BoardType: {}, IsPrivate: {}", 
+                    comment.getId(), comment.getText(), comment.getBoardType(), comment.getIsPrivate());
             }
                 
             if (profileComments.isEmpty()) {
-                logger.info("No profile comments found, returning 204 No Content");
+                logger.info("No profile comments found for user: {}", username);
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             logger.debug("Returning {} profile comments with HTTP 200 OK", profileComments.size());
