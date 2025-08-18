@@ -25,8 +25,34 @@ const useMediaQuery = (query) => {
   return matches;
 };
 
-const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
+const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
+  const handleDoneWithBackend = useCallback((noteId) => {
+    // Call the parent's onDone handler if provided
+    if (onDone) {
+      onDone(noteId);
+    }
+  }, [onDone]);
+
+  const handleDeleteWithBackend = useCallback((noteId) => {
+    // Call the parent's onDelete handler if provided
+    if (onDelete) {
+      onDelete(noteId);
+    }
+  }, [onDelete]);
   const handleUpdateNote = useCallback((updatedNote) => {
+    // Prepare the note data to send to the server
+    const noteData = {
+      id: updatedNote.id,
+      text: updatedNote.text,
+      x: updatedNote.x,
+      y: updatedNote.y,
+      color: updatedNote.color,
+      done: updatedNote.done || false,
+      username: updatedNote.username,
+      isPrivate: updatedNote.isPrivate || false,
+      boardType: updatedNote.boardType || 'main'
+    };
+    
     // Update the note in the database
     fetch(getApiUrl(`comments/${updatedNote.id}`), {
       method: 'PUT',
@@ -34,7 +60,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       },
-      body: JSON.stringify(updatedNote),
+      body: JSON.stringify(noteData),
     })
     .then((response) => {
       if (!response.ok) throw new Error('Failed to update note');
@@ -161,10 +187,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
       x,
       y,
       color: getRandomColor(),
-      likes: 0,
-      dislikes: 0,
+      done: false, // Initialize as not done
       username: currentUser?.username || 'anonymous', // Associate note with current user
-      boardType: 'main' // Set board type to main
+      boardType: 'main', // Set board type to main
+      isPrivate: false // Default to public
     };
 
     console.log('Sending new note:', newNote);
@@ -286,7 +312,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
 
   const handleLikeWithBackend = useCallback((id) => {
     // Apply the like locally first for responsive UI
-    onLike(id);
+    onDone(id);
     
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
@@ -342,11 +368,11 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         console.error('Error liking note:', error);
         // Note: We don't need to revert the UI since we already applied the change locally
       });
-  }, [onLike, setNotes, notes]);
+  }, [onDone, setNotes, notes]);
 
   const handleDislikeWithBackend = useCallback((id) => {
     // Apply the dislike locally first for responsive UI
-    onDislike(id);
+    onDelete(id);
     
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
@@ -406,7 +432,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
         console.error('Error disliking note:', error);
         // Note: We don't need to revert the UI since we already applied the change locally
       });
-  }, [onDislike, setNotes, notes]);
+  }, [onDelete, setNotes, notes]);
 
   // No longer need state for info tabs as they're always visible
 
@@ -496,7 +522,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
             }}>
               <li style={{ fontFamily: 'inherit' }}>20 dislikes will delete a note</li>
               <li style={{ fontFamily: 'inherit' }}>Down below you can find more info and updates about the board</li>
-              <li style={{ fontFamily: 'inherit' }}>Most liked notes are shown in Top Notes section</li>
+              <li style={{ fontFamily: 'inherit' }}>Done notes are shown in Done Notes section</li>
               <li style={{ fontFamily: 'inherit' }}>Board are limited to 10 notes</li>
             </ul>
           </div>
@@ -811,8 +837,8 @@ const StickyBoard = ({ notes, setNotes, onDrag, onLike, onDislike }) => {
                 key={note.id}
                 note={{ ...note, zIndex: notes.length - index }}
                 onDrag={handleDragWithBackend}
-                onLike={handleLikeWithBackend}
-                onDislike={handleDislikeWithBackend}
+                onDone={handleDoneWithBackend}
+                onDelete={handleDeleteWithBackend}
                 onUpdateNote={handleUpdateNote}
               />
             ))}
@@ -841,8 +867,7 @@ StickyBoard.propTypes = {
       x: PropTypes.number.isRequired,
       y: PropTypes.number.isRequired,
       color: PropTypes.string,
-      likes: PropTypes.number,
-      dislikes: PropTypes.number,
+      done: PropTypes.bool,
       username: PropTypes.string,
       boardType: PropTypes.string,
       zIndex: PropTypes.number,
@@ -850,8 +875,8 @@ StickyBoard.propTypes = {
   ).isRequired,
   setNotes: PropTypes.func.isRequired,
   onDrag: PropTypes.func.isRequired,
-  onLike: PropTypes.func.isRequired,
-  onDislike: PropTypes.func.isRequired,
+  onDone: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
   onUpdateNote: PropTypes.func,
 };
 

@@ -22,22 +22,13 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
+    public Comment markAsDone(Long id) {
+        Comment comment = commentRepository.findById(id).orElseThrow();
+        comment.setDone(true);
+        return commentRepository.save(comment);
+    }
+    
     public void deleteComment(Long id) {
         commentRepository.deleteById(id);
-    }
-
-    public Comment dislikeComment(Long id) {
-        Comment comment = commentRepository.findById(id).orElseThrow();
-
-        // Increase dislikes
-        comment.setDislikes(comment.getDislikes() + 1);
-
-        // If dislikes reach 20, delete the comment and return null
-        if (comment.getDislikes() >= 20) {
-            commentRepository.deleteById(id);
-            return null;
-        }
-
-        return commentRepository.save(comment);
     }
 }

@@ -5,8 +5,8 @@
  * for making API requests with proper authentication.
  */
 
-// For local development - force using local backend
-const LOCAL_API_URL = 'http://localhost:8081';
+// For local development - use your Mac's IP address for network access
+const LOCAL_API_URL = 'http://192.168.10.92:8081';
 
 // Check if we're in production (on Cloud Run)
 const isProduction = window.location.hostname.includes('run.app');
@@ -23,7 +23,7 @@ console.log('API base URL:', API_URL);
  * @returns {Object} Headers object with Authorization if token exists
  */
 export const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 

@@ -5,6 +5,7 @@ import com.Sticky_notes.Sticky_notes.repository.CommentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -45,17 +46,21 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Comment>> getAllComments() {
+    public ResponseEntity<List<Comment>> getAllComments(@RequestParam(required = false) String username) {
         try {
-            // Get all public comments for the main board
-            List<Comment> publicComments = commentRepository.findByIsPrivateFalseAndBoardType("main");
+            List<Comment> comments;
             
-            // Sort by likes in descending order
-            List<Comment> sortedComments = publicComments.stream()
-                .sorted(Comparator.comparing(
-                    comment -> comment.getLikes() != null ? comment.getLikes() : 0,
-                    Comparator.reverseOrder()
-                ))
+            if (username != null && !username.isEmpty()) {
+                // Get user's public comments for the main board
+                comments = commentRepository.findByUsernameAndIsPrivateFalseAndBoardType(username, "main");
+            } else {
+                // Get all public comments for the main board (for guests)
+                comments = commentRepository.findByIsPrivateFalseAndBoardType("main");
+            }
+            
+            // Sort by creation time (most recent first)
+            List<Comment> sortedComments = comments.stream()
+                .sorted(Comparator.comparing(Comment::getId).reversed())
                 .collect(java.util.stream.Collectors.toList());
             
             if (sortedComments.isEmpty()) {
@@ -65,6 +70,44 @@ public class CommentController {
             return new ResponseEntity<>(sortedComments, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<List<Comment>> getUserProfileComments(
+            @PathVariable String username,
+            @RequestParam(required = false) Boolean isPrivate) {
+        try {
+            List<Comment> profileComments;
+            
+            // If isPrivate parameter is provided, filter by privacy status
+            if (isPrivate != null) {
+                if (isPrivate) {
+                    // Get only private profile notes
+                    profileComments = commentRepository.findByUsernameAndIsPrivateTrueAndBoardType(username, "profile");
+                } else {
+                    // Get only public profile notes
+                    profileComments = commentRepository.findByUsernameAndIsPrivateFalseAndBoardType(username, "profile");
+                }
+            } else {
+                // Get all profile notes (both public and private)
+                profileComments = commentRepository.findByUsernameAndBoardType(username, "profile");
+            }
+            
+            // Sort by creation time (newest first)
+            profileComments.sort(Comparator.comparing(Comment::getId).reversed());
+            
+            logger.debug("Found {} profile comments for user: {} (isPrivate={})", 
+                profileComments.size(), username, isPrivate);
+            
+            if (profileComments.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            
+            return new ResponseEntity<>(profileComments, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error retrieving profile comments for user {}: {}", username, e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -147,9 +190,8 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) {
         try {
-            // Set default values if not provided
-            if (comment.getLikes() == null) comment.setLikes(0);
-            if (comment.getDislikes() == null) comment.setDislikes(0);
+            // Initialize done to false if null
+            comment.setDone(comment.isDone());
             
             // Ensure boardType is set
             if (comment.getBoardType() == null) {
@@ -161,13 +203,19 @@ public class CommentController {
                 comment.setBoardType("main"); // Default to main if invalid value
             }
             
-            logger.debug("Creating comment with boardType: {}", comment.getBoardType());
+            // Ensure isPrivate is set
+            if (comment.getIsPrivate() == null) {
+                comment.setIsPrivate(false);
+            }
+            
+            logger.debug("Creating comment with boardType: {}, isPrivate: {}", 
+                comment.getBoardType(), comment.getIsPrivate());
             
             Comment savedComment = commentRepository.save(comment);
             sendUpdateToClients(savedComment); // Notify clients about the new comment
             return new ResponseEntity<>(savedComment, HttpStatus.CREATED);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error creating comment: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -190,15 +238,15 @@ public class CommentController {
         }
     }
 
-    @PutMapping("/{id}/like")
-    public ResponseEntity<Comment> likeComment(@PathVariable Long id) {
+    @PutMapping("/{id}/done")
+    public ResponseEntity<Comment> markAsDone(@PathVariable Long id) {
         try {
             Optional<Comment> commentOpt = commentRepository.findById(id);
             if (commentOpt.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
             Comment comment = commentOpt.get();
-            comment.setLikes(comment.getLikes() + 1);
+            comment.setDone(true);
             Comment savedComment = commentRepository.save(comment);
             // Notify clients about the updated comment
             sendUpdateToClients(savedComment);
@@ -209,30 +257,16 @@ public class CommentController {
         }
     }
 
-    @PutMapping("/{id}/dislike")
-    public ResponseEntity<?> dislikeComment(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long id) {
         try {
-            Optional<Comment> commentOpt = commentRepository.findById(id);
-            if (commentOpt.isEmpty()) {
+            if (!commentRepository.existsById(id)) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-
-            // Increment dislikes
-            Comment comment = commentOpt.get();
-            comment.setDislikes(comment.getDislikes() + 1);
-
-            // If dislikes reach 20, delete the comment and notify clients
-            if (comment.getDislikes() >= 20) {
-                commentRepository.deleteById(id);  // Automatically remove comment
-                sendDeleteUpdateToClients(id);     // Notify clients about deletion
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // No content response
-            }
-
-            // Otherwise, save the updated comment
-            Comment savedComment = commentRepository.save(comment);
-            // Notify clients about the updated comment
-            sendUpdateToClients(savedComment);
-            return new ResponseEntity<>(savedComment, HttpStatus.OK);
+            commentRepository.deleteById(id);
+            // Notify clients about the deleted comment
+            sendDeleteUpdateToClients(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -251,6 +285,50 @@ public class CommentController {
         }
     }
 
+    /**
+     * Get notes by status (done/deleted) and board type
+     * @param status The status of the notes to fetch ("done" or "deleted")
+     * @param boardType The type of board ("main" or "profile")
+     * @param authentication The authentication object containing the current user
+     * @return List of comments matching the criteria
+     */
+    @GetMapping("/by-status")
+    public ResponseEntity<List<Comment>> getNotesByStatus(
+            @RequestParam String status,
+            @RequestParam(required = false, defaultValue = "profile") String boardType,
+            Authentication authentication) {
+        
+        if (authentication == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        
+        String username = authentication.getName();
+        List<Comment> notes;
+        
+        try {
+            if ("done".equalsIgnoreCase(status) || "deleted".equalsIgnoreCase(status)) {
+                // For both done and deleted, we use the same query since deleted is marked by done=true
+                notes = commentRepository.findByUsernameAndDoneTrueAndBoardType(username, boardType);
+                
+                // If we need to distinguish between done and deleted in the future, we can add a deleted flag to the Comment model
+                // and update the query accordingly
+            } else {
+                // For active notes (not done/deleted)
+                notes = commentRepository.findByUsernameAndDoneFalseAndBoardType(username, boardType);
+            }
+            
+            if (notes.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            
+            return new ResponseEntity<>(notes, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            logger.error("Error retrieving notes by status: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     // Send delete notification to all connected clients
     private void sendDeleteUpdateToClients(Long commentId) {
         for (SseEmitter emitter : clients) {

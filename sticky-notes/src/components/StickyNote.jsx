@@ -2,7 +2,7 @@ import { useRef, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import NoteDefault from './backgroundstyles/notestyles/NoteDefault';
 
-const StickyNote = ({ note, onDrag, onLike, onDislike, onUpdateNote }) => {
+const StickyNote = ({ note, onDrag, onDone, onDelete, onUpdateNote }) => {
   const noteRef = useRef(null);
   const isDragging = useRef(false);
   const startPos = useRef({ x: 0, y: 0 });
@@ -149,10 +149,11 @@ const StickyNote = ({ note, onDrag, onLike, onDislike, onUpdateNote }) => {
           ...note,
           text: note.text || 'Double click to edit...',
           width: '100%',
-          height: '100%'
+          height: '100%',
+          done: note.done || false
         }}
-        onLike={onLike}
-        onDislike={onDislike}
+        onDone={onDone}
+        onDelete={onDelete}
         onUpdateNote={onUpdateNote}
       />
     </div>
@@ -166,16 +167,15 @@ StickyNote.propTypes = {
     text: PropTypes.string,
     x: PropTypes.number,
     y: PropTypes.number,
-    likes: PropTypes.number,
-    dislikes: PropTypes.number,
+    done: PropTypes.bool,
     rotation: PropTypes.number,
     zIndex: PropTypes.number,
     createdAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
   }).isRequired,
   onDrag: PropTypes.func.isRequired,
-  onLike: PropTypes.func.isRequired,
-  onDislike: PropTypes.func.isRequired,
-  onUpdateNote: PropTypes.func.isRequired,
+  onDone: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onUpdateNote: PropTypes.func,
 };
 
 export default StickyNote;

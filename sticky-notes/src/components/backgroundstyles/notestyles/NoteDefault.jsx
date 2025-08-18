@@ -1,29 +1,62 @@
-import PropTypes from 'prop-types';
-
 const MAX_CHAR_LIMIT = 200;
 
-const NoteDefault = ({ note, onLike, onDislike }) => {
+/**
+ * NoteDefault component that renders a single note with a modern glass-morphism style
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.note - The note object to display
+ * @param {string|number} props.note.id - Unique identifier for the note
+ * @param {string} [props.note.text=''] - The content of the note
+ * @param {boolean} [props.note.done=false] - Whether the note is marked as done
+ * @param {string|number} [props.note.width='280px'] - Width of the note
+ * @param {string|number} [props.note.height='auto'] - Height of the note
+ * @param {Function} [props.onDone=() => {}] - Callback when note is marked as done
+ * @param {Function} [props.onDelete=() => {}] - Callback when note is deleted
+ * @param {Function} [props.onUpdateNote=() => {}] - Callback when note is updated
+ * @param {Function} [props.onLike=null] - Callback when note is liked
+ * @param {Function} [props.onDislike=null] - Callback when note is disliked
+ * @returns {JSX.Element} The rendered note component
+ */
+const NoteDefault = ({ 
+  note, 
+  onDone = () => {}, 
+  onDelete = () => {},
+}) => {
+  // Destructure with defaults
+  const { 
+    text = '',
+    done = false,
+    width = '280px',
+    height = 'auto',
+    id
+  } = note || {};
+  
   // Character count for display only (no editing)
-  const charCount = note.text?.length || 0;
+  const charCount = text?.length || 0;
   
   // Note: All editing functionality has been removed
   const isEditing = false;
+  // Apply different styles if the note is marked as done
+  const noteStyle = {
+    position: 'relative',
+    width: width,
+    height: height,
+    minHeight: '200px',
+    padding: '20px',
+    fontFamily: '"Times New Roman", Times, serif',
+    color: done ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    cursor: 'text',
+    opacity: done ? 0.7 : 1,
+    textDecoration: done ? 'line-through' : 'none',
+  };
+
   return (
-    <div style={{
-      position: 'relative',
-      width: note.width || '280px',
-      height: note.height || 'auto',
-      minHeight: '200px',
-      padding: '20px',
-      fontFamily: '"Times New Roman", Times, serif',
-      color: 'rgba(255, 255, 255, 0.9)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '12px',
-      boxSizing: 'border-box',
-      overflow: 'hidden',
-      cursor: 'text',
-    }}>
+    <div style={noteStyle}>
       {/* Character counter - positioned at the top right */}
       {isEditing && (
         <div style={{
@@ -118,7 +151,7 @@ const NoteDefault = ({ note, onLike, onDislike }) => {
             minHeight: 'min-content',
           }}>
             <div style={{ minHeight: '1.6em' }}>
-              {note.text || 'Note content'}
+              {text || 'Note content'}
             </div>
 
           </p>
@@ -136,48 +169,55 @@ const NoteDefault = ({ note, onLike, onDislike }) => {
         position: 'relative',
         zIndex: 1
       }}>
-        <div 
-          onClick={(e) => {
-            e.stopPropagation();
-            onLike?.(note.id);
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            cursor: 'pointer',
-            padding: '2px 6px',
-            borderRadius: '3px',
-            transition: 'background-color 0.2s',
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          title="Like"
-        >
-          <span>👍</span>
-          <span>{note.likes || 0}</span>
-        </div>
+        {!done && (
+          <div 
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log('Done button clicked for note:', id);
+              onDone?.(id);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              cursor: 'pointer',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              transition: 'all 0.2s',
+              backgroundColor: 'rgba(46, 204, 113, 0.2)',
+              border: '1px solid rgba(46, 204, 113, 0.3)',
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 204, 113, 0.3)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 204, 113, 0.2)'}
+            title="Mark as Done"
+          >
+            <span>✅</span>
+            <span>Done</span>
+          </div>
+        )}
         
         <div 
           onClick={(e) => {
             e.stopPropagation();
-            onDislike?.(note.id);
+            onDelete?.(id, text?.substring(0, 30) + (text?.length > 30 ? '...' : ''));
           }}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
             cursor: 'pointer',
-            padding: '2px 6px',
-            borderRadius: '3px',
-            transition: 'background-color 0.2s',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            transition: 'all 0.2s',
+            backgroundColor: 'rgba(231, 76, 60, 0.2)',
+            border: '1px solid rgba(231, 76, 60, 0.3)',
           }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          title="Dislike"
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(231, 76, 60, 0.3)'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(231, 76, 60, 0.2)'}
+          title="Delete Note"
         >
-          <span>👎</span>
-          <span>{note.dislikes || 0}</span>
+          <span>🗑️</span>
+          <span>Delete</span>
         </div>
       </div>
       </div> {/* Close content wrapper */}
@@ -185,23 +225,22 @@ const NoteDefault = ({ note, onLike, onDislike }) => {
   );
 };
 
+import PropTypes from 'prop-types';
+
 NoteDefault.propTypes = {
   note: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     text: PropTypes.string,
-    likes: PropTypes.number,
-    dislikes: PropTypes.number,
+    done: PropTypes.bool,
     width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    // Add any other note properties that are used in the component
   }).isRequired,
+  onDone: PropTypes.func,
+  onDelete: PropTypes.func,
+  onUpdateNote: PropTypes.func,
   onLike: PropTypes.func,
   onDislike: PropTypes.func,
-  onUpdateNote: PropTypes.func,
-};
-
-NoteDefault.defaultProps = {
-  onLike: null,
-  onDislike: null,
 };
 
 export default NoteDefault;

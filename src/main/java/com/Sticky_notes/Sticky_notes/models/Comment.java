@@ -24,9 +24,7 @@ public class Comment {
     @NotNull
     private String color;
 
-    private Integer likes;
-
-    private Integer dislikes; // Added dislikes field
+    private boolean done = false; // Indicates if the task is completed
     
     @NotNull
     private String username; // Username of the user who created the comment
@@ -81,20 +79,12 @@ public class Comment {
         this.color = color;
     }
 
-    public Integer getLikes() {
-        return likes;
+    public boolean isDone() {
+        return done;
     }
 
-    public void setLikes(Integer likes) {
-        this.likes = likes;
-    }
-
-    public Integer getDislikes() {
-        return dislikes;
-    }
-
-    public void setDislikes(Integer dislikes) {
-        this.dislikes = dislikes;
+    public void setDone(boolean done) {
+        this.done = done;
     }
     
     public String getUsername() {

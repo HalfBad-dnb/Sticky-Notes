@@ -259,7 +259,7 @@ const NavBar = () => {
               Board
             </Link>
             <Link 
-              to="/top-notes" 
+              to="/done" 
               onClick={closeMenu}
               style={{
                 padding: '12px 16px',
@@ -273,7 +273,24 @@ const NavBar = () => {
                 }
               }}
             >
-              Top Notes
+              Done Notes
+            </Link>
+            <Link 
+              to="/deleted" 
+              onClick={closeMenu}
+              style={{
+                padding: '12px 16px',
+                borderRadius: '8px',
+                transition: 'background-color 0.2s',
+                textDecoration: 'none',
+                color: 'rgba(255, 255, 255, 0.9)',
+                display: 'block',
+                ':hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                }
+              }}
+            >
+              Deleted Notes
             </Link>
           </div>
           

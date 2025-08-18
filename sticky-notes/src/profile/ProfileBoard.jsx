@@ -9,9 +9,7 @@ const ProfileBoard = ({
   notes, 
   setNotes, 
   onNoteUpdate, 
-  onNoteDelete,
-  onNoteLike,
-  onNoteDislike
+  onNoteDelete
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
@@ -86,38 +84,6 @@ const ProfileBoard = ({
     };
   }, [isDragging, selectedNote, dragOffset, notes, setNotes, onNoteUpdate]);
 
-  // Handle note like
-  const handleLike = useCallback(async (noteId) => {
-    try {
-      const response = await fetchWithToken(getApiUrl(`comments/${noteId}/like`), {
-        method: 'POST',
-      });
-      
-      if (!response.ok) throw new Error('Failed to like note');
-      
-      const updatedNote = await response.json();
-      onNoteLike(updatedNote);
-    } catch (error) {
-      console.error('Error liking note:', error);
-    }
-  }, [onNoteLike]);
-
-  // Handle note dislike
-  const handleDislike = useCallback(async (noteId) => {
-    try {
-      const response = await fetchWithToken(getApiUrl(`comments/${noteId}/dislike`), {
-        method: 'POST',
-      });
-      
-      if (!response.ok) throw new Error('Failed to dislike note');
-      
-      const updatedNote = await response.json();
-      onNoteDislike(updatedNote);
-    } catch (error) {
-      console.error('Error disliking note:', error);
-    }
-  }, [onNoteDislike]);
-
   // Handle note delete
   const handleDelete = useCallback(async (noteId) => {
     if (!window.confirm('Are you sure you want to delete this note?')) return;
@@ -171,12 +137,6 @@ const ProfileBoard = ({
             color={note.color}
             onUpdate={onNoteUpdate}
             onDelete={() => handleDelete(note.id)}
-            onLike={() => handleLike(note.id)}
-            onDislike={() => handleDislike(note.id)}
-            likes={note.likes || 0}
-            dislikes={note.dislikes || 0}
-            isLiked={note.isLiked}
-            isDisliked={note.isDisliked}
             author={note.author}
             createdAt={note.createdAt}
             showAuthor={false}
@@ -212,10 +172,6 @@ ProfileBoard.propTypes = {
       y: PropTypes.number.isRequired,
       zIndex: PropTypes.number,
       color: PropTypes.string,
-      likes: PropTypes.number,
-      dislikes: PropTypes.number,
-      isLiked: PropTypes.bool,
-      isDisliked: PropTypes.bool,
       author: PropTypes.string,
       createdAt: PropTypes.string,
     })
@@ -223,8 +179,6 @@ ProfileBoard.propTypes = {
   setNotes: PropTypes.func.isRequired,
   onNoteUpdate: PropTypes.func.isRequired,
   onNoteDelete: PropTypes.func.isRequired,
-  onNoteLike: PropTypes.func.isRequired,
-  onNoteDislike: PropTypes.func.isRequired,
 };
 
 export default ProfileBoard;

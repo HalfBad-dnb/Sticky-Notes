@@ -6,6 +6,7 @@ import { useZoom } from "../context/useZoom";
 import { useTheme } from "../context/themeUtils";
 import { getApiUrl } from "../utils/api";
 import "../App.css";
+import NotesManagementModal from "./NotesManagementModal";
 
 
 // Custom hook for responsive design
@@ -32,6 +33,7 @@ const Profile = () => {
   const [notes, setNotes] = useState([]);
   const [newNoteText, setNewNoteText] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
 
   // Check if device is mobile (screen width less than 768px)
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -105,105 +107,94 @@ const Profile = () => {
 
   // Function to fetch profile notes
   const fetchProfileNotes = useCallback(() => {
-    if (!user || !user.username) return;
+    if (!user || !user.username) {
+      console.log('No user or username available');
+      return;
+    }
     
     const token = localStorage.getItem('authToken');
     if (!token) {
       console.error('No auth token found');
-      // Don't redirect immediately, just set error
       setError('Authentication required. Please log in.');
       return;
     }
     
-    console.log('Fetching profile notes for user:', user.username);
+    console.log('Fetching profile notes for user:', user.username, 'isPrivate:', isPrivate);
     
-    // Endpoint to get user's notes
-    fetch(getApiUrl(`comments/user/${user.username}`), {
+    // Fetch profile notes with privacy filter
+    const url = new URL(getApiUrl(`comments/profile/${user.username}`));
+    if (isPrivate !== null) {
+      url.searchParams.append('isPrivate', isPrivate);
+    }
+    
+    fetch(url.toString(), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
-      }
+      },
+      credentials: 'include' // Important for cookies/sessions if using them
     })
-    .then(response => {
-      console.log('Profile notes response status:', response.status);
-      console.log('Profile notes response headers:', [...response.headers.entries()]);
+    .then(async response => {
+      console.log('Notes response status:', response.status);
       
-      // Handle authentication errors
       if (response.status === 401 || response.status === 403) {
         console.error('Authentication error:', response.status);
-        // Don't redirect immediately, just set error
         setError('Authentication failed. Please log in again.');
-        throw new Error('Authentication failed. Please log in again.');
+        throw new Error('Authentication failed');
       }
       
-      // Handle no content response
       if (response.status === 204) {
-        console.log('No content response, returning empty array');
+        console.log('No content response');
         return [];
       }
       
-      // Handle error responses
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       
-      // Check if response is empty
-      const contentType = response.headers.get('content-type');
-      console.log('Content-Type:', contentType);
-      
-      if (!contentType || !contentType.includes('application/json')) {
-        console.log('Response is not JSON, returning empty array');
+      try {
+        return await response.json();
+      } catch (error) {
+        console.error('JSON parsing error:', error);
+        const text = await response.text();
+        console.error('Raw response text:', text);
         return [];
       }
-      
-      // Clone the response for debugging
-      const responseClone = response.clone();
-      
-      // Try to parse as JSON
-      return response.json().catch(error => {
-        console.error('JSON parsing error:', error);
-        // Log the raw response text for debugging
-        return responseClone.text().then(text => {
-          console.log('Raw response text:', text);
-          return []; // Return empty array on parsing failure
-        });
-      });
     })
-    .then(data => {
-      console.log('Fetched profile notes:', data);
-      
-      // Filter out any null or undefined notes
-      const validNotes = data.filter(note => note && note.id);
-      console.log('All notes from API:', data.length);
-      console.log('Valid notes:', validNotes.length);
-      
-      // Filter notes based on boardType and privacy setting
-      let filteredNotes = [...data];
-      
-      // First filter by boardType (prefer profile, but if none exist, show all)
-      const profileNotes = filteredNotes.filter(note => note.boardType === 'profile');
-      
-      // If we have profile notes, use those, otherwise use all notes
-      if (profileNotes.length > 0) {
-        filteredNotes = profileNotes;
+    .then(notes => {
+      if (!notes || !Array.isArray(notes)) {
+        console.log('No valid notes array received');
+        return [];
       }
+      return notes;
+    })
+    .then(notes => {
+      console.log('Processing', notes.length, 'notes');
       
-      // Then filter by privacy if isPrivate is true
+      // Filter out any invalid notes
+      const validNotes = notes.filter(note => note && note.id);
+      
+      // Filter by privacy setting if needed
+      let filteredNotes = validNotes;
       if (isPrivate) {
-        filteredNotes = filteredNotes.filter(note => note.isPrivate === true);
+        filteredNotes = validNotes.filter(note => note.isPrivate === true);
       }
       
-      console.log(`Filtered to ${filteredNotes.length} notes (isPrivate=${isPrivate})`);
+      console.log(`Displaying ${filteredNotes.length} notes (isPrivate=${isPrivate})`);
       setNotes(filteredNotes);
+      setError(''); // Clear any previous errors
     })
     .catch(error => {
-      console.error('Error fetching profile notes:', error);
-      if (error.message === 'Authentication failed. Please log in again.') {
+      console.error('Error in fetchProfileNotes:', error);
+      if (error.message === 'Authentication failed') {
         // Already handled above
         return;
       }
       setError('Failed to load notes. Please try again later.');
+      setNotes([]); // Ensure notes is always an array
     });
   }, [user, isPrivate]);
   
@@ -233,6 +224,7 @@ const Profile = () => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       console.error('No auth token found');
+      setError('Authentication required. Please log in.');
       return;
     }
 
@@ -246,7 +238,7 @@ const Profile = () => {
       dislikes: 0,
       username: user.username,
       isPrivate: isPrivate,
-      boardType: 'profile' // Set board type to profile
+      boardType: 'profile' // Explicitly set board type to profile
     };
     
     console.log('Creating new profile note:', { 
@@ -261,8 +253,10 @@ const Profile = () => {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(newNote),
     })
     .then(response => {
@@ -313,155 +307,346 @@ const Profile = () => {
 
   const handleDrag = useCallback((id, x, y) => {
     const token = localStorage.getItem('authToken');
-    if (!token) return;
+    if (!token) {
+      console.error('No authentication token found');
+      return;
+    }
     
     // Update locally first for responsive UI
     setNotes(prevNotes => 
-      prevNotes.map(note => note.id === id ? { ...note, x, y } : note)
+      prevNotes.map(note => 
+        note.id === id ? { ...note, x, y, isDragging: true } : note
+      )
     );
     
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
+    if (!currentNote) {
+      console.error(`Note with id ${id} not found`);
+      return;
+    }
+    
+    // Only include necessary fields in the update
+    const updateData = { 
+      x, 
+      y,
+      // Preserve the existing boardType and isPrivate status
+      boardType: currentNote.boardType || 'profile',
+      isPrivate: currentNote.isPrivate || false
+    };
+    
+    console.log(`Updating position for note ${id}:`, { x, y });
     
     fetch(getApiUrl(`comments/${id}`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
       },
-      body: JSON.stringify({ x, y }),
+      credentials: 'include',
+      body: JSON.stringify(updateData),
     })
-    .then(response => {
+    .then(async response => {
       console.log(`Drag response for note ${id}:`, response.status);
       
       if (response.status === 204) {
         console.log('No content response when updating position');
-        return null;
+        return { ...currentNote, x, y };
       }
       
-      if (!response.ok) throw new Error(`Failed to update position: ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to update position:', errorText);
+        throw new Error(`Failed to update position: ${response.status}`);
+      }
       
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        return currentNote ? { ...currentNote, x, y } : null;
+        console.warn('Expected JSON response, got:', contentType);
+        return { ...currentNote, x, y };
       }
       
-      return response.json().catch(error => {
+      try {
+        return await response.json();
+      } catch (error) {
         console.error('JSON parsing error:', error);
-        return currentNote ? { ...currentNote, x, y } : null;
-      });
+        return { ...currentNote, x, y };
+      }
     })
     .then(updatedNote => {
       if (updatedNote) {
+        console.log('Successfully updated note position:', updatedNote);
         setNotes(prevNotes =>
-          prevNotes.map(note => note.id === id ? updatedNote : note)
+          prevNotes.map(note => 
+            note.id === id ? { ...updatedNote, isDragging: false } : note
+          )
         );
       }
     })
-    .catch(error => console.error('Error updating position:', error));
+    .catch(error => {
+      console.error('Error updating position:', error);
+      // Revert to the original position on error
+      setNotes(prevNotes =>
+        prevNotes.map(note => 
+          note.id === id ? { ...note, isDragging: false } : note
+        )
+      );
+    });
   }, [notes]);
 
-  const handleLike = useCallback((id) => {
+  const handleLike = useCallback(async (id) => {
     const token = localStorage.getItem('authToken');
-    if (!token) return;
-    
-    // Update locally first for responsive UI
-    setNotes(prevNotes => 
-      prevNotes.map(note => note.id === id ? { ...note, likes: (note.likes || 0) + 1 } : note)
-    );
+    if (!token) {
+      console.error('No authentication token found');
+      setError('Authentication required. Please log in.');
+      return;
+    }
     
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
+    if (!currentNote) {
+      console.error(`Note with id ${id} not found`);
+      return;
+    }
     
-    fetch(getApiUrl(`comments/${id}/like`), {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    })
-    .then(response => {
+    // Optimistically update the UI
+    setNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === id 
+          ? { 
+              ...note, 
+              likes: (note.likes || 0) + 1,
+              isLiked: true,
+              // If previously disliked, remove the dislike
+              ...(note.isDisliked ? { 
+                dislikes: Math.max(0, (note.dislikes || 1) - 1),
+                isDisliked: false 
+              } : {})
+            } 
+          : note
+      )
+    );
+    
+    try {
+      const response = await fetch(getApiUrl(`comments/${id}/like`), {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
       console.log(`Like response for note ${id}:`, response.status);
       
       if (response.status === 204) {
         console.log('No content response when liking note');
-        return null;
+        return;
       }
       
-      if (!response.ok) throw new Error(`Failed to like note: ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to like note: ${response.status} - ${errorText}`);
+      }
       
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        return currentNote ? { ...currentNote, likes: (currentNote.likes || 0) + 1 } : null;
+        console.warn('Expected JSON response, got:', contentType);
+        return;
       }
       
-      return response.json().catch(error => {
-        console.error('JSON parsing error:', error);
-        return currentNote ? { ...currentNote, likes: (currentNote.likes || 0) + 1 } : null;
-      });
-    })
-    .then(updatedNote => {
-      if (updatedNote) {
-        setNotes(prevNotes =>
-          prevNotes.map(note => note.id === id ? updatedNote : note)
+      const updatedNote = await response.json();
+      console.log('Successfully liked note:', updatedNote);
+      
+      // Update the note with the server's response
+      setNotes(prevNotes =>
+        prevNotes.map(note => 
+          note.id === id ? { ...updatedNote, isDragging: false } : note
+        )
+      );
+    } catch (error) {
+      console.error('Error liking note:', error);
+      
+      // Revert the optimistic update on error
+      if (currentNote) {
+        setNotes(prevNotes => 
+          prevNotes.map(note => 
+            note.id === id 
+              ? { 
+                  ...currentNote,
+                  likes: currentNote.likes || 0,
+                  isLiked: false,
+                  dislikes: currentNote.dislikes || 0,
+                  isDisliked: currentNote.isDisliked || false
+                } 
+              : note
+          )
         );
       }
-    })
-    .catch(error => console.error('Error liking note:', error));
+      
+      setError('Failed to like note. Please try again.');
+    }
   }, [notes]);
 
-  const handleDislike = useCallback((id) => {
+  const handleDislike = useCallback(async (id) => {
     const token = localStorage.getItem('authToken');
-    if (!token) return;
-    
-    // Update locally first for responsive UI
-    setNotes(prevNotes => 
-      prevNotes.map(note => note.id === id ? { ...note, dislikes: (note.dislikes || 0) + 1 } : note)
-    );
+    if (!token) {
+      console.error('No authentication token found');
+      setError('Authentication required. Please log in.');
+      return;
+    }
     
     // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
+    if (!currentNote) {
+      console.error(`Note with id ${id} not found`);
+      return;
+    }
     
-    fetch(getApiUrl(`comments/${id}/dislike`), {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    })
-    .then(response => {
+    // Optimistically update the UI
+    setNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === id 
+          ? { 
+              ...note, 
+              dislikes: (note.dislikes || 0) + 1,
+              isDisliked: true,
+              // If previously liked, remove the like
+              ...(note.isLiked ? { 
+                likes: Math.max(0, (note.likes || 1) - 1),
+                isLiked: false 
+              } : {})
+            } 
+          : note
+      )
+    );
+    
+    try {
+      const response = await fetch(getApiUrl(`comments/${id}/dislike`), {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
       console.log(`Dislike response for note ${id}:`, response.status);
       
       if (response.status === 204) {
-        console.log('204 No Content - comment was deleted (dislikes >= 100)');
-        return null;
+        console.log('No content response when disliking note');
+        return;
       }
       
-      if (!response.ok) throw new Error(`Failed to dislike note: ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to dislike note: ${response.status} - ${errorText}`);
+      }
       
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        return currentNote ? { ...currentNote, dislikes: (currentNote.dislikes || 0) + 1 } : null;
+        console.warn('Expected JSON response, got:', contentType);
+        return;
       }
       
-      return response.json().catch(error => {
-        console.error('JSON parsing error:', error);
-        return currentNote ? { ...currentNote, dislikes: (currentNote.dislikes || 0) + 1 } : null;
-      });
-    })
-    .then(updatedNote => {
-      if (!updatedNote) {
-        // If null (204 response), remove the note
-        setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-      } else {
-        // Update the notes with the returned data
-        setNotes(prevNotes =>
-          prevNotes.map(note => note.id === id ? updatedNote : note)
+      const updatedNote = await response.json();
+      console.log('Successfully disliked note:', updatedNote);
+      
+      // Update the note with the server's response
+      setNotes(prevNotes =>
+        prevNotes.map(note => 
+          note.id === id ? { ...updatedNote, isDragging: false } : note
+        )
+      );
+    } catch (error) {
+      console.error('Error disliking note:', error);
+      
+      // Revert the optimistic update on error
+      if (currentNote) {
+        setNotes(prevNotes => 
+          prevNotes.map(note => 
+            note.id === id 
+              ? { 
+                  ...currentNote,
+                  dislikes: currentNote.dislikes || 0,
+                  isDisliked: false,
+                  likes: currentNote.likes || 0,
+                  isLiked: currentNote.isLiked || false
+                } 
+              : note
+          )
         );
       }
-    })
-    .catch(error => console.error('Error disliking note:', error));
+      
+      setError('Failed to dislike note. Please try again.');
+    }
   }, [notes]);
+
+  const handleDelete = useCallback(async (id) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      // Optimistically remove the note from the UI
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+      
+      // Call the API to delete the note
+      const response = await fetch(getApiUrl(`comments/${id}`), {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete note');
+      }
+
+      console.log('Note deleted successfully');
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      // Re-fetch notes to restore the deleted note if deletion failed
+      fetchProfileNotes();
+    }
+  }, [fetchProfileNotes]);
+
+  const handleDone = useCallback(async (id) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      // Optimistically update the note as done in the UI
+      setNotes(prevNotes => 
+        prevNotes.map(note => 
+          note.id === id ? { ...note, done: true } : note
+        )
+      );
+      
+      // Call the API to mark the note as done
+      const response = await fetch(getApiUrl(`comments/${id}/done`), {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark note as done');
+      }
+
+      console.log('Note marked as done successfully');
+      
+      // Refresh the notes list to reflect the change
+      fetchProfileNotes();
+    } catch (error) {
+      console.error('Error marking note as done:', error);
+      // Revert the optimistic update if the API call fails
+      fetchProfileNotes();
+    }
+  }, [fetchProfileNotes]);
 
   const togglePrivacy = useCallback(() => {
     setIsPrivate(prev => !prev);
@@ -675,6 +860,36 @@ const Profile = () => {
               >
                 🏠
               </Link>
+              
+              {/* Manage Notes Button */}
+              <button 
+                onClick={() => setShowNotesModal(true)}
+                title="Manage Notes"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  border: 'none',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                  color: '#e0e0e0',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  ':hover': {
+                    backgroundColor: 'rgba(76, 175, 80, 0.3)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                  },
+                  ':active': {
+                    transform: 'translateY(0)'
+                  }
+                }}
+              >
+                📋
+              </button>
             </div>
           </div>
         </div>
@@ -822,6 +1037,8 @@ const Profile = () => {
                         onDrag={handleDrag}
                         onLike={handleLike}
                         onDislike={handleDislike}
+                        onDelete={handleDelete}
+                        onDone={handleDone}
                       />
                     ))}
                   </div>
@@ -830,9 +1047,14 @@ const Profile = () => {
             </div>
           )}
         </div>
-        </div>
+        <NotesManagementModal 
+          isOpen={showNotesModal}
+          onClose={() => setShowNotesModal(false)}
+          userId={user?.id}
+        />
       </div>
     </div>
+  </div>
   );
 };
 

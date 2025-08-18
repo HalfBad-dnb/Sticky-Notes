@@ -20,7 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
                     "http://localhost:8081", 
                     "http://localhost:8082",
                     "https://sticky-notes-frontend-oyj73tnptq-ew.a.run.app",
-                    "https://sticky-notes-frontend-1077104673800.europe-west1.run.app"
+                    "https://sticky-notes-frontend-1077104673800.europe-west1.run.app",
+                    "http://192.168.10.92:5173"
                 ) // Frontend origins including Cloud Run
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Supported HTTP methods
                 .allowedHeaders("*") // Allow all headers

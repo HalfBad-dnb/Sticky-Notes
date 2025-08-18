@@ -639,8 +639,8 @@ textarea {
   padding: 0 15px;
 }
 
-/* Top notes refresh button */
-.top-notes-refresh-button {
+/* Done notes refresh button */
+.done-notes-refresh-button {
   display: block;
   margin: 0 auto 15px;
   background-color: #ffea5c;
@@ -838,8 +838,8 @@ textarea {
   transform: translateY(-2px);
 }
 
-/* Top Notes Styles */
-.top-notes-list {
+/* Done Notes Styles */
+.done-notes-list {
   list-style: none;
   padding: 15px;
   margin: 0 auto;
