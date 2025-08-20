@@ -7,6 +7,7 @@ import News from './News';
 import { getApiUrl } from '../utils/api';
 import '../App.css';
 import { Link } from 'react-router-dom';
+import Disclaimers from './common/Disclaimers';
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -26,21 +27,30 @@ const useMediaQuery = (query) => {
 };
 
 const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [newNoteText, setNewNoteText] = useState('');
+  const [error, setError] = useState(null);
+  const [buttonHover, setButtonHover] = useState({});
+  
+  // Check if device is mobile (screen width less than 768px)
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  
+  // Get zoom context for the sticky board
+  const { getBoardStyle } = useZoom();
+
   const handleDoneWithBackend = useCallback((noteId) => {
-    // Call the parent's onDone handler if provided
     if (onDone) {
       onDone(noteId);
     }
   }, [onDone]);
 
   const handleDeleteWithBackend = useCallback((noteId) => {
-    // Call the parent's onDelete handler if provided
     if (onDelete) {
       onDelete(noteId);
     }
   }, [onDelete]);
+
   const handleUpdateNote = useCallback((updatedNote) => {
-    // Prepare the note data to send to the server
     const noteData = {
       id: updatedNote.id,
       text: updatedNote.text,
@@ -53,7 +63,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       boardType: updatedNote.boardType || 'main'
     };
     
-    // Update the note in the database
     fetch(getApiUrl(`comments/${updatedNote.id}`), {
       method: 'PUT',
       headers: { 
@@ -77,15 +86,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       console.error('Error updating note:', error);
     });
   }, [setNotes]);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [newNoteText, setNewNoteText] = useState('');
-  const [error, setError] = useState(null);
-  
-  // Check if device is mobile (screen width less than 768px)
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  
-  // Get zoom context for the sticky board
-  const { getBoardStyle } = useZoom();
 
   const getRandomColor = useCallback(() => {
     const colors = [
@@ -114,25 +114,22 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
     })
       .then((response) => {
         console.log('API response status:', response.status);
         console.log('API response headers:', [...response.headers.entries()]);
         
-        // Handle no content response
         if (response.status === 204) {
           console.log('No content response, returning empty array');
           return [];
         }
         
-        // Handle error responses
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        // Check if response is empty
         const contentType = response.headers.get('content-type');
         console.log('Content-Type:', contentType);
         
@@ -141,16 +138,13 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
           return [];
         }
         
-        // Clone the response for debugging
         const responseClone = response.clone();
         
-        // Try to parse as JSON
         return response.json().catch(error => {
           console.error('JSON parsing error:', error);
-          // Log the raw response text for debugging
           return responseClone.text().then(text => {
             console.log('Raw response text:', text);
-            return []; // Return empty array on parsing failure
+            return [];
           });
         });
       })
@@ -187,10 +181,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       x,
       y,
       color: getRandomColor(),
-      done: false, // Initialize as not done
-      username: currentUser?.username || 'anonymous', // Associate note with current user
-      boardType: 'main', // Set board type to main
-      isPrivate: false // Default to public
+      done: false,
+      username: currentUser?.username || 'anonymous',
+      boardType: 'main',
+      isPrivate: false
     };
 
     console.log('Sending new note:', newNote);
@@ -198,7 +192,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       },
       body: JSON.stringify(newNote),
     })
@@ -206,15 +200,13 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
         console.log('Add note response status:', response.status);
         console.log('Add note response headers:', [...response.headers.entries()]);
         
-        // Handle no content response
         if (response.status === 204) {
           console.log('No content response when adding note, using original data');
-          return newNote; // Use the original note data
+          return newNote;
         }
         
         if (!response.ok) throw new Error(`Failed to save note: ${response.status}`);
         
-        // Check if response is empty
         const contentType = response.headers.get('content-type');
         console.log('Content-Type:', contentType);
         
@@ -223,44 +215,41 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
           return newNote;
         }
         
-        // Clone the response for debugging
         const responseClone = response.clone();
         
-        // Try to parse as JSON
         return response.json().catch(error => {
           console.error('JSON parsing error:', error);
-          // Log the raw response text for debugging
           return responseClone.text().then(text => {
             console.log('Raw response text:', text);
-            return newNote; // Return original note on parsing failure
+            return newNote;
           });
         });
       })
       .then((savedNote) => {
         console.log('Saved note:', savedNote);
-        // Make sure savedNote has an id
         if (savedNote && !savedNote.id) {
-          // Generate a temporary id if none exists
           savedNote.id = `temp-${Date.now()}`;
         }
         setNotes((prevNotes) => [...prevNotes, savedNote]);
         setNewNoteText('');
+        setError(null);
       })
-      .catch((error) => console.error('Error saving note:', error));
+      .catch((error) => {
+        console.error('Error saving note:', error);
+        setError('Failed to add note. Please try again.');
+      });
   }, [newNoteText, getRandomColor, setNotes, currentUser?.username, notes.length, MAX_NOTES]);
 
   const handleDragWithBackend = useCallback((id, x, y) => {
-    // Apply the drag update locally first for responsive UI
     onDrag(id, x, y);
     
-    // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
     fetch(getApiUrl(`comments/${id}`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       },
       body: JSON.stringify({ x, y }),
     })
@@ -274,7 +263,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
         
         if (!response.ok) throw new Error(`Failed to update position: ${response.status}`);
         
-        // Check if response is empty
         const contentType = response.headers.get('content-type');
         console.log('Content-Type:', contentType);
         
@@ -283,13 +271,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
           return currentNote ? { ...currentNote, x, y } : null;
         }
         
-        // Clone the response for debugging
         const responseClone = response.clone();
         
-        // Try to parse as JSON
         return response.json().catch(error => {
           console.error('JSON parsing error:', error);
-          // Log the raw response text for debugging
           return responseClone.text().then(text => {
             console.log('Raw response text:', text);
             return currentNote ? { ...currentNote, x, y } : null;
@@ -306,22 +291,19 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       })
       .catch((error) => {
         console.error('Error updating position:', error);
-        // Note: We don't need to revert the UI since we already applied the change locally
       });
   }, [onDrag, setNotes, notes]);
 
   const handleLikeWithBackend = useCallback((id) => {
-    // Apply the like locally first for responsive UI
     onDone(id);
     
-    // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
     fetch(getApiUrl(`comments/${id}/like`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       },
     })
       .then((response) => {
@@ -334,7 +316,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
         
         if (!response.ok) throw new Error(`Failed to like note: ${response.status}`);
         
-        // Check if response is empty
         const contentType = response.headers.get('content-type');
         console.log('Content-Type:', contentType);
         
@@ -343,13 +324,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
           return currentNote ? { ...currentNote, likes: (currentNote.likes || 0) + 1 } : null;
         }
         
-        // Clone the response for debugging
         const responseClone = response.clone();
         
-        // Try to parse as JSON
         return response.json().catch(error => {
           console.error('JSON parsing error:', error);
-          // Log the raw response text for debugging
           return responseClone.text().then(text => {
             console.log('Raw response text:', text);
             return currentNote ? { ...currentNote, likes: (currentNote.likes || 0) + 1 } : null;
@@ -366,22 +344,19 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       })
       .catch((error) => {
         console.error('Error liking note:', error);
-        // Note: We don't need to revert the UI since we already applied the change locally
       });
   }, [onDone, setNotes, notes]);
 
   const handleDislikeWithBackend = useCallback((id) => {
-    // Apply the dislike locally first for responsive UI
     onDelete(id);
     
-    // Find the current note to use if the server response fails
     const currentNote = notes.find(note => note.id === id);
     
     fetch(getApiUrl(`comments/${id}/dislike`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add auth token
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       },
     })
       .then((response) => {
@@ -394,7 +369,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
         
         if (!response.ok) throw new Error(`Failed to dislike note: ${response.status}`);
         
-        // Check if response is empty
         const contentType = response.headers.get('content-type');
         console.log('Content-Type:', contentType);
         
@@ -403,13 +377,10 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
           return currentNote ? { ...currentNote, dislikes: (currentNote.dislikes || 0) + 1 } : null;
         }
         
-        // Clone the response for debugging
         const responseClone = response.clone();
         
-        // Try to parse as JSON
         return response.json().catch(error => {
           console.error('JSON parsing error:', error);
-          // Log the raw response text for debugging
           return responseClone.text().then(text => {
             console.log('Raw response text:', text);
             return currentNote ? { ...currentNote, dislikes: (currentNote.dislikes || 0) + 1 } : null;
@@ -419,10 +390,8 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       .then((updatedNote) => {
         console.log('Disliked note:', updatedNote);
         if (!updatedNote) {
-          // If null (204 response), remove the note
           setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
         } else {
-          // Update the notes with the returned data
           setNotes((prevNotes) =>
             prevNotes.map((note) => (note.id === id ? updatedNote : note))
           );
@@ -430,11 +399,39 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       })
       .catch((error) => {
         console.error('Error disliking note:', error);
-        // Note: We don't need to revert the UI since we already applied the change locally
       });
   }, [onDelete, setNotes, notes]);
 
-  // No longer need state for info tabs as they're always visible
+  const refreshNotes = useCallback(() => {
+    fetch(getApiUrl('comments'), {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+      }
+    })
+      .then((response) => {
+        if (response.status === 204) return [];
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) return [];
+        
+        return response.json().catch(error => {
+          console.error('JSON parsing error:', error);
+          return [];
+        });
+      })
+      .then((data) => {
+        console.log('Refreshed notes:', data);
+        setNotes(Array.isArray(data) ? data : []);
+        setError(null);
+      })
+      .catch((error) => {
+        console.error('Refresh failed:', error);
+        setError(`Failed to refresh notes: ${error.message}`);
+      });
+  }, [setNotes]);
 
   // Function to render notes in list view for mobile
   const renderMobileNotesList = () => {
@@ -450,6 +447,18 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
           marginTop: '10px'
         }}
       >
+        {error && (
+          <div style={{ 
+            color: 'red', 
+            textAlign: 'center', 
+            margin: '10px 0',
+            padding: '10px',
+            backgroundColor: 'rgba(255, 0, 0, 0.1)',
+            borderRadius: '4px'
+          }}>
+            {error}
+          </div>
+        )}
         {notes.map((note, index) => (
           <div 
             key={note.id}
@@ -480,6 +489,12 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
     );
   };
 
+  // Button styles with hover handling
+  const getButtonStyle = (buttonKey, baseStyle, hoverStyle = {}) => ({
+    ...baseStyle,
+    ...(buttonHover[buttonKey] ? hoverStyle : {})
+  });
+
   return (
     <div className="sticky-board fullscreen" style={{
       paddingTop: isMobile ? '80px' : '20px',
@@ -487,183 +502,133 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       minHeight: '100vh',
       boxSizing: 'border-box'
     }}>
-      {/* Top controls row with info tabs and input container */}
-      <div className="top-controls-row" style={{
-        flexDirection: isMobile ? 'column' : 'row',
+      {/* Disclaimers */}
+      <Disclaimers isMobile={isMobile} />
+      
+      {/* Input container */}
+      <div className="input-container" style={{
+        width: isMobile ? '100%' : 'auto',
         padding: isMobile ? '10px' : '10px',
-        gap: isMobile ? '15px' : '20px',
-        marginBottom: isMobile ? '15px' : '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
         position: 'relative',
-        zIndex: 1000
+        zIndex: 1000,
+        maxWidth: isMobile ? '100%' : '600px',
+        margin: '0 auto'
       }}>
-        {/* Left info tab (Rules) */}
-        <div className="info-tab left-tab" style={{
-          display: isMobile ? 'none' : 'block',
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '4px',
-          padding: '15px',
-          minWidth: '250px',
-          fontFamily: '"Times New Roman", Times, serif',
-          color: '#000000'
-        }}>
-          <div className="info-content" style={{ fontFamily: 'inherit' }}>
-            <h3 style={{ 
-              fontFamily: 'inherit',
-              fontSize: '1.2rem',
-              marginBottom: '10px',
-              fontWeight: '600'
-            }}>Board Rules</h3>
-            <ul style={{ 
-              paddingLeft: '20px',
-              margin: 0,
-              fontFamily: 'inherit',
-              lineHeight: '1.6'
-            }}>
-              <li style={{ fontFamily: 'inherit' }}>20 dislikes will delete a note</li>
-              <li style={{ fontFamily: 'inherit' }}>Down below you can find more info and updates about the board</li>
-              <li style={{ fontFamily: 'inherit' }}>Done notes are shown in Done Notes section</li>
-              <li style={{ fontFamily: 'inherit' }}>Board are limited to 10 notes</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Disclaimer tab */}
-        <div className="info-tab disclaimer-tab" style={{
-          display: isMobile ? 'none' : 'block',
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '4px',
-          padding: '15px',
-          minWidth: '250px',
-          fontFamily: '"Times New Roman", Times, serif',
-          color: '#000000'
-        }}>
-          <div className="info-content" style={{ fontFamily: 'inherit' }}>
-            <h3 style={{ 
-              fontFamily: 'inherit',
-              fontSize: '1.2rem',
-              marginBottom: '10px',
-              fontWeight: '600'
-            }}>Disclaimer</h3>
-            <ul style={{ 
-              paddingLeft: '20px',
-              margin: 0,
-              fontFamily: 'inherit',
-              lineHeight: '1.6'
-            }}>
-              <li style={{ fontFamily: 'inherit' }}>Do not save sensitive data</li>
-              <li style={{ fontFamily: 'inherit' }}>All info exposed by notes is your responsibility</li>
-              <li style={{ fontFamily: 'inherit' }}>We don&apos;t know who posts notes</li>
-              <li style={{ fontFamily: 'inherit' }}>We just don&apos;t care who posts notes</li>
-              <li style={{ fontFamily: 'inherit' }}>Be aware of what you&apos;re posting</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Input container - not affected by zoom */}
-        <div className="input-container" style={{
-          width: isMobile ? '100%' : 'auto',
-          padding: isMobile ? '0' : '10px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: isMobile ? '15px' : '15px',
+        <div style={{
+          width: '100%',
           position: 'relative',
-          zIndex: 1000
+          marginTop: isMobile ? '10px' : '0',
+          marginBottom: isMobile ? '10px' : '0'
         }}>
-          <div style={{
-            width: '100%',
-            position: 'relative',
-            marginTop: isMobile ? '10px' : '0',
-            marginBottom: isMobile ? '10px' : '0'
-          }}>
-            <textarea
-              value={newNoteText}
-              onChange={(e) => setNewNoteText(e.target.value)}
-              placeholder={notes.length >= MAX_NOTES 
-                ? `Maximum ${MAX_NOTES} notes reached` 
-                : 'Add a new note...'}
-              className="textarea"
-              style={{
-                width: '100%',
-                height: '120px',
-                fontSize: '16px',
-                padding: '16px 20px',
-                boxSizing: 'border-box',
-                backgroundColor: notes.length >= MAX_NOTES ? '#3a3d41' : '#2a2d31',
-                color: notes.length >= MAX_NOTES ? '#666' : '#ffffff',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '4px',
-                outline: 'none',
-                resize: 'none',
-                lineHeight: '1.5',
-                fontFamily: '"Times New Roman", Times, serif',
-                fontWeight: '500',
-                cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'text',
-                opacity: notes.length >= MAX_NOTES ? 0.7 : 1,
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-              }}
-              disabled={notes.length >= MAX_NOTES}
-            />
-          </div>
-          {/* No notes message - shown when there are no notes */}
-          {notes.length === 0 && !error && (
-            <div style={{
-              textAlign: 'center',
-              color: '#ffffff',
-              fontFamily: '"Times New Roman", Times, serif',
+          <textarea
+            value={newNoteText}
+            onChange={(e) => setNewNoteText(e.target.value)}
+            placeholder={notes.length >= MAX_NOTES 
+              ? `Maximum ${MAX_NOTES} notes reached` 
+              : 'Add a new note...'}
+            className="textarea"
+            style={{
+              width: '100%',
+              height: '120px',
               fontSize: '16px',
-              margin: '10px 0',
-              opacity: 0.8
-            }}>
-              No notes yet. Add one above!
-            </div>
-          )}
-          
-          <div className="button-container" style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '15px',
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '10px 0',
-            marginTop: '5px'
+              padding: '16px 20px',
+              boxSizing: 'border-box',
+              backgroundColor: notes.length >= MAX_NOTES ? '#3a3d41' : '#2a2d31',
+              color: notes.length >= MAX_NOTES ? '#666' : '#ffffff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '4px',
+              outline: 'none',
+              resize: 'none',
+              lineHeight: '1.5',
+              fontFamily: '"Times New Roman", Times, serif',
+              fontWeight: '500',
+              cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'text',
+              opacity: notes.length >= MAX_NOTES ? 0.7 : 1,
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            }}
+            disabled={notes.length >= MAX_NOTES}
+          />
+        </div>
+
+        {/* Error message */}
+        {error && (
+          <div style={{
+            color: 'red',
+            textAlign: 'center',
+            margin: '10px 0',
+            padding: '10px',
+            backgroundColor: 'rgba(255, 0, 0, 0.1)',
+            borderRadius: '4px',
+            fontFamily: '"Times New Roman", Times, serif'
           }}>
-            <button 
-              onClick={addNote} 
-              className="add-note-button" 
-              disabled={notes.length >= MAX_NOTES}
-              style={{
-                minWidth: '100px',
-                height: '36px',
-                padding: '0 16px',
-                fontSize: '14px',
-                backgroundColor: notes.length >= MAX_NOTES ? '#555' : 'rgba(255, 255, 255, 0.1)',
-                color: notes.length >= MAX_NOTES ? '#999' : '#e0e0e0',
-                fontWeight: '500',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '8px',
-                cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: '"Times New Roman", Times, serif',
-                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                opacity: notes.length >= MAX_NOTES ? 0.7 : 1,
-                ':hover': notes.length < MAX_NOTES ? {
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                } : {},
-                ':active': notes.length < MAX_NOTES ? {
-                  transform: 'translateY(0)'
-                } : {}
-              }}
-            >
-              {notes.length >= MAX_NOTES ? 'Limit Reached' : 'Add Note'}
-            </button>
-            <Link to="/profile" style={{
+            {error}
+          </div>
+        )}
+
+        {/* No notes message */}
+        {notes.length === 0 && !error && (
+          <div style={{
+            textAlign: 'center',
+            color: '#ffffff',
+            fontFamily: '"Times New Roman", Times, serif',
+            fontSize: '16px',
+            margin: '10px 0',
+            opacity: 0.8
+          }}>
+            No notes yet. Add one above!
+          </div>
+        )}
+        
+        <div className="button-container" style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '15px',
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '10px 0',
+          marginTop: '5px'
+        }}>
+          <button 
+            onClick={addNote} 
+            className="add-note-button" 
+            disabled={notes.length >= MAX_NOTES}
+            onMouseEnter={() => setButtonHover(prev => ({...prev, addNote: true}))}
+            onMouseLeave={() => setButtonHover(prev => ({...prev, addNote: false}))}
+            style={getButtonStyle('addNote', {
+              minWidth: '100px',
+              height: '36px',
+              padding: '0 16px',
+              fontSize: '14px',
+              backgroundColor: notes.length >= MAX_NOTES ? '#555' : 'rgba(255, 255, 255, 0.1)',
+              color: notes.length >= MAX_NOTES ? '#999' : '#e0e0e0',
+              fontWeight: '500',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: '8px',
+              cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: '"Times New Roman", Times, serif',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              opacity: notes.length >= MAX_NOTES ? 0.7 : 1,
+            }, notes.length < MAX_NOTES ? {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+            } : {})}
+          >
+            {notes.length >= MAX_NOTES ? 'Limit Reached' : 'Add Note'}
+          </button>
+          
+          <Link 
+            to="/profile" 
+            onMouseEnter={() => setButtonHover(prev => ({...prev, profile: true}))}
+            onMouseLeave={() => setButtonHover(prev => ({...prev, profile: false}))}
+            style={getButtonStyle('profile', {
               minWidth: '44px',
               height: '44px',
               padding: '0',
@@ -680,157 +645,60 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              ':hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-              },
-              ':active': {
-                transform: 'translateY(0)'
-              }
-            }}>
-              👤
-            </Link>
-            <button 
-              onClick={() => {
-                // Refresh board by fetching notes again
-                fetch(getApiUrl('comments'), {
-                  method: 'GET',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
-                  }
-                })
-                  .then((response) => {
-                    if (response.status === 204) return [];
-                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                    
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) return [];
-                    
-                    return response.json().catch(error => {
-                      console.error('JSON parsing error:', error);
-                      return [];
-                    });
-                  })
-                  .then((data) => {
-                    console.log('Refreshed notes:', data);
-                    setNotes(Array.isArray(data) ? data : []);
-                    setError(null);
-                  })
-                  .catch((error) => {
-                    console.error('Refresh failed:', error);
-                    setError(`Failed to refresh notes: ${error.message}`);
-                  });
-              }} 
-              style={{
-                width: '44px',
-                height: '44px',
-                border: 'none',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: '#e0e0e0',
-                cursor: 'pointer',
-                fontSize: '20px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                ':hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                },
-                ':active': {
-                  transform: 'translateY(0)'
-                }
-              }}
-            >
-              🔄
-            </button>
-          </div>
-        </div>
-
-        {/* Right side tabs container */}
-        <div style={{
-          display: isMobile ? 'none' : 'flex',
-          flexDirection: 'row',
-          gap: '20px',
-          minWidth: '520px',
-          maxWidth: '600px'
-        }}>
-          {/* Project Status tab */}
-          <div className="info-tab right-tab" style={{
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '4px',
-            padding: '15px',
-            fontFamily: '"Times New Roman", Times, serif',
-            color: '#000000',
-            flex: 1,
-            minWidth: '250px'
-          }}>
-            <div className="info-content" style={{ fontFamily: 'inherit' }}>
-              <h3 style={{ 
-                fontFamily: 'inherit',
-                fontSize: '1.2rem',
-                marginBottom: '10px',
-                fontWeight: '600'
-              }}>Project Status</h3>
-              <ul style={{ 
-                paddingLeft: '20px',
-                margin: 0,
-                fontFamily: 'inherit',
-                lineHeight: '1.6'
-              }}>
-                <li style={{ fontFamily: 'inherit' }}>Project still in beta</li>
-                <li style={{ fontFamily: 'inherit' }}>Some features may not work as expected</li>
-                <li style={{ fontFamily: 'inherit' }}>We are actively working on improvements</li>
-                <li style={{ fontFamily: 'inherit' }}>Expect occasional downtime</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Event Features tab */}
-          <div className="info-tab right-tab" style={{
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '4px',
-            padding: '15px',
-            fontFamily: '"Times New Roman", Times, serif',
-            color: '#000000',
-            flex: 1,
-            minWidth: '250px'
-          }}>
-            <div className="info-content" style={{ fontFamily: 'inherit' }}>
-              <h3 style={{ 
-                fontFamily: 'inherit',
-                fontSize: '1.2rem',
-                marginBottom: '10px',
-                fontWeight: '600'
-              }}>Event Features</h3>
-              <ul style={{ 
-                paddingLeft: '20px',
-                margin: 0,
-                fontFamily: 'inherit',
-                lineHeight: '1.6'
-              }}>
-                <li style={{ fontFamily: 'inherit' }}>Use for live events and presentations</li>
-                <li style={{ fontFamily: 'inherit' }}>Interactive Q&A sessions with audience</li>
-                <li style={{ fontFamily: 'inherit' }}>Real-time feedback collection</li>
-                <li style={{ fontFamily: 'inherit' }}>Organize brainstorming sessions</li>
-              </ul>
-            </div>
-          </div>
+            }, {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+            })}
+          >
+            👤
+          </Link>
+          
+          <button 
+            onClick={refreshNotes}
+            onMouseEnter={() => setButtonHover(prev => ({...prev, refresh: true}))}
+            onMouseLeave={() => setButtonHover(prev => ({...prev, refresh: false}))}
+            style={getButtonStyle('refresh', {
+              width: '44px',
+              height: '44px',
+              border: 'none',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: '#e0e0e0',
+              cursor: 'pointer',
+              fontSize: '20px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            }, {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+            })}
+          >
+            🔄
+          </button>
         </div>
       </div>
-      
+
       {/* Notes container - show different views based on device */}
       {isMobile ? (
         renderMobileNotesList()
       ) : (
         <div className="notes-container" style={getBoardStyle()}>
-          {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+          {error && (
+            <div style={{ 
+              color: 'red',
+              textAlign: 'center',
+              margin: '10px 0',
+              padding: '10px',
+              backgroundColor: 'rgba(255, 0, 0, 0.1)',
+              borderRadius: '4px'
+            }}>
+              Error: {error}
+            </div>
+          )}
           <div className="notes-items">
             {notes.length > 0 && notes.map((note, index) => (
               <StickyNote

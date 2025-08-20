@@ -1,25 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import MenuDefault from './components/backgroundstyles/menustyles/MenuDefault';
-import { useTheme } from './context/themeUtils';
-import { THEMES } from './constants/themes';
+import ThemeDropdown from './components/ThemeDropdown';
 
 const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { theme, setTheme } = useTheme();
   
-  // Log theme changes for debugging
-  useEffect(() => {
-    console.log('Current theme:', theme);
-  }, [theme]);
-  
-  const handleThemeChange = (newTheme) => {
-    console.log('Changing theme to:', newTheme);
-    setTheme(newTheme);
-  };
-
   useEffect(() => {
     // Check if user is authenticated
     const token = localStorage.getItem('authToken');
@@ -36,8 +23,6 @@ const NavBar = () => {
     alignItems: 'flex-start',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
-
-  // Menu button styles are now in MenuDefault.css
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -58,111 +43,75 @@ const NavBar = () => {
   // Get username from localStorage
   const username = localStorage.getItem('username') || 'User';
   const userInitial = username.charAt(0).toUpperCase();
-  
-  // Quick theme switch button
-  const ThemeButton = ({ themeKey, emoji, label }) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        handleThemeChange(themeKey);
-      }}
-      style={{
-        background: theme === themeKey ? '#4a90e2' : 'rgba(255,255,255,0.1)',
-        color: theme === themeKey ? '#fff' : '#ddd',
-        border: 'none',
-        width: '40px',
-        height: '40px',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        fontSize: '18px',
-        transition: 'all 0.2s ease',
-        marginLeft: '8px',
-      }}
-      title={`Switch to ${label} theme`}
-    >
-      {emoji}
-    </button>
-  );
-  
-  // Add prop validation for ThemeButton
-  ThemeButton.propTypes = {
-    themeKey: PropTypes.string.isRequired,
-    emoji: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired
-  };
 
   return (
     <div style={navBarStyle}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            onClick={handleDropdownToggle}
-            aria-label={isDropdownOpen ? 'Close menu' : 'Open menu'}
-            style={{
-              backgroundColor: isDropdownOpen ? '#FFE44D' : 'rgba(255, 255, 255, 0.1)',
-              color: isDropdownOpen ? '#000' : '#fff',
-              border: 'none',
-              borderRadius: '12px',
-              width: '44px',
-              height: '44px',
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Menu button */}
+        <button
+          onClick={handleDropdownToggle}
+          aria-label={isDropdownOpen ? 'Close menu' : 'Open menu'}
+          style={{
+            backgroundColor: isDropdownOpen ? '#FFE44D' : 'rgba(255, 255, 255, 0.1)',
+            color: isDropdownOpen ? '#000' : '#fff',
+            border: 'none',
+            borderRadius: '12px',
+            width: '44px',
+            height: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: isDropdownOpen 
+              ? '0 0 0 2px rgba(255, 228, 77, 0.8)'
+              : '0 0 0 1px rgba(255, 255, 255, 0.1)',
+            padding: '0',
+            margin: '0'
+          }}
+        >
+          {isDropdownOpen ? (
+            <span style={{ 
+              fontSize: '24px',
+              display: 'inline-block',
+              lineHeight: '1',
+              transform: 'scale(1.1)'
+            }}>✕</span>
+          ) : (
+            <div style={{
+              position: 'relative',
+              width: '20px',
+              height: '14px',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: isDropdownOpen 
-                ? '0 0 0 2px rgba(255, 228, 77, 0.8)'
-                : '0 0 0 1px rgba(255, 255, 255, 0.1)',
-              padding: '0',
-              margin: '0'
-            }}
-          >
-            {isDropdownOpen ? (
-              <span style={{ 
-                fontSize: '24px',
-                display: 'inline-block',
-                lineHeight: '1',
-                transform: 'scale(1.1)'
-              }}>✕</span>
-            ) : (
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
               <div style={{
-                position: 'relative',
                 width: '20px',
-                height: '14px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <div style={{
-                  width: '20px',
-                  height: '2px',
-                  backgroundColor: 'currentColor',
-                  transition: 'all 0.2s ease',
-                  transformOrigin: 'center'
-                }} />
-                <div style={{
-                  width: '16px',
-                  height: '2px',
-                  backgroundColor: 'currentColor',
-                  transition: 'all 0.2s ease',
-                  transformOrigin: 'center',
-                  opacity: 0.8
-                }} />
-                <div style={{
-                  width: '20px',
-                  height: '2px',
-                  backgroundColor: 'currentColor',
-                  transition: 'all 0.2s ease',
-                  transformOrigin: 'center'
-                }} />
-              </div>
-            )}
-          </button>
-        </div>
+                height: '2px',
+                backgroundColor: 'currentColor',
+                transition: 'all 0.2s ease',
+                transformOrigin: 'center'
+              }} />
+              <div style={{
+                width: '16px',
+                height: '2px',
+                backgroundColor: 'currentColor',
+                transition: 'all 0.2s ease',
+                transformOrigin: 'center',
+                opacity: 0.8
+              }} />
+              <div style={{
+                width: '20px',
+                height: '2px',
+                backgroundColor: 'currentColor',
+                transition: 'all 0.2s ease',
+                transformOrigin: 'center'
+              }} />
+            </div>
+          )}
+        </button>
       </div>
 
       {isDropdownOpen && (
@@ -321,12 +270,11 @@ const NavBar = () => {
                 >
                   Profile
                 </Link>
-                <div style={{ margin: '16px 0', padding: '0 8px' }}>
+                <div style={{ padding: '12px 16px' }}>
                   <div style={{ 
                     fontSize: '0.85rem', 
                     color: 'rgba(255,255,255,0.6)', 
-                    marginBottom: '12px',
-                    paddingLeft: '8px',
+                    marginBottom: '8px',
                     letterSpacing: '0.5px',
                     textTransform: 'uppercase',
                     fontWeight: '600',
@@ -334,55 +282,7 @@ const NavBar = () => {
                   }}>
                     Theme
                   </div>
-                  <div style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column',
-                    gap: '8px',
-                    padding: '0 8px'
-                  }}>
-                    {[
-                      { key: THEMES.TRIANGLES, label: 'Triangles' },
-                      { key: THEMES.BUBBLES, label: 'Bubbles' },
-                      { key: THEMES.HEARTS, label: 'Hearts' }
-                    ].map(({ key, label }) => (
-                      <button 
-                        key={key}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleThemeChange(key);
-                        }}
-                        style={{
-                          background: 'transparent',
-                          color: theme === key ? '#70b1ff' : 'rgba(255,255,255,0.9)',
-                          border: 'none',
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontSize: '0.95rem',
-                          transition: 'all 0.2s ease',
-                          pointerEvents: 'auto',
-                          textAlign: 'left',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)'
-                          }
-                        }}
-                      >
-                        <span>{label}</span>
-                        {theme === key && (
-                          <span style={{ 
-                            marginLeft: 'auto',
-                            fontSize: '14px',
-                            opacity: 0.7
-                          }}>
-                            ✓
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                  <ThemeDropdown />
                 </div>
                 <div style={{ 
                   marginTop: 'auto',
@@ -460,4 +360,3 @@ const NavBar = () => {
 };
 
 export default NavBar;
-
