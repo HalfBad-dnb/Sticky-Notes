@@ -12,9 +12,6 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    // Optional: Custom query to find comments by color (example enhancement)
-    List<Comment> findByColor(String color);
-
     // Optional: Custom query to find comments containing specific text (case-insensitive)
     List<Comment> findByTextContainingIgnoreCase(String text);
     

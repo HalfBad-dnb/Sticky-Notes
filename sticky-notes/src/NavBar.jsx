@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+
 import MenuDefault from './components/backgroundstyles/menustyles/MenuDefault';
 import ThemeDropdown from './components/ThemeDropdown';
+import NoteStyleDropdown from './components/NoteStyleDropdown';
 
 const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -191,6 +193,23 @@ const NavBar = () => {
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 16px' }}>
             <Link 
+              to="/profile" 
+              onClick={closeMenu}
+              style={{
+                padding: '12px 16px',
+                borderRadius: '8px',
+                transition: 'background-color 0.2s',
+                textDecoration: 'none',
+                color: 'rgba(255, 255, 255, 0.9)',
+                display: 'block',
+                ':hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                }
+              }}
+            >
+              Profile
+            </Link>
+            <Link 
               to="/board" 
               onClick={closeMenu}
               style={{
@@ -253,23 +272,6 @@ const NavBar = () => {
           }}>
             {isAuthenticated ? (
               <>
-                <Link 
-                  to="/profile" 
-                  onClick={closeMenu}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '8px',
-                    transition: 'background-color 0.2s',
-                    textDecoration: 'none',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    display: 'block',
-                    ':hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
-                    }
-                  }}
-                >
-                  Profile
-                </Link>
                 <div style={{ padding: '12px 16px' }}>
                   <div style={{ 
                     fontSize: '0.85rem', 
@@ -283,6 +285,20 @@ const NavBar = () => {
                     Theme
                   </div>
                   <ThemeDropdown />
+                </div>
+                <div style={{ padding: '12px 16px', marginTop: '8px' }}>
+                  <div style={{ 
+                    fontSize: '0.85rem', 
+                    color: 'rgba(255,255,255,0.6)', 
+                    marginBottom: '8px',
+                    letterSpacing: '0.5px',
+                    textTransform: 'uppercase',
+                    fontWeight: '600',
+                    opacity: 0.8
+                  }}>
+                    Note Style
+                  </div>
+                  <NoteStyleDropdown />
                 </div>
                 <div style={{ 
                   marginTop: 'auto',

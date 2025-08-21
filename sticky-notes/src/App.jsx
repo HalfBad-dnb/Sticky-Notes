@@ -12,6 +12,7 @@ import Register from './profile/register';
 import Profile from './profile/profile';
 import { ZoomProvider } from './context/ZoomProvider';
 import { ThemeProvider } from './context/ThemeContext';
+import { NoteStyleProvider } from './context/NoteStyleContext';
 import './profile/profile.css';
 import './App.css';
 import BubbleBackgroundTheme from "./components/backgroundstyles/theme/BubleBackgroundTheme";
@@ -309,30 +310,24 @@ const AppContent = () => {
                 </div>
               } 
             />
-            <Route 
-              path="/"
-              element={
-                <StickyBoard
-                  notes={activeNotes}
-                  setNotes={setNotes}
-                  onDrag={handleDrag}
-                  onDone={handleDone}
-                  onDelete={handleDeleteClick}
-                />
-              }
-            />
-            <Route 
-              path="/board"
-              element={
-                <StickyBoard
-                  notes={activeNotes}
-                  setNotes={setNotes}
-                  onDrag={handleDrag}
-                  onDone={handleDone}
-                  onDelete={handleDeleteClick}
-                />
-              }
-            />
+            <Route path="/" element={
+              <StickyBoard
+                notes={activeNotes}
+                setNotes={setNotes}
+                onDrag={handleDrag}
+                onDone={handleDone}
+                onDelete={handleDeleteClick}
+              />
+            } />
+            <Route path="/board" element={
+              <StickyBoard
+                notes={activeNotes}
+                setNotes={setNotes}
+                onDrag={handleDrag}
+                onDone={handleDone}
+                onDelete={handleDeleteClick}
+              />
+            } />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
@@ -343,9 +338,8 @@ const AppContent = () => {
   );
 };
 
-// Main App component with providers
-function App() {
-  // Add viewport meta tag for responsive design
+const App = () => {
+  // Add viewport meta tag for mobile responsiveness
   useEffect(() => {
     const viewportMeta = document.querySelector('meta[name="viewport"]');
     if (!viewportMeta) {
@@ -358,10 +352,11 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Background />
-      <ZoomProvider>
-        <AppContent />
-      </ZoomProvider>
+      <NoteStyleProvider>
+        <ZoomProvider>
+          <AppContent />
+        </ZoomProvider>
+      </NoteStyleProvider>
     </ThemeProvider>
   );
 };

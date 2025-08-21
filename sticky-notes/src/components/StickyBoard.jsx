@@ -56,7 +56,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       text: updatedNote.text,
       x: updatedNote.x,
       y: updatedNote.y,
-      color: updatedNote.color,
       done: updatedNote.done || false,
       username: updatedNote.username,
       isPrivate: updatedNote.isPrivate || false,
@@ -87,12 +86,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
     });
   }, [setNotes]);
 
-  const getRandomColor = useCallback(() => {
-    const colors = [
-      '#ffea5c', '#ffb6c1', '#98fb98', '#add8e6', '#dda0dd', '#f0e68c',
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }, []);
+
 
   // Get current user from session storage
   useEffect(() => {
@@ -180,7 +174,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       text: newNoteText,
       x,
       y,
-      color: getRandomColor(),
       done: false,
       username: currentUser?.username || 'anonymous',
       boardType: 'main',
@@ -238,7 +231,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
         console.error('Error saving note:', error);
         setError('Failed to add note. Please try again.');
       });
-  }, [newNoteText, getRandomColor, setNotes, currentUser?.username, notes.length, MAX_NOTES]);
+  }, [newNoteText, setNotes, currentUser?.username, notes.length, MAX_NOTES]);
 
   const handleDragWithBackend = useCallback((id, x, y) => {
     onDrag(id, x, y);

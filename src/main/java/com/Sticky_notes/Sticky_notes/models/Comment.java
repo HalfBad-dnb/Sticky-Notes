@@ -21,8 +21,6 @@ public class Comment {
     @NotNull
     private String text;
 
-    @NotNull
-    private String color;
 
     private boolean done = false; // Indicates if the task is completed
     
@@ -69,14 +67,6 @@ public class Comment {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
     }
 
     public boolean isDone() {
