@@ -35,28 +35,38 @@ const NotePuzzle = ({
   const charCount = text?.length || 0;
   const isEditing = false;
   
-  // Puzzle piece style with SVG for the puzzle shape
+  // Organic puzzle piece with curved tabs
   const puzzlePieceStyle = {
     position: 'relative',
     width: width,
     height: height,
-    minHeight: '200px',
-    padding: '25px 20px 20px',
+    minHeight: '220px',
+    padding: '35px 30px 30px',
     fontFamily: '"Comic Sans MS", cursive, sans-serif',
-    color: done ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.9)',
+    color: done ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.9)',
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
     boxSizing: 'border-box',
     overflow: 'hidden',
     cursor: 'text',
-    opacity: done ? 0.7 : 1,
+    opacity: done ? 0.6 : 1,
     textDecoration: done ? 'line-through' : 'none',
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+    background: 'linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%)',
+    border: 'none',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+    clipPath: `
+      path('M 0 30 
+           C 0 5, 10 5, 20 15
+           C 30 5, 40 15, 50 5
+           C 60 15, 70 5, 80 15
+           C 90 5, 100 5, 100 30
+           C 100 70, 90 70, 80 60
+           C 70 70, 60 60, 50 70
+           C 40 60, 30 70, 20 60
+           C 10 70, 0 70, 0 50 Z')
+    `,
     borderRadius: '15px',
-    border: '2px solid #6b8cae',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    clipPath: 'polygon(0% 15px, 15px 15px, 15px 0%, calc(100% - 15px) 0%, calc(100% - 15px) 15px, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 15px calc(100% - 15px), 0% calc(100% - 15px))',
   };
 
   // Content style for the note text
@@ -69,9 +79,9 @@ const NotePuzzle = ({
     lineHeight: '1.5',
     fontSize: '16px',
     padding: '10px',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: '8px',
-    border: '1px dashed #6b8cae',
+    border: '1px dashed #4a69bd',
   };
 
   // Button container style
@@ -85,15 +95,16 @@ const NotePuzzle = ({
   // Button style
   const buttonStyle = {
     padding: '5px 10px',
-    border: '1px solid #6b8cae',
+    border: '1px solid #4a69bd',
     borderRadius: '12px',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     cursor: 'pointer',
     fontSize: '12px',
-    color: '#2c3e50',
+    color: '#f1f2f6',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 1)',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      borderColor: '#5d7bc8',
     },
   };
 
@@ -107,9 +118,9 @@ const NotePuzzle = ({
           right: '10px',
           fontSize: '0.7rem',
           opacity: 0.7,
-          color: charCount >= MAX_CHAR_LIMIT ? '#ff6b6b' : 'rgba(0, 0, 0, 0.7)',
+          color: charCount >= MAX_CHAR_LIMIT ? '#ff6b6b' : 'rgba(255, 255, 255, 0.7)',
           zIndex: 10,
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           padding: '2px 6px',
           borderRadius: '4px',
         }}>
@@ -137,58 +148,99 @@ const NotePuzzle = ({
           onClick={() => onDelete(id)}
           style={{
             ...buttonStyle,
-            color: '#e74c3c',
-            borderColor: '#e74c3c',
+            color: '#ff6b6b',
+            borderColor: '#ff6b6b',
+            ':hover': {
+              backgroundColor: 'rgba(255, 107, 107, 0.2)',
+              borderColor: '#ff8e8e',
+            },
           }}
         >
           Delete
         </button>
       </div>
 
-      {/* Decorative puzzle tabs */}
+      {/* Organic Puzzle Tabs */}
+      {/* Top Tab */}
       <div style={{
         position: 'absolute',
-        width: '30px',
-        height: '15px',
-        backgroundColor: '#6b8cae',
-        borderRadius: '15px 15px 0 0',
+        width: '60px',
+        height: '25px',
+        background: 'linear-gradient(160deg, #3a5f9a 0%, #4a69bd 100%)',
+        borderRadius: '30px 30px 0 0',
         top: '0',
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 1,
+        boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.25)',
+        borderBottom: 'none',
+        clipPath: 'ellipse(50% 70% at 50% 100%)'
       }} />
+      
+      {/* Right Tab */}
       <div style={{
         position: 'absolute',
-        width: '15px',
-        height: '30px',
-        backgroundColor: '#6b8cae',
-        borderRadius: '0 15px 15px 0',
-        left: '0',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        zIndex: 1,
-      }} />
-      <div style={{
-        position: 'absolute',
-        width: '15px',
-        height: '30px',
-        backgroundColor: '#6b8cae',
-        borderRadius: '15px 0 0 15px',
+        width: '25px',
+        height: '60px',
+        background: 'linear-gradient(250deg, #4a69bd 0%, #3a5f9a 100%)',
+        borderRadius: '0 30px 30px 0',
         right: '0',
         top: '50%',
         transform: 'translateY(-50%)',
         zIndex: 1,
+        boxShadow: 'inset -4px 0 8px rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.25)',
+        borderLeft: 'none',
+        clipPath: 'ellipse(70% 50% at 0% 50%)'
       }} />
+      
+      {/* Bottom Tab */}
       <div style={{
         position: 'absolute',
-        width: '30px',
-        height: '15px',
-        backgroundColor: '#6b8cae',
-        borderRadius: '0 0 15px 15px',
+        width: '60px',
+        height: '25px',
+        background: 'linear-gradient(20deg, #3a5f9a 0%, #4a69bd 100%)',
+        borderRadius: '0 0 30px 30px',
         bottom: '0',
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 1,
+        boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.25)',
+        borderTop: 'none',
+        clipPath: 'ellipse(50% 70% at 50% 0%)'
+      }} />
+      
+      {/* Left Tab */}
+      <div style={{
+        position: 'absolute',
+        width: '25px',
+        height: '60px',
+        background: 'linear-gradient(70deg, #4a69bd 0%, #3a5f9a 100%)',
+        borderRadius: '30px 0 0 30px',
+        left: '0',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        zIndex: 1,
+        boxShadow: 'inset 4px 0 8px rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.25)',
+        borderRight: 'none',
+        clipPath: 'ellipse(70% 50% at 100% 50%)'
+      }} />
+      
+      {/* Inner Glow */}
+      <div style={{
+        position: 'absolute',
+        top: '3px',
+        left: '3px',
+        right: '3px',
+        bottom: '3px',
+        borderRadius: '8px',
+        boxShadow: 'inset 0 0 15px rgba(0,0,0,0.4)',
+        pointerEvents: 'none',
+        zIndex: 1,
+        border: '1px solid rgba(255,255,255,0.1)'
       }} />
     </div>
   );

@@ -1,8 +1,11 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import NoteDefault from './backgroundstyles/notestyles/NoteDefault';
+import NotePuzzle from './backgroundstyles/notestyles/NotePuzzle';
+import NoteBubles from './backgroundstyles/notestyles/NoteBubles';
+import { NoteStyleContext } from '../context/noteContext';
 
-const StickyNote = ({ note, onDrag, onDone, onDelete, onUpdateNote }) => {
+const StickyNote = ({ note, onDrag, onDone, onDelete }) => {
   const noteRef = useRef(null);
   const isDragging = useRef(false);
   const startPos = useRef({ x: 0, y: 0 });
@@ -127,7 +130,22 @@ const StickyNote = ({ note, onDrag, onDone, onDelete, onUpdateNote }) => {
     };
   }, [note.id, onDrag]);
 
+  const { noteStyle } = useContext(NoteStyleContext);
+  
   if (!note) return null;
+
+  // Select the appropriate note component based on the selected style
+  let NoteComponent;
+  switch(noteStyle) {
+    case 'puzzle':
+      NoteComponent = NotePuzzle;
+      break;
+    case 'bubble':
+      NoteComponent = NoteBubles;
+      break;
+    default:
+      NoteComponent = NoteDefault;
+  }
 
   return (
     <div
@@ -144,17 +162,16 @@ const StickyNote = ({ note, onDrag, onDone, onDelete, onUpdateNote }) => {
       }}
       onMouseDown={handleMouseDown}
     >
-      <NoteDefault 
+      <NoteComponent 
         note={{
           ...note,
-          text: note.text || 'Double click to edit...',
+          text: note.text || '',
           width: '100%',
           height: '100%',
           done: note.done || false
         }}
         onDone={onDone}
         onDelete={onDelete}
-        onUpdateNote={onUpdateNote}
       />
     </div>
   );
@@ -175,7 +192,6 @@ StickyNote.propTypes = {
   onDrag: PropTypes.func.isRequired,
   onDone: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  onUpdateNote: PropTypes.func,
 };
 
 export default StickyNote;

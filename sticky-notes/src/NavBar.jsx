@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-
 import MenuDefault from './components/backgroundstyles/menustyles/MenuDefault';
 import ThemeDropdown from './components/ThemeDropdown';
 import NoteStyleDropdown from './components/NoteStyleDropdown';

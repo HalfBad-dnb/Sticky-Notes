@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNoteStyle } from '../context/noteStyleUtils';
 import { NOTE_STYLES } from '../constants/noteStyles';
+import { useContext } from 'react';
+import { NoteStyleContext } from '../context/noteContext';
 
 const NoteStyleDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { noteStyle, setNoteStyle } = useNoteStyle();
+  const { noteStyle, setNoteStyle } = useContext(NoteStyleContext);
   const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -21,7 +22,8 @@ const NoteStyleDropdown = () => {
 
   const noteStyleOptions = [
     { key: NOTE_STYLES.DEFAULT, label: 'Default' },
-    { key: NOTE_STYLES.PUZZLE, label: 'Puzzle' }
+    { key: NOTE_STYLES.PUZZLE, label: 'Puzzle' },
+    { key: NOTE_STYLES.BUBBLE, label: 'Bubble' }
   ];
 
   const currentStyle = noteStyleOptions.find(opt => opt.key === noteStyle) || noteStyleOptions[0];

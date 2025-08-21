@@ -1,4 +1,5 @@
 export const NOTE_STYLES = {
   DEFAULT: 'default',
-  PUZZLE: 'puzzle'
+  PUZZLE: 'puzzle',
+  BUBBLE: 'bubble'
 };
