@@ -7,7 +7,7 @@ import { useTheme } from "../context/themeUtils";
 import { getApiUrl } from "../utils/api";
 import "../App.css";
 import NotesManagementModal from "./NotesManagementModal";
-
+import ConfirmationDialog from '../components/common/ConfirmationDialog';
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -34,6 +34,8 @@ const Profile = () => {
   const [newNoteText, setNewNoteText] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [showNotesModal, setShowNotesModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [noteToDelete, setNoteToDelete] = useState(null);
 
   // Check if device is mobile (screen width less than 768px)
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -205,13 +207,6 @@ const Profile = () => {
 
 
   // Profile board functions
-  const getRandomColor = useCallback(() => {
-    const colors = [
-      '#ffea5c', '#ffb6c1', '#98fb98', '#add8e6', '#dda0dd', '#f0e68c',
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }, []);
-
   const calculateCenterPosition = useCallback(() => {
     const centerX = Math.round((window.innerWidth - 150) / 2);
     const centerY = Math.round((window.innerHeight - 120) / 2);
@@ -233,9 +228,6 @@ const Profile = () => {
       text: newNoteText,
       x,
       y,
-      color: getRandomColor(),
-      likes: 0,
-      dislikes: 0,
       username: user.username,
       isPrivate: isPrivate,
       boardType: 'profile' // Explicitly set board type to profile
@@ -303,7 +295,7 @@ const Profile = () => {
       setNewNoteText('');
     })
     .catch(error => console.error('Error saving note:', error));
-  }, [newNoteText, getRandomColor, calculateCenterPosition, user, isPrivate]);
+  }, [newNoteText, calculateCenterPosition, user, isPrivate]);
 
   const handleDrag = useCallback((id, x, y) => {
     const token = localStorage.getItem('authToken');
@@ -395,209 +387,27 @@ const Profile = () => {
     });
   }, [notes]);
 
-  const handleLike = useCallback(async (id) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error('No authentication token found');
-      setError('Authentication required. Please log in.');
-      return;
-    }
-    
-    // Find the current note to use if the server response fails
-    const currentNote = notes.find(note => note.id === id);
-    if (!currentNote) {
-      console.error(`Note with id ${id} not found`);
-      return;
-    }
-    
-    // Optimistically update the UI
-    setNotes(prevNotes => 
-      prevNotes.map(note => 
-        note.id === id 
-          ? { 
-              ...note, 
-              likes: (note.likes || 0) + 1,
-              isLiked: true,
-              // If previously disliked, remove the dislike
-              ...(note.isDisliked ? { 
-                dislikes: Math.max(0, (note.dislikes || 1) - 1),
-                isDisliked: false 
-              } : {})
-            } 
-          : note
-      )
-    );
-    
-    try {
-      const response = await fetch(getApiUrl(`comments/${id}/like`), {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        },
-        credentials: 'include'
-      });
-      
-      console.log(`Like response for note ${id}:`, response.status);
-      
-      if (response.status === 204) {
-        console.log('No content response when liking note');
-        return;
-      }
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to like note: ${response.status} - ${errorText}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.warn('Expected JSON response, got:', contentType);
-        return;
-      }
-      
-      const updatedNote = await response.json();
-      console.log('Successfully liked note:', updatedNote);
-      
-      // Update the note with the server's response
-      setNotes(prevNotes =>
-        prevNotes.map(note => 
-          note.id === id ? { ...updatedNote, isDragging: false } : note
-        )
-      );
-    } catch (error) {
-      console.error('Error liking note:', error);
-      
-      // Revert the optimistic update on error
-      if (currentNote) {
-        setNotes(prevNotes => 
-          prevNotes.map(note => 
-            note.id === id 
-              ? { 
-                  ...currentNote,
-                  likes: currentNote.likes || 0,
-                  isLiked: false,
-                  dislikes: currentNote.dislikes || 0,
-                  isDisliked: currentNote.isDisliked || false
-                } 
-              : note
-          )
-        );
-      }
-      
-      setError('Failed to like note. Please try again.');
-    }
-  }, [notes]);
-
-  const handleDislike = useCallback(async (id) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error('No authentication token found');
-      setError('Authentication required. Please log in.');
-      return;
-    }
-    
-    // Find the current note to use if the server response fails
-    const currentNote = notes.find(note => note.id === id);
-    if (!currentNote) {
-      console.error(`Note with id ${id} not found`);
-      return;
-    }
-    
-    // Optimistically update the UI
-    setNotes(prevNotes => 
-      prevNotes.map(note => 
-        note.id === id 
-          ? { 
-              ...note, 
-              dislikes: (note.dislikes || 0) + 1,
-              isDisliked: true,
-              // If previously liked, remove the like
-              ...(note.isLiked ? { 
-                likes: Math.max(0, (note.likes || 1) - 1),
-                isLiked: false 
-              } : {})
-            } 
-          : note
-      )
-    );
-    
-    try {
-      const response = await fetch(getApiUrl(`comments/${id}/dislike`), {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        },
-        credentials: 'include'
-      });
-      
-      console.log(`Dislike response for note ${id}:`, response.status);
-      
-      if (response.status === 204) {
-        console.log('No content response when disliking note');
-        return;
-      }
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to dislike note: ${response.status} - ${errorText}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.warn('Expected JSON response, got:', contentType);
-        return;
-      }
-      
-      const updatedNote = await response.json();
-      console.log('Successfully disliked note:', updatedNote);
-      
-      // Update the note with the server's response
-      setNotes(prevNotes =>
-        prevNotes.map(note => 
-          note.id === id ? { ...updatedNote, isDragging: false } : note
-        )
-      );
-    } catch (error) {
-      console.error('Error disliking note:', error);
-      
-      // Revert the optimistic update on error
-      if (currentNote) {
-        setNotes(prevNotes => 
-          prevNotes.map(note => 
-            note.id === id 
-              ? { 
-                  ...currentNote,
-                  dislikes: currentNote.dislikes || 0,
-                  isDisliked: false,
-                  likes: currentNote.likes || 0,
-                  isLiked: currentNote.isLiked || false
-                } 
-              : note
-          )
-        );
-      }
-      
-      setError('Failed to dislike note. Please try again.');
-    }
-  }, [notes]);
-
   const handleDelete = useCallback(async (id) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) return;
+    setNoteToDelete(notes.find(note => note.id === id));
+    setShowDeleteConfirm(true);
+  }, [notes]);
 
+  const confirmDeleteNote = async () => {
+    if (!noteToDelete) return;
+    
     try {
-      // Optimistically remove the note from the UI
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-      
-      // Call the API to delete the note
-      const response = await fetch(getApiUrl(`comments/${id}`), {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.error('No auth token found');
+        setError('Authentication required. Please log in.');
+        return;
+      }
+
+      const response = await fetch(getApiUrl(`comments/${noteToDelete.id}`), {
         method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
@@ -605,13 +415,21 @@ const Profile = () => {
         throw new Error('Failed to delete note');
       }
 
-      console.log('Note deleted successfully');
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      // Re-fetch notes to restore the deleted note if deletion failed
-      fetchProfileNotes();
+      // Optimistically update the UI
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteToDelete.id));
+    } catch (err) {
+      console.error('Error deleting note:', err);
+      setError('Failed to delete note. Please try again.');
+    } finally {
+      setShowDeleteConfirm(false);
+      setNoteToDelete(null);
     }
-  }, [fetchProfileNotes]);
+  };
+
+  const cancelDeleteNote = () => {
+    setShowDeleteConfirm(false);
+    setNoteToDelete(null);
+  };
 
   const handleDone = useCallback(async (id) => {
     const token = localStorage.getItem('authToken');
@@ -956,7 +774,7 @@ const Profile = () => {
                       gap: '10px'
                     }}>
                       <button 
-                        onClick={() => handleLike(note.id)}
+                        onClick={() => handleDelete(note.id)}
                         style={{ 
                           background: 'rgba(0,0,0,0.05)', 
                           border: '1px solid rgba(0,0,0,0.1)', 
@@ -973,27 +791,7 @@ const Profile = () => {
                           touchAction: 'manipulation'
                         }}
                       >
-                        <span style={{ fontSize: '20px' }}>👍</span> {note.likes || 0}
-                      </button>
-                      <button 
-                        onClick={() => handleDislike(note.id)}
-                        style={{ 
-                          background: 'rgba(0,0,0,0.05)', 
-                          border: '1px solid rgba(0,0,0,0.1)', 
-                          borderRadius: '8px',
-                          padding: '8px 12px',
-                          width: '80px',
-                          height: '44px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '5px',
-                          fontSize: '16px',
-                          touchAction: 'manipulation'
-                        }}
-                      >
-                        <span style={{ fontSize: '20px' }}>👎</span> {note.dislikes || 0}
+                        <span style={{ fontSize: '20px' }}>🗑️</span>
                       </button>
                     </div>
                   </div>
@@ -1035,8 +833,6 @@ const Profile = () => {
                         key={note.id}
                         note={{ ...note, zIndex: notes.length - index }}
                         onDrag={handleDrag}
-                        onLike={handleLike}
-                        onDislike={handleDislike}
                         onDelete={handleDelete}
                         onDone={handleDone}
                       />
@@ -1053,8 +849,22 @@ const Profile = () => {
           userId={user?.id}
         />
       </div>
+      </div>
+      
+      {/* Confirmation Dialog for Note Deletion */}
+      {showDeleteConfirm && noteToDelete && (
+        <ConfirmationDialog
+          isOpen={showDeleteConfirm}
+          onClose={cancelDeleteNote}
+          onConfirm={confirmDeleteNote}
+          title="Delete Note"
+          message={`Are you sure you want to delete this note? This action cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          theme={theme}
+        />
+      )}
     </div>
-  </div>
   );
 };
 

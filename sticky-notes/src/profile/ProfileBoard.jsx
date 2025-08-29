@@ -1,8 +1,6 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import StickyNote from '../components/StickyNote';
-import { getApiUrl } from '../utils/api';
-import { fetchWithToken } from '../utils/fetchWithToken';
 import '../profile/profile.css';
 
 const ProfileBoard = ({ 
@@ -85,36 +83,69 @@ const ProfileBoard = ({
   }, [isDragging, selectedNote, dragOffset, notes, setNotes, onNoteUpdate]);
 
   // Handle note delete
-  const handleDelete = useCallback(async (noteId) => {
-    if (!window.confirm('Are you sure you want to delete this note?')) return;
-    
-    try {
-      const response = await fetchWithToken(getApiUrl(`comments/${noteId}`), {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) throw new Error('Failed to delete note');
-      
-      onNoteDelete(noteId);
-    } catch (error) {
-      console.error('Error deleting note:', error);
-    }
+  const handleDelete = useCallback((e, note) => {
+    e.stopPropagation();
+    onNoteDelete(note.id);
   }, [onNoteDelete]);
 
   return (
-    <div 
-      ref={boardRef}
-      className="profile-board"
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: 'calc(100vh - 200px)',
-        backgroundColor: 'rgba(30, 33, 36, 0.8)',
-        borderRadius: '10px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-      }}
-    >
+      <div 
+        ref={boardRef}
+        className="profile-board"
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 'calc(100vh - 200px)',
+          backgroundColor: 'rgba(30, 33, 36, 0.8)',
+          borderRadius: '10px',
+          overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+        }}
+      >
+        {notes.map((note) => (
+          <div
+            key={note.id}
+            style={{
+              position: 'absolute',
+              left: `${note.x}px`,
+              top: `${note.y}px`,
+              zIndex: note.zIndex || 1,
+              transition: isDragging && selectedNote?.id === note.id ? 'none' : 'transform 0.1s ease',
+              transform: isDragging && selectedNote?.id === note.id ? 'scale(1.02) rotate(1deg)' : 'none',
+              cursor: isDragging && selectedNote?.id === note.id ? 'grabbing' : 'grab',
+            }}
+            onMouseDown={(e) => handleNoteMouseDown(e, note)}
+          >
+            <StickyNote
+              id={note.id}
+              text={note.text}
+              x={note.x}
+              y={note.y}
+              color={note.color}
+              onUpdate={onNoteUpdate}
+              onDelete={(e) => handleDelete(e, note)}
+              author={note.author}
+              createdAt={note.createdAt}
+              showAuthor={false}
+              isDraggable={true}
+            />
+          </div>
+        ))}
+        
+        {notes.length === 0 && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            color: 'rgba(255, 255, 255, 0.5)',
+            fontSize: '1.2rem',
+            textAlign: 'center',
+            padding: '20px'
+          }}>
+            No notes yet. Create your first note to get started!
+          </div>
+        )}
       {notes.map((note) => (
         <div
           key={note.id}
@@ -159,7 +190,7 @@ const ProfileBoard = ({
           No notes yet. Create your first note to get started!
         </div>
       )}
-    </div>
+      </div>
   );
 };
 

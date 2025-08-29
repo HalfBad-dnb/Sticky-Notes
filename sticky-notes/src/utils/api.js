@@ -5,8 +5,8 @@
  * for making API requests with proper authentication.
  */
 
-// For local development - use your Mac's IP address for network access
-const LOCAL_API_URL = 'http://192.168.10.92:8081';
+// For local development - using localhost
+const LOCAL_API_URL = 'http://localhost:8081';
 
 // Check if we're in production (on Cloud Run)
 const isProduction = window.location.hostname.includes('run.app');

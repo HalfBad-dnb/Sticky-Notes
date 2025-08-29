@@ -5,8 +5,6 @@ import ConfirmationDialog from './components/common/ConfirmationDialog';
 import NavBar from './NavBar';
 import { getApiUrl } from './utils/api';
 import StickyBoard from './components/StickyBoard';
-import DoneNotes from './components/DoneNotes';
-import DeletedNotes from './components/DeletedNotes';
 import Login from './profile/login';
 import Register from './profile/register';
 import Profile from './profile/profile';
@@ -100,17 +98,6 @@ const AppContent = () => {
     );
   }, []);
 
-  const handleRestoreNote = useCallback((id) => {
-    setNotes(prevNotes => 
-      prevNotes.map(note => 
-        note.id === id ? { ...note, deleted: false, done: false } : note
-      )
-    );
-  }, []);
-
-  const handlePermanentDelete = useCallback((id) => {
-    setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-  }, []);
 
   const handleDone = useCallback(async (id) => {
     if (!id) {
@@ -285,31 +272,6 @@ const AppContent = () => {
             cancelText="Cancel"
           />
           <Routes>
-            <Route 
-              path="/done" 
-              element={
-                <div className="done-notes-page">
-                  <DoneNotes 
-                    notes={notes}
-                    onUpdateNotes={setNotes}
-                    onRestoreNote={handleRestoreNote}
-                  />
-                </div>
-              } 
-            />
-            <Route 
-              path="/deleted" 
-              element={
-                <div className="deleted-notes-page">
-                  <DeletedNotes 
-                    notes={notes}
-                    onUpdateNotes={setNotes}
-                    onRestoreNote={handleRestoreNote}
-                    onPermanentDelete={handlePermanentDelete}
-                  />
-                </div>
-              } 
-            />
             <Route path="/" element={
               <StickyBoard
                 notes={activeNotes}
