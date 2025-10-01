@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "../profile/profile.css";
 import { getApiUrl } from "../utils/api";
 import { useTheme } from "../context/themeUtils";
 import { THEMES } from "../constants/themes";
+import axios from "../utils/axiosConfig";
 import BubbleBackgroundTheme from "../components/backgroundstyles/theme/BubleBackgroundTheme";
 import HeartBackgroundTheme from "../components/backgroundstyles/theme/HeartBackgroundTheme";
 import TriangleBackgroundTheme from "../components/backgroundstyles/theme/TriangleBackgroundTheme";
@@ -31,62 +31,42 @@ const Login = () => {
       const url = getApiUrl("auth/login");
       console.log('Attempting login at:', url);
       
-      // Always use request body for local network access
       const response = await axios.post(url, {
         username: formData.username,
         password: formData.password
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
       });
       
-      console.log('Login response:', response.data);
+      console.log('Login successful, response received');
       
-      if (response.status === 200) {
-        console.log('Login successful, response:', response.data);
-        
-        // Extract token and user data from response
-        const { token, username, email, role } = response.data;
-        
-        if (!token) {
-          throw new Error('No token received from server');
-        }
-        
-        // Store token and user data
-        localStorage.setItem("authToken", token);
-        localStorage.setItem("username", username || formData.username);
-        
-        // Create a user object and store in sessionStorage
-        const userData = {
-          username: username || formData.username,
-          email: email || `${formData.username}@example.com`,
-          role: role || "USER"
-        };
-        
-        console.log('Storing user data in session storage:', userData);
-        sessionStorage.setItem("user", JSON.stringify(userData));
-        
-        setMessage("Login successful! Redirecting...");
-        setFormData({ username: "", password: "" });
-
-        // Redirect to profile page after successful login
-        window.location.href = "/profile";
-      } else {
-        setMessage("Invalid credentials.");
+      // Extract token and user data from response
+      const { token, username, email, role } = response.data;
+      
+      if (!token) {
+        throw new Error('No token received from server');
       }
+      
+      // Store token and user data
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("username", username || formData.username);
+      
+      // Create a user object and store in sessionStorage
+      const userData = {
+        username: username || formData.username,
+        email: email || `${formData.username}@example.com`,
+        role: role || "USER"
+      };
+      
+      console.log('Storing user data in session storage');
+      sessionStorage.setItem("user", JSON.stringify(userData));
+      
+      setMessage("Login successful! Redirecting...");
+      setFormData({ username: "", password: "" });
+
+      // Redirect to profile page after successful login
+      window.location.href = "/profile";
     } catch (error) {
       console.error("Error during login:", error);
-      if (error.response) {
-        // Server returned an error
-        setMessage(error.response?.data || "Login failed. Please try again.");
-      } else if (error.request) {
-        // Network error or no response from the server
-        setMessage("Network error. Please check your connection and try again.");
-      } else {
-        // Something else went wrong
-        setMessage("Login failed. Please try again.");
-      }
+      setMessage(error.message || "Login failed. Please try again.");
     } finally {
       setLoading(false); // Disable loading spinner after process finishes
     }

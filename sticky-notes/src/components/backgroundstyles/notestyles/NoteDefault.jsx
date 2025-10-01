@@ -136,7 +136,7 @@ const NoteDefault = ({
           flexDirection: 'column',
           minHeight: 'min-content',
         }}>
-          <p style={{
+          <div style={{
             margin: 0,
             padding: '4px',
             fontSize: '1.1rem',
@@ -153,8 +153,7 @@ const NoteDefault = ({
             <div style={{ minHeight: '1.6em' }}>
               {text || 'Note content'}
             </div>
-
-          </p>
+          </div>
         </div>
       </div>
       

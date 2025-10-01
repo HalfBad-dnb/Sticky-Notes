@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import StickyNote from "../components/StickyNote";
 import { useZoom } from "../context/useZoom";
@@ -8,6 +7,7 @@ import { getApiUrl } from "../utils/api";
 import "../App.css";
 import NotesManagementModal from "./NotesManagementModal";
 import ConfirmationDialog from '../components/common/ConfirmationDialog';
+import axios from "../utils/axiosConfig";
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -48,64 +48,67 @@ const Profile = () => {
   // Use global zoom context for the sticky board container
   const { getBoardStyle } = useZoom();
 
-  useEffect(() => {
+  const fetchUserData = useCallback(() => {
     const token = localStorage.getItem("authToken");
     const username = localStorage.getItem("username");
 
     if (!token || !username) {
       setError("Unauthorized. Please log in.");
       setLoading(false);
-      // Don't redirect automatically, show login button instead
       return;
     }
 
     // Create a basic user object from localStorage data
-    // Try to get user data from sessionStorage first
-    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
-    const basicUser = { 
+    const userData = {
       username: username,
-      email: storedUser.email || 'Email not available'
+      token: token
+      // Add any other user data you store in localStorage
     };
-    console.log('Setting initial user data:', basicUser);
-    setUser(basicUser);
-    setLoading(false);
     
-    // Always try to fetch the latest profile data
-    console.log('Fetching profile data with token:', token);
-    axios
-      .get(getApiUrl('profile'), {
-        headers: {
-          'Authorization': `Bearer ${token}` // Add auth token
-        }
-      })
-      .then((response) => {
-        console.log('Profile API response:', response);
-        if (response.data && response.data.username) {
-          // Create a complete user object with all available data
-          const completeUser = {
-            ...basicUser,
-            ...response.data,
-            // Ensure these fields are always present
-            email: response.data.email || basicUser.email || 'Email not available',
-            role: response.data.role || basicUser.role || 'User'
-          };
-          
-          console.log('Setting complete user data:', completeUser);
-          setUser(completeUser);
-          // Store in session storage for persistence
-          sessionStorage.setItem('user', JSON.stringify(completeUser));
-          setLoading(false);
-        } else {
-          console.warn('Profile data missing username or is incomplete:', response.data);
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error('Profile fetch error:', error);
-        // Don't redirect on error, just show the basic user data
-        setLoading(false);
-      });
+    setUser(userData);
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  const fetchUserNotes = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      
+      const token = localStorage.getItem("authToken");
+      const username = localStorage.getItem("username");
+      
+      if (!token || !username) {
+        throw new Error("Authentication required. Please log in.");
+      }
+
+      // Fetch only profile notes for the current user
+      const response = await axios.get(getApiUrl(`notes/profile/${username}`));
+
+      if (response.data) {
+        // Filter to only include notes that belong to the profile board
+        const profileNotes = Array.isArray(response.data) 
+          ? response.data.filter(note => note.boardType === 'profile')
+          : [];
+        setNotes(profileNotes);
+      }
+    } catch (err) {
+      console.error("Error fetching profile notes:", err);
+      setError(
+        err.response?.data?.message || "Failed to load profile notes. Please try again later."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+    fetchUserNotes();
+  }, [fetchUserData, fetchUserNotes]);
 
   // Function to fetch profile notes
   const fetchProfileNotes = useCallback(() => {
@@ -124,57 +127,43 @@ const Profile = () => {
     console.log('Fetching profile notes for user:', user.username, 'isPrivate:', isPrivate);
     
     // Fetch profile notes with privacy filter
-    const url = new URL(getApiUrl(`comments/profile/${user.username}`));
+    const url = new URL(getApiUrl(`notes/profile/${user.username}`));
     if (isPrivate !== null) {
       url.searchParams.append('isPrivate', isPrivate);
     }
     
-    fetch(url.toString(), {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      credentials: 'include' // Important for cookies/sessions if using them
-    })
-    .then(async response => {
-      console.log('Notes response status:', response.status);
-      
-      if (response.status === 401 || response.status === 403) {
-        console.error('Authentication error:', response.status);
-        setError('Authentication failed. Please log in again.');
-        throw new Error('Authentication failed');
-      }
-      
-      if (response.status === 204) {
-        console.log('No content response');
+    axios.get(url.toString())
+      .then(response => {
+        console.log('Notes response status:', response.status);
+        
+        if (response.status === 401 || response.status === 403) {
+          console.error('Authentication error:', response.status);
+          setError('Authentication failed. Please log in again.');
+          throw new Error('Authentication failed');
+        }
+        
+        if (response.status === 204) {
+          console.log('No content response');
+          return [];
+        }
+        
+        // For successful responses (2xx), Axios puts the response data in response.data
+        if (response.data) {
+          return response.data;
+        }
+        
+        // If no data but status is successful, return empty array
         return [];
-      }
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      
-      try {
-        return await response.json();
-      } catch (error) {
-        console.error('JSON parsing error:', error);
-        const text = await response.text();
-        console.error('Raw response text:', text);
-        return [];
-      }
-    })
-    .then(notes => {
-      if (!notes || !Array.isArray(notes)) {
-        console.log('No valid notes array received');
-        return [];
-      }
-      return notes;
-    })
-    .then(notes => {
-      console.log('Processing', notes.length, 'notes');
+      })
+      .then(notes => {
+        if (!notes || !Array.isArray(notes)) {
+          console.log('No valid notes array received');
+          return [];
+        }
+        return notes;
+      })
+      .then(notes => {
+        console.log('Processing', notes.length, 'notes');
       
       // Filter out any invalid notes
       const validNotes = notes.filter(note => note && note.id);
@@ -199,12 +188,11 @@ const Profile = () => {
       setNotes([]); // Ensure notes is always an array
     });
   }, [user, isPrivate]);
-  
+
   // Fetch user's notes for profile board
   useEffect(() => {
     fetchProfileNotes();
   }, [fetchProfileNotes]);
-
 
   // Profile board functions
   const calculateCenterPosition = useCallback(() => {
@@ -241,21 +229,10 @@ const Profile = () => {
     });
 
     console.log('Sending new profile note:', newNote);
-    fetch(getApiUrl('comments'), {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(newNote),
-    })
+    axios.post(getApiUrl('notes'), newNote)
     .then(response => {
       console.log('Add note response status:', response.status);
-      console.log('Add note response headers:', [...response.headers.entries()]);
       
-      // Handle no content response
       if (response.status === 204) {
         console.log('No content response when adding note, using original data');
         return newNote; // Use the original note data
@@ -329,16 +306,7 @@ const Profile = () => {
     
     console.log(`Updating position for note ${id}:`, { x, y });
     
-    fetch(getApiUrl(`comments/${id}`), {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(updateData),
-    })
+    axios.put(getApiUrl(`notes/${id}`), updateData)
     .then(async response => {
       console.log(`Drag response for note ${id}:`, response.status);
       
@@ -403,17 +371,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await fetch(getApiUrl(`comments/${noteToDelete.id}`), {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete note');
-      }
+      await axios.delete(getApiUrl(`notes/${noteToDelete.id}`));
 
       // Optimistically update the UI
       setNotes(prevNotes => prevNotes.filter(note => note.id !== noteToDelete.id));
@@ -444,7 +402,7 @@ const Profile = () => {
       );
       
       // Call the API to mark the note as done
-      const response = await fetch(getApiUrl(`comments/${id}/done`), {
+      const response = await fetch(getApiUrl(`notes/${id}/done`), {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${token}`

@@ -116,7 +116,7 @@ const AppContent = () => {
     });
 
     try {
-      const response = await fetch(getApiUrl(`comments/${id}/done`), {
+      const response = await fetch(getApiUrl(`notes/${id}/done`), {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ const AppContent = () => {
         return;
       }
       
-      const response = await fetch(getApiUrl('comments'), {
+      const response = await fetch(getApiUrl('notes'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -228,7 +228,7 @@ const AppContent = () => {
     setDeleteDialog({ isOpen: false, noteId: null, noteTitle: '' });
 
     try {
-      const response = await fetch(getApiUrl(`comments/${noteId}`), {
+      const response = await fetch(getApiUrl(`notes/${noteId}`), {
         method: 'DELETE',
         headers: { 
           'Content-Type': 'application/json',

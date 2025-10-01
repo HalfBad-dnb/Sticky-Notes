@@ -12,14 +12,14 @@ src/
     │               ├── controller/            # REST Controllers
     │               │   ├── AuthController.java
     │               │   ├── BoardController.java
-    │               │   ├── CommentController.java
+    │               │   ├── noteController.java
     │               │   ├── ProfileController.java
     │               │   └── HealthCheckController.java
     │               │
     │               ├── dto/                   # Request/Response DTOs
     │               │   ├── Auth/
     │               │   ├── Board/
-    │               │   ├── Comment/
+    │               │   ├── note/
     │               │   └── Profile/
     │               │
     │               ├── exception/             # Custom exceptions & handlers
@@ -32,7 +32,7 @@ src/
     │               │   ├── User.java
     │               │   ├── Role.java
     │               │   ├── Board.java
-    │               │   ├── Comment.java
+    │               │   ├── note.java
     │               │   ├── Profile.java
     │               │   └── RefreshToken.java
     │               │
@@ -40,7 +40,7 @@ src/
     │               │   ├── UserRepository.java
     │               │   ├── RoleRepository.java
     │               │   ├── BoardRepository.java
-    │               │   ├── CommentRepository.java
+    │               │   ├── noteRepository.java
     │               │   └── RefreshTokenRepository.java
     │               │
     │               ├── security/              # JWT and auth-related
@@ -52,7 +52,7 @@ src/
     │               ├── service/               # Business logic
     │               │   ├── AuthService.java
     │               │   ├── BoardService.java
-    │               │   ├── CommentService.java
+    │               │   ├── noteservice.java
     │               │   ├── ProfileService.java
     │               │   └── RefreshTokenService.java
     │               │

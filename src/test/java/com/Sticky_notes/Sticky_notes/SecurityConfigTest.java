@@ -18,15 +18,15 @@ public class SecurityConfigTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // Test for public access to authentication and comments endpoints
+    // Test for public access to authentication and notes endpoints
     @Test
-    public void shouldAllowPublicAccessToAuthAndCommentsEndpoints() throws Exception {
+    public void shouldAllowPublicAccessToAuthAndnotesEndpoints() throws Exception {
         // Test /api/auth/login endpoint (public, should be accessible without authentication)
         mockMvc.perform(get("/api/auth/login"))
                 .andExpect(status().isOk()); // Expects HTTP 200 OK response
 
-        // Test /api/comments/view endpoint (public, should be accessible without authentication)
-        mockMvc.perform(get("/api/comments/view"))
+        // Test /api/notes/view endpoint (public, should be accessible without authentication)
+        mockMvc.perform(get("/api/notes/view"))
                 .andExpect(status().isOk()); // Expects HTTP 200 OK response
     }
 

@@ -127,7 +127,7 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 	Jar files URLs []
 	Managed classes names [
 		com.Sticky_notes.Sticky_notes.models.Board
-		com.Sticky_notes.Sticky_notes.models.Comment
+		com.Sticky_notes.Sticky_notes.models.note
 		com.Sticky_notes.Sticky_notes.models.Role
 		com.Sticky_notes.Sticky_notes.models.User]
 	Mapping files names []
@@ -378,72 +378,72 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 2025-05-25T13:57:16.179+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.181+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property user
 2025-05-25T13:57:16.181+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.r.c.i.ClassLoaderServiceImpl       : HHH000194: Package not found or no package-info.java: com.Sticky_notes.Sticky_notes.models
-2025-05-25T13:57:16.183+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.EntityBinder     : Binding entity from annotated class: com.Sticky_notes.Sticky_notes.models.Comment
-2025-05-25T13:57:16.183+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.EntityBinder     : Import with entity name Comment
-2025-05-25T13:57:16.183+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.EntityBinder     : Bind entity com.Sticky_notes.Sticky_notes.models.Comment on table comment
+2025-05-25T13:57:16.183+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.EntityBinder     : Binding entity from annotated class: com.Sticky_notes.Sticky_notes.models.note
+2025-05-25T13:57:16.183+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.EntityBinder     : Import with entity name note
+2025-05-25T13:57:16.183+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.EntityBinder     : Bind entity com.Sticky_notes.Sticky_notes.models.note on table note
 2025-05-25T13:57:16.183+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedDiscriminatorColumn(column='DTYPE')
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
-2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.Comment] is safe
-2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.Comment
+2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.note] is safe
+2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.note
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property id with lazy=false
-2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:id]
+2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:id]
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for id
-2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.id
+2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.id
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property id
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.BinderHelper     : #makeIdGenerator(BasicValue([Column(id)]), id, identity, , ...)
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property boardType with lazy=false
-2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:boardType]
+2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:boardType]
 2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for boardType
-2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.board_type
+2025-05-25T13:57:16.184+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.board_type
 2025-05-25T13:57:16.185+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property boardType
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property color with lazy=false
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:color]
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:color]
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for color
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.color
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.color
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property color
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property dislikes with lazy=false
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:dislikes]
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:dislikes]
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for dislikes
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.dislikes
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.dislikes
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property dislikes
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property isPrivate with lazy=false
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:isPrivate]
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:isPrivate]
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for isPrivate
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.is_private
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.is_private
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property isPrivate
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property likes with lazy=false
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:likes]
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:likes]
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for likes
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.likes
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.likes
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property likes
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property text with lazy=false
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:text]
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:text]
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for text
-2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.text
+2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.text
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property text
 2025-05-25T13:57:16.186+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property username with lazy=false
-2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:username]
+2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:username]
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for username
-2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.username
+2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.username
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property username
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property x with lazy=false
-2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:x]
+2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:x]
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for x
-2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.x
+2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.x
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property x
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.AnnotatedColumn  : Binding column: AnnotatedColumn()
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : MetadataSourceProcessor property y with lazy=false
-2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.Comment:y]
+2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.AbstractPropertyHolder  : Attempting to locate auto-apply AttributeConverter for property [com.Sticky_notes.Sticky_notes.models.note:y]
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : building BasicValue for y
-2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: comment.y
+2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.BasicValue         : Skipping column re-registration: note.y
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.PropertyBinder   : Building property y
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.r.c.i.ClassLoaderServiceImpl       : HHH000194: Package not found or no package-info.java: com.Sticky_notes.Sticky_notes.models
 2025-05-25T13:57:16.187+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.model.internal.EntityBinder     : Binding entity from annotated class: com.Sticky_notes.Sticky_notes.models.Role
@@ -537,7 +537,7 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 2025-05-25T13:57:16.201+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : Starting `BasicValueBinder#fillSimpleValue` for role
 2025-05-25T13:57:16.201+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.model.internal.BasicValueBinder    : Starting `BasicValueBinder#fillSimpleValue` for username
 2025-05-25T13:57:16.203+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.PrimaryKey         : Forcing column [id] to be non-null as it is part of the primary key for table [board]
-2025-05-25T13:57:16.203+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.PrimaryKey         : Forcing column [id] to be non-null as it is part of the primary key for table [comment]
+2025-05-25T13:57:16.203+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.PrimaryKey         : Forcing column [id] to be non-null as it is part of the primary key for table [note]
 2025-05-25T13:57:16.203+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.PrimaryKey         : Forcing column [id] to be non-null as it is part of the primary key for table [role]
 2025-05-25T13:57:16.203+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.PrimaryKey         : Forcing column [id] to be non-null as it is part of the primary key for table [users]
 2025-05-25T13:57:16.204+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.m.internal.CollectionSecondPass    : Second pass for collection: com.Sticky_notes.Sticky_notes.models.User.boards
@@ -567,8 +567,8 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 2025-05-25T13:57:16.251+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.User
 2025-05-25T13:57:16.259+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.Board] is safe
 2025-05-25T13:57:16.259+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.Board
-2025-05-25T13:57:16.260+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.Comment] is safe
-2025-05-25T13:57:16.260+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.Comment
+2025-05-25T13:57:16.260+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.note] is safe
+2025-05-25T13:57:16.260+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.note
 2025-05-25T13:57:16.267+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.Role] is safe
 2025-05-25T13:57:16.267+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.Role
 2025-05-25T13:57:16.267+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] .h.s.i.SessionFactoryServiceRegistryImpl : EventListenerRegistry access via ServiceRegistry is deprecated.  Use `sessionFactory.getEventEngine().getListenerRegistry()` instead
@@ -966,9 +966,9 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 2025-05-25T13:57:16.455+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.Board
 2025-05-25T13:57:16.461+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.i.bytebuddy.BytecodeProviderImpl   : HHH000513: Unable to create the ReflectionOptimizer for [com.Sticky_notes.Sticky_notes.models.Board]: private accessor [boardType]
 2025-05-25T13:57:16.461+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.ormbytecode.interceptor    : To-one property `com.Sticky_notes.Sticky_notes.models.Board#user` was mapped with LAZY + NO_PROXY but the class was not enhanced
-2025-05-25T13:57:16.462+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.Comment] is safe
-2025-05-25T13:57:16.462+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.Comment
-2025-05-25T13:57:16.469+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.i.bytebuddy.BytecodeProviderImpl   : HHH000513: Unable to create the ReflectionOptimizer for [com.Sticky_notes.Sticky_notes.models.Comment]: private accessor [boardType]
+2025-05-25T13:57:16.462+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.note] is safe
+2025-05-25T13:57:16.462+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.note
+2025-05-25T13:57:16.469+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.i.bytebuddy.BytecodeProviderImpl   : HHH000513: Unable to create the ReflectionOptimizer for [com.Sticky_notes.Sticky_notes.models.note]: private accessor [boardType]
 2025-05-25T13:57:16.469+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : Not known whether passed class name [com.Sticky_notes.Sticky_notes.models.Role] is safe
 2025-05-25T13:57:16.469+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.boot.internal.ClassLoaderAccessImpl  : No temp ClassLoader provided; using live ClassLoader for loading potentially unsafe class : com.Sticky_notes.Sticky_notes.models.Role
 2025-05-25T13:57:16.473+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.b.i.bytebuddy.BytecodeProviderImpl   : HHH000513: Unable to create the ReflectionOptimizer for [com.Sticky_notes.Sticky_notes.models.Role]: private accessor [name]
@@ -982,7 +982,7 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 2025-05-25T13:57:16.493+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.hibernate.orm.model.mapping.creation   : Starting PostInitCallbackEntry : Entity(com.Sticky_notes.Sticky_notes.models.User) `staticFetchableList` generator
 2025-05-25T13:57:16.493+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.hibernate.orm.model.mapping.creation   : Starting PostInitCallbackEntry : To-one key - NavigableRole[com.Sticky_notes.Sticky_notes.models.Board.user]
 2025-05-25T13:57:16.493+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.hibernate.orm.model.mapping.creation   : Starting PostInitCallbackEntry : Entity(com.Sticky_notes.Sticky_notes.models.Board) `staticFetchableList` generator
-2025-05-25T13:57:16.493+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.hibernate.orm.model.mapping.creation   : Starting PostInitCallbackEntry : Entity(com.Sticky_notes.Sticky_notes.models.Comment) `staticFetchableList` generator
+2025-05-25T13:57:16.493+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.hibernate.orm.model.mapping.creation   : Starting PostInitCallbackEntry : Entity(com.Sticky_notes.Sticky_notes.models.note) `staticFetchableList` generator
 2025-05-25T13:57:16.493+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.hibernate.orm.model.mapping.creation   : Starting PostInitCallbackEntry : Entity(com.Sticky_notes.Sticky_notes.models.Role) `staticFetchableList` generator
 2025-05-25T13:57:16.493+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.hibernate.orm.model.mapping.creation   : Starting PostInitCallbackEntry : PluralAttributeMapping( NavigableRole[com.Sticky_notes.Sticky_notes.models.User.boards#{element}]) - element descriptor
 2025-05-25T13:57:16.524+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.sql.ast.create         : Created new SQL alias : u1_0
@@ -1046,33 +1046,33 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Update (0): update board set board_type=?,code=?,content=?,title=?,user_id=? where id=?
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Delete (0): delete from board where id=?
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.sql.ast.create         : Created new SQL alias : c1_0
-2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.sql.ast.create         : Registration of TableGroup [StandardTableGroup(com.Sticky_notes.Sticky_notes.models.Comment)] with identifierForTableGroup [com.Sticky_notes.Sticky_notes.models.Comment] for NavigablePath [com.Sticky_notes.Sticky_notes.models.Comment] 
+2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.sql.ast.create         : Registration of TableGroup [StandardTableGroup(com.Sticky_notes.Sticky_notes.models.note)] with identifierForTableGroup [com.Sticky_notes.Sticky_notes.models.note] for NavigablePath [com.Sticky_notes.Sticky_notes.models.note] 
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.results.graph.AST      : DomainResult Graph:
- \-EntityResultImpl [com.Sticky_notes.Sticky_notes.models.Comment]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.boardType]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.color]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.dislikes]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.isPrivate]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.likes]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.text]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.username]
- |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.x]
- |  \-BasicFetch [com.Sticky_notes.Sticky_notes.models.Comment.y]
+ \-EntityResultImpl [com.Sticky_notes.Sticky_notes.models.note]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.boardType]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.color]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.dislikes]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.isPrivate]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.likes]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.text]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.username]
+ |  +-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.x]
+ |  \-BasicFetch [com.Sticky_notes.Sticky_notes.models.note.y]
 
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.sql.ast.tree           : SQL AST Tree:
     SelectStatement {
       FromClause {
-        StandardTableGroup (c1 : com.Sticky_notes.Sticky_notes.models.Comment) {
-          primaryTableReference : comment as c1_0
+        StandardTableGroup (c1 : com.Sticky_notes.Sticky_notes.models.note) {
+          primaryTableReference : note as c1_0
         }
       }
     }
 
-2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     : Static SQL for entity: com.Sticky_notes.Sticky_notes.models.Comment
-2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Version select: select id from comment where id=?
-2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Insert (0): insert into comment (board_type,color,dislikes,is_private,likes,text,username,x,y) values (?,?,?,?,?,?,?,?,?)
-2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Update (0): update comment set board_type=?,color=?,dislikes=?,is_private=?,likes=?,text=?,username=?,x=?,y=? where id=?
-2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Delete (0): delete from comment where id=?
+2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     : Static SQL for entity: com.Sticky_notes.Sticky_notes.models.note
+2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Version select: select id from note where id=?
+2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Insert (0): insert into note (board_type,color,dislikes,is_private,likes,text,username,x,y) values (?,?,?,?,?,?,?,?,?)
+2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Update (0): update note set board_type=?,color=?,dislikes=?,is_private=?,likes=?,text=?,username=?,x=?,y=? where id=?
+2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.p.entity.AbstractEntityPersister     :  Delete (0): delete from note where id=?
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.sql.ast.create         : Created new SQL alias : r1_0
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.sql.ast.create         : Registration of TableGroup [StandardTableGroup(com.Sticky_notes.Sticky_notes.models.Role)] with identifierForTableGroup [com.Sticky_notes.Sticky_notes.models.Role] for NavigablePath [com.Sticky_notes.Sticky_notes.models.Role] 
 2025-05-25T13:57:16.540+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.orm.results.graph.AST      : DomainResult Graph:
@@ -1119,7 +1119,7 @@ org.springframework.boot.devtools.restart.classloader.RestartClassLoader@528b8a3
 2025-05-25T13:57:16.559+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.query.named.NamedObjectRepository    : Checking 0 named HQL queries
 2025-05-25T13:57:16.559+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.query.named.NamedObjectRepository    : Checking 0 named SQL queries
 2025-05-25T13:57:16.593+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.Table              : No alter strings for table : board
-2025-05-25T13:57:16.593+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.Table              : No alter strings for table : comment
+2025-05-25T13:57:16.593+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.Table              : No alter strings for table : note
 2025-05-25T13:57:16.593+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.Table              : No alter strings for table : role
 2025-05-25T13:57:16.593+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] org.hibernate.mapping.Table              : No alter strings for table : users
 2025-05-25T13:57:16.621+03:00 DEBUG 71227 --- [sticky-notes] [  restartedMain] o.h.internal.SessionFactoryRegistry      : Initializing SessionFactoryRegistry : org.hibernate.internal.SessionFactoryRegistry@5d02025

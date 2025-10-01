@@ -62,7 +62,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       boardType: updatedNote.boardType || 'main'
     };
     
-    fetch(getApiUrl(`comments/${updatedNote.id}`), {
+    fetch(getApiUrl(`notes/${updatedNote.id}`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
 
   useEffect(() => {
     console.log('Fetching notes from API...');
-    fetch(getApiUrl('comments'), {
+    fetch(getApiUrl('notes'), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
     };
 
     console.log('Sending new note:', newNote);
-    fetch(getApiUrl('comments'), {
+    fetch(getApiUrl('notes'), {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -238,7 +238,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
     
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(getApiUrl(`comments/${id}`), {
+    fetch(getApiUrl(`notes/${id}`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -292,7 +292,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
     
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(getApiUrl(`comments/${id}/like`), {
+    fetch(getApiUrl(`notes/${id}/like`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -345,7 +345,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
     
     const currentNote = notes.find(note => note.id === id);
     
-    fetch(getApiUrl(`comments/${id}/dislike`), {
+    fetch(getApiUrl(`notes/${id}/dislike`), {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -356,7 +356,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
         console.log(`Dislike response for note ${id}:`, response.status);
         
         if (response.status === 204) {
-          console.log('204 No Content - comment was deleted (dislikes >= 20)');
+          console.log('204 No Content - note was deleted (dislikes >= 20)');
           return null;
         }
         
@@ -396,7 +396,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
   }, [onDelete, setNotes, notes]);
 
   const refreshNotes = useCallback(() => {
-    fetch(getApiUrl('comments'), {
+    fetch(getApiUrl('notes'), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',

@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../../context/themeUtils';
 
-const MenuDefault = ({ children, title, style, onClose }) => {
+const MenuDefault = ({ 
+  children, 
+  title = '', 
+  style = {}, 
+  onClose = null 
+}) => {
   // Close menu when clicking on the overlay
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget && onClose) {
@@ -352,12 +357,6 @@ MenuDefault.propTypes = {
   ]),
   style: PropTypes.object,
   onClose: PropTypes.func
-};
-
-MenuDefault.defaultProps = {
-  title: '',
-  style: {},
-  onClose: null
 };
 
 export default MenuDefault;

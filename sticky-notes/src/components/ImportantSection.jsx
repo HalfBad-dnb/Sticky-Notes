@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
 
-const ImportantSection = ({ notes, onDrag, onLike, onDislike }) => {
-  // Filter important notes (e.g., notes with more than 1 like or marked as important)
+const ImportantSection = ({ notes, onDrag, onDone, onDelete }) => {
+  // Filter important notes (marked as done or containing 'important' or '!')
   const importantNotes = useMemo(() => {
     return notes.filter(note => 
-      (note.likes > 0) || 
+      note.done || 
       (note.text && (note.text.toLowerCase().includes('important') || note.text.includes('!')))
     );
   }, [notes]);
@@ -51,8 +51,8 @@ const ImportantSection = ({ notes, onDrag, onLike, onDislike }) => {
             <StickyNote
               note={note}
               onDrag={onDrag}
-              onLike={onLike}
-              onDislike={onDislike}
+              onDone={onDone}
+              onDelete={onDelete}
             />
           </div>
         ))}
@@ -71,8 +71,8 @@ ImportantSection.propTypes = {
     })
   ).isRequired,
   onDrag: PropTypes.func.isRequired,
-  onLike: PropTypes.func.isRequired,
-  onDislike: PropTypes.func.isRequired,
+  onDone: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default ImportantSection;

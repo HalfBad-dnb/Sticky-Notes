@@ -1153,7 +1153,7 @@
     import-fresh "^3.2.1"
     js-yaml "^4.1.0"
     minimatch "^3.1.2"
-    strip-json-comments "^3.1.1"
+    strip-json-notes "^3.1.1"
 
 "@eslint/js@^9.19.0", "@eslint/js@9.32.0":
   version "9.32.0"
@@ -3655,7 +3655,7 @@ jest-config@^29.7.0:
     parse-json "^5.2.0"
     pretty-format "^29.7.0"
     slash "^3.0.0"
-    strip-json-comments "^3.1.1"
+    strip-json-notes "^3.1.1"
 
 jest-diff@^29.7.0:
   version "29.7.0"
@@ -5140,9 +5140,9 @@ strip-indent@^3.0.0:
   dependencies:
     min-indent "^1.0.0"
 
-strip-json-comments@^3.1.1:
+strip-json-notes@^3.1.1:
   version "3.1.1"
-  resolved "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-3.1.1.tgz"
+  resolved "https://registry.npmjs.org/strip-json-notes/-/strip-json-notes-3.1.1.tgz"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
 styled-components@^6.1.18:

@@ -4,12 +4,43 @@ import { getApiUrl } from '../utils/api';
 import '../App.css';
 import './NotesManagementModal.css';
 
-const NotesManagementModal = ({ isOpen, onClose, userId }) => {
+const NotesManagementModal = ({ isOpen, onClose, userId, onNotesUpdated }) => {
   const [activeTab, setActiveTab] = useState('done'); // 'done' or 'deleted'
   const [doneNotes, setDoneNotes] = useState([]);
   const [deletedNotes, setDeletedNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Process notes from the backend response
+  const processNotes = (data) => {
+    if (!data) return [];
+    
+    // If we get an array of notes, return them directly
+    if (Array.isArray(data)) {
+      return data.map(note => ({
+        id: note.id,
+        text: note.content || note.text || '', // Handle both content and text for backward compatibility
+        status: note.status || (note.done ? 'done' : 'active'),
+        username: note.username,
+        isPrivate: note.isPrivate,
+        boardType: note.boardType
+      }));
+    }
+    
+    // Handle single note
+    if (data.id) {
+      return [{
+        id: data.id,
+        text: data.content || data.text || '', // Handle both content and text for backward compatibility
+        status: data.status || (data.done ? 'done' : 'active'),
+        username: data.username,
+        isPrivate: data.isPrivate,
+        boardType: data.boardType
+      }];
+    }
+    
+    return [];
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -30,62 +61,48 @@ const NotesManagementModal = ({ isOpen, onClose, userId }) => {
           'Content-Type': 'application/json'
         };
         
+        console.log('Fetching notes...');
         const [doneRes, deletedRes] = await Promise.all([
-          fetch(getApiUrl('comments/by-status?status=done'), { headers }),
-          fetch(getApiUrl('comments/by-status?status=deleted'), { headers })
+          fetch(getApiUrl('api/note-management/by-status/done'), { headers })
+            .then(async res => {
+              const data = await res.json();
+              console.log('Done notes response:', data);
+              return res.ok ? data : [];
+            })
+            .catch(err => {
+              console.error('Error fetching done notes:', err);
+              return [];
+            }),
+          fetch(getApiUrl('api/note-management/by-status/deleted'), { headers })
+            .then(async res => {
+              const data = await res.json();
+              console.log('Deleted notes response:', data);
+              return res.ok ? data : [];
+            })
+            .catch(err => {
+              console.error('Error fetching deleted notes:', err);
+              return [];
+            })
         ]);
 
-        // Process each response
-        const processResponse = async (response) => {
-          if (response.status === 204) {
-            console.log('No content received for status:', response.url);
-            return [];
-          }
-          
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Failed to fetch notes:', response.status, errorText);
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          
-          try {
-            const data = await response.json();
-            return processNotes(data);
-          } catch (error) {
-            console.error('Error parsing JSON:', error);
-            const text = await response.text();
-            console.error('Raw response text:', text);
-            return [];
-          }
-        };
+        console.log('Raw done notes:', doneRes);
+        console.log('Raw deleted notes:', deletedRes);
+
+        // Process the notes
+        const doneData = processNotes(doneRes);
+        const deletedData = processNotes(deletedRes);
         
-        // Handle case where response might be an object with a data property
-        const processNotes = (data) => {
-          if (!data) return [];
-          // If data is an array, return it directly
-          if (Array.isArray(data)) return data;
-          // If data has a data property that's an array, use that
-          if (data.data && Array.isArray(data.data)) return data.data;
-          // If data is an object with a notes property that's an array, use that
-          if (data.notes && Array.isArray(data.notes)) return data.notes;
-          // If data is an object but we can't find an array, return an array with the object
-          if (typeof data === 'object') return [data];
-          // Fallback to empty array
-          return [];
-        };
-        
-        // Process both responses in parallel
-        const [doneData, deletedData] = await Promise.all([
-          processResponse(doneRes).catch(() => []),
-          processResponse(deletedRes).catch(() => [])
-        ]);
-        
-        console.log('Done notes:', doneData);
-        console.log('Deleted notes:', deletedData);
+        console.log('Processed done notes:', doneData);
+        console.log('Processed deleted notes:', deletedData);
         
         setDoneNotes(doneData);
         setDeletedNotes(deletedData);
         setError('');
+        
+        // Notify parent component that notes were updated
+        if (onNotesUpdated) {
+          onNotesUpdated({ done: doneData, deleted: deletedData });
+        }
       } catch (err) {
         console.error('Error in fetchNotes:', err);
         setError('Failed to load notes. Please try again.');
@@ -103,56 +120,48 @@ const NotesManagementModal = ({ isOpen, onClose, userId }) => {
     try {
       const token = localStorage.getItem('authToken');
       
-      // Since we don't have a direct endpoint to undo 'done' status,
-      // we'll create a new note with the same content but marked as not done
-      const getResponse = await fetch(getApiUrl(`comments/${noteId}`), {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      if (!getResponse.ok) throw new Error('Failed to fetch note for restoration');
-      
-      const noteData = await getResponse.json();
-      
-      // Create a new note with the same content but marked as not done
-      const newNote = {
-        text: noteData.text || noteData.content || '',
-        x: noteData.x || 100,
-        y: noteData.y || 100,
-        color: noteData.color || '#fff9c4',
-        isPrivate: noteData.isPrivate || false,
-        done: false,  // Mark as not done
-        boardType: noteData.boardType || 'main',
-        username: noteData.username || ''
-      };
-      
-      // First, create the new note
-      const createResponse = await fetch(getApiUrl('comments'), {
+      // Use the restore endpoint to change status back to active
+      const response = await fetch(getApiUrl(`api/note-management/${noteId}/restore`), {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newNote)
+        }
       });
       
-      if (!createResponse.ok) throw new Error('Failed to create restored note');
+      if (!response.ok) throw new Error('Failed to restore note');
       
-      const createdNote = await createResponse.json();
+      // Update the UI optimistically
+      setDoneNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
       
-      // Then delete the original note
-      const deleteResponse = await fetch(getApiUrl(`comments/${noteId}`), {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      // Show success message
+      alert('Note restored successfully!');
       
-      if (!deleteResponse.ok) throw new Error('Failed to remove original note');
+      // Refresh the notes list
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
       
-      // Update local state
-      setDeletedNotes(prev => prev.filter(note => note.id !== noteId));
-      setDoneNotes(prev => [...prev, createdNote]);
-    } catch (err) {
-      setError('Failed to restore note. Please try again.');
-      console.error('Error restoring note:', err);
+      const [doneRes, deletedRes] = await Promise.all([
+        fetch(getApiUrl('api/note-management/by-status/done'), { headers })
+          .then(res => res.ok ? res.json() : [])
+          .catch(() => []),
+        fetch(getApiUrl('api/note-management/by-status/deleted'), { headers })
+          .then(res => res.ok ? res.json() : [])
+          .catch(() => [])
+      ]);
+      
+      // Process the notes using the processNotes function
+      const doneData = processNotes(doneRes);
+      const deletedData = processNotes(deletedRes);
+      
+      setDoneNotes(doneData);
+      setDeletedNotes(deletedData);
+      
+    } catch (error) {
+      console.error('Error restoring note:', error);
+      alert('Failed to restore note. Please try again.');
     }
   };
 
@@ -163,7 +172,7 @@ const NotesManagementModal = ({ isOpen, onClose, userId }) => {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(getApiUrl(`comments/${noteId}`), {
+      const response = await fetch(getApiUrl(`notes/${noteId}`), {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -287,6 +296,7 @@ NotesManagementModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   userId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onNotesUpdated: PropTypes.func,
 };
 
 export default NotesManagementModal;

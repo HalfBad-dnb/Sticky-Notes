@@ -93,7 +93,7 @@ public class SecurityConfig {
                 String[] publicEndpoints = {
                     "/api/auth/**",
                     "/api/registration/**",
-                    "/api/comments/**",
+                    "/api/notes/**",
                     "/api/notes/**",
                     "/api/profile/**",
                     "/api/test/**"

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "../profile/profile.css";
 import { getApiUrl } from "../utils/api";
 import { useTheme } from "../context/themeUtils";
 import { THEMES } from "../constants/themes";
+import axios from "../utils/axiosConfig";
 import BubbleBackgroundTheme from "../components/backgroundstyles/theme/BubleBackgroundTheme";
 import HeartBackgroundTheme from "../components/backgroundstyles/theme/HeartBackgroundTheme";
 import TriangleBackgroundTheme from "../components/backgroundstyles/theme/TriangleBackgroundTheme";
@@ -79,15 +79,10 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        roles: ["USER"] // Changed to array to match backend's expected format
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true // Important for CORS with credentials
+        roles: ["USER"]
       });
 
-      console.log('Registration response:', response);
+      console.log('Registration successful');
       
       setMessage("Registration successful! Redirecting to login page...");
       setFormData({ username: "", email: "", password: "", confirmPassword: "" });
@@ -98,37 +93,20 @@ const Register = () => {
       }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers,
-          data: error.config?.data
-        },
-        response: error.response ? {
-          status: error.response.status,
-          statusText: error.response.statusText,
-          headers: error.response.headers,
-          data: error.response.data
-        } : 'No response received'
-      });
-      
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        if (error.response.data && error.response.data.message) {
-          setMessage(error.response.data.message);
-        } else {
-          setMessage(`Registration failed: ${error.response.status} - ${error.response.statusText}`);
-        }
+        setMessage(
+          error.response.data?.message ||
+          error.response.data?.error ||
+          `Registration failed: ${error.response.status} - ${error.response.statusText}`
+        );
       } else if (error.request) {
         // The request was made but no response was received
-        setMessage(`Network error: ${error.message}. Please check your connection and try again.`);
+        setMessage("Network error. Please check your connection and try again.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        setMessage(`Registration failed: ${error.message}`);
+        setMessage(error.message || "Registration failed. Please try again.");
       }
     } finally {
       setLoading(false);

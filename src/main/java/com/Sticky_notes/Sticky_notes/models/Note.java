@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class Comment {
+public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +33,7 @@ public class Comment {
     private String boardType = "main"; // Indicates which board the note belongs to ("main" or "profile")
 
     // Default constructor for JPA
-    public Comment() {
+    public Note() {
     }
 
     // Getters and Setters

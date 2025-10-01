@@ -10,7 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.Sticky_notes.Sticky_notes.models.User;
 import com.Sticky_notes.Sticky_notes.models.Profile;
 import com.Sticky_notes.Sticky_notes.repository.UserRepository;
-import com.Sticky_notes.Sticky_notes.repository.CommentRepository;
+import com.Sticky_notes.Sticky_notes.repository.NoteRepository;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:8080", "http://localhost:8081"}, allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}, allowCredentials = "true")
@@ -21,7 +21,7 @@ public class ProfileController {
     private UserRepository userRepository;
     
     @Autowired
-    private CommentRepository commentRepository;
+    private NoteRepository noteRepository;
 
     @GetMapping
     public ResponseEntity<?> getUserProfile(Authentication authentication) {
@@ -35,7 +35,7 @@ public class ProfileController {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
         // Count user's notes
-        long notesCount = commentRepository.countByUsername(user.getUsername());
+        long notesCount = noteRepository.countByUsername(user.getUsername());
         
         // Create a Profile object with user data
         Profile profile = new Profile(
