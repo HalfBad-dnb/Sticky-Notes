@@ -63,24 +63,46 @@ const NotesManagementModal = ({ isOpen, onClose, userId, onNotesUpdated }) => {
         
         console.log('Fetching notes...');
         const [doneRes, deletedRes] = await Promise.all([
-          fetch(getApiUrl('api/note-management/by-status/done'), { headers })
+          fetch(getApiUrl('api/note-management/by-status/done'), { 
+            headers,
+            credentials: 'include' // Include cookies for authentication
+          })
             .then(async res => {
-              const data = await res.json();
-              console.log('Done notes response:', data);
-              return res.ok ? data : [];
+              if (!res.ok) {
+                if (res.status === 401) {
+                  throw new Error('Authentication required');
+                }
+                throw new Error(`HTTP error! status: ${res.status}`);
+              }
+              const text = await res.text();
+              return text ? JSON.parse(text) : [];
             })
             .catch(err => {
               console.error('Error fetching done notes:', err);
+              if (err.message === 'Authentication required') {
+                setError('Session expired. Please log in again.');
+              }
               return [];
             }),
-          fetch(getApiUrl('api/note-management/by-status/deleted'), { headers })
+          fetch(getApiUrl('api/note-management/by-status/deleted'), { 
+            headers,
+            credentials: 'include' // Include cookies for authentication
+          })
             .then(async res => {
-              const data = await res.json();
-              console.log('Deleted notes response:', data);
-              return res.ok ? data : [];
+              if (!res.ok) {
+                if (res.status === 401) {
+                  throw new Error('Authentication required');
+                }
+                throw new Error(`HTTP error! status: ${res.status}`);
+              }
+              const text = await res.text();
+              return text ? JSON.parse(text) : [];
             })
             .catch(err => {
               console.error('Error fetching deleted notes:', err);
+              if (err.message === 'Authentication required') {
+                setError('Session expired. Please log in again.');
+              }
               return [];
             })
         ]);

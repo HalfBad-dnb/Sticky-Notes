@@ -8,6 +8,7 @@ import "../App.css";
 import NotesManagementModal from "./NotesManagementModal";
 import ConfirmationDialog from '../components/common/ConfirmationDialog';
 import axios from "../utils/axiosConfig";
+import { useFilteredNotes, createOptimizedDragHandler, useMemoizedStyles, createErrorHandler, useNotesCache } from "./ProfileOptimisation";
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -43,10 +44,14 @@ const Profile = () => {
   // Get theme from context
   const { theme } = useTheme();
   
-  // Theme switching functionality removed from profile bar
-  
   // Use global zoom context for the sticky board container
   const { getBoardStyle } = useZoom();
+
+  // Optimization hooks
+  const { getCachedNotes, setCachedNotes, clearCache } = useNotesCache();
+  const handleError = createErrorHandler(setError);
+  const { containerStyle, cardStyle, buttonStyle } = useMemoizedStyles(theme, isMobile);
+  const filteredNotes = useFilteredNotes(notes, isPrivate);
 
   const fetchUserData = useCallback(() => {
     const token = localStorage.getItem("authToken");
@@ -62,22 +67,14 @@ const Profile = () => {
     const userData = {
       username: username,
       token: token
-      // Add any other user data you store in localStorage
     };
     
     setUser(userData);
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
-
   const fetchUserNotes = useCallback(async () => {
     try {
-      setLoading(true);
-      setError("");
-      
       const token = localStorage.getItem("authToken");
       const username = localStorage.getItem("username");
       
@@ -85,7 +82,14 @@ const Profile = () => {
         throw new Error("Authentication required. Please log in.");
       }
 
-      // Fetch only profile notes for the current user
+      // Try to get cached notes first for instant display
+      const cached = getCachedNotes();
+      if (cached && cached.length > 0) {
+        setNotes(cached);
+        setLoading(false);
+      }
+
+      // Fetch fresh data from server
       const response = await axios.get(getApiUrl(`notes/profile/${username}`));
 
       if (response.data) {
@@ -94,16 +98,15 @@ const Profile = () => {
           ? response.data.filter(note => note.boardType === 'profile')
           : [];
         setNotes(profileNotes);
+        setCachedNotes(profileNotes); // Update cache
       }
+      setError("");
     } catch (err) {
-      console.error("Error fetching profile notes:", err);
-      setError(
-        err.response?.data?.message || "Failed to load profile notes. Please try again later."
-      );
+      handleError(err, 'fetching user notes');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getCachedNotes, setCachedNotes, handleError]);
 
   useEffect(() => {
     fetchUserData();
@@ -126,6 +129,12 @@ const Profile = () => {
     
     console.log('Fetching profile notes for user:', user.username, 'isPrivate:', isPrivate);
     
+    // Try cache first
+    const cached = getCachedNotes();
+    if (cached && cached.length > 0) {
+      setNotes(cached);
+    }
+
     // Fetch profile notes with privacy filter
     const url = new URL(getApiUrl(`notes/profile/${user.username}`));
     if (isPrivate !== null) {
@@ -147,12 +156,10 @@ const Profile = () => {
           return [];
         }
         
-        // For successful responses (2xx), Axios puts the response data in response.data
         if (response.data) {
           return response.data;
         }
         
-        // If no data but status is successful, return empty array
         return [];
       })
       .then(notes => {
@@ -165,29 +172,25 @@ const Profile = () => {
       .then(notes => {
         console.log('Processing', notes.length, 'notes');
       
-      // Filter out any invalid notes
-      const validNotes = notes.filter(note => note && note.id);
-      
-      // Filter by privacy setting if needed
-      let filteredNotes = validNotes;
-      if (isPrivate) {
-        filteredNotes = validNotes.filter(note => note.isPrivate === true);
-      }
-      
-      console.log(`Displaying ${filteredNotes.length} notes (isPrivate=${isPrivate})`);
-      setNotes(filteredNotes);
-      setError(''); // Clear any previous errors
-    })
-    .catch(error => {
-      console.error('Error in fetchProfileNotes:', error);
-      if (error.message === 'Authentication failed') {
-        // Already handled above
-        return;
-      }
-      setError('Failed to load notes. Please try again later.');
-      setNotes([]); // Ensure notes is always an array
-    });
-  }, [user, isPrivate]);
+        // Filter out any invalid notes
+        const validNotes = notes.filter(note => note && note.id);
+        
+        // Filter by privacy setting if needed
+        let processedNotes = validNotes;
+        if (isPrivate) {
+          processedNotes = validNotes.filter(note => note.isPrivate === true);
+        }
+        
+        console.log(`Displaying ${processedNotes.length} notes (isPrivate=${isPrivate})`);
+        setNotes(processedNotes);
+        setCachedNotes(processedNotes); // Update cache
+        setError('');
+      })
+      .catch(error => {
+        handleError(error, 'fetching profile notes');
+        setNotes([]);
+      });
+  }, [user, isPrivate, getCachedNotes, setCachedNotes, handleError]);
 
   // Fetch user's notes for profile board
   useEffect(() => {
@@ -218,7 +221,7 @@ const Profile = () => {
       y,
       username: user.username,
       isPrivate: isPrivate,
-      boardType: 'profile' // Explicitly set board type to profile
+      boardType: 'profile'
     };
     
     console.log('Creating new profile note:', { 
@@ -228,132 +231,36 @@ const Profile = () => {
       isPrivate: isPrivate
     });
 
-    console.log('Sending new profile note:', newNote);
     axios.post(getApiUrl('notes'), newNote)
-    .then(response => {
-      console.log('Add note response status:', response.status);
-      
-      if (response.status === 204) {
-        console.log('No content response when adding note, using original data');
-        return newNote; // Use the original note data
-      }
-      
-      if (!response.ok) throw new Error(`Failed to save note: ${response.status}`);
-      
-      const contentType = response.headers.get('content-type');
-      console.log('Content-Type:', contentType);
-      
-      if (!contentType || !contentType.includes('application/json')) {
-        console.log('Response is not JSON, using original note data');
-        return newNote;
-      }
-      
-      // Clone the response for debugging
-      const responseClone = response.clone();
-      
-      // Try to parse as JSON
-      return response.json().catch(error => {
-        console.error('JSON parsing error:', error);
-        // Log the raw response text for debugging
-        return responseClone.text().then(text => {
-          console.log('Raw response text:', text);
-          return newNote; // Return original note on parsing failure
+      .then(response => {
+        console.log('Add note response status:', response.status);
+        
+        if (response.status === 204) {
+          console.log('No content response when adding note, using original data');
+          return newNote;
+        }
+        
+        const savedNote = response.data || newNote;
+        
+        // Make sure savedNote has an id
+        if (savedNote && !savedNote.id) {
+          savedNote.id = `temp-${Date.now()}`;
+        }
+        
+        setNotes(prevNotes => {
+          const updatedNotes = [...prevNotes, savedNote];
+          setCachedNotes(updatedNotes); // Update cache
+          return updatedNotes;
         });
+        setNewNoteText('');
+      })
+      .catch(error => {
+        handleError(error, 'saving note');
       });
-    })
-    .then(savedNote => {
-      console.log('Saved note:', savedNote);
-      // Make sure savedNote has an id
-      if (savedNote && !savedNote.id) {
-        // Generate a temporary id if none exists
-        savedNote.id = `temp-${Date.now()}`;
-      }
-      setNotes(prevNotes => [...prevNotes, savedNote]);
-      setNewNoteText('');
-    })
-    .catch(error => console.error('Error saving note:', error));
-  }, [newNoteText, calculateCenterPosition, user, isPrivate]);
+  }, [newNoteText, calculateCenterPosition, user, isPrivate, setCachedNotes, handleError]);
 
-  const handleDrag = useCallback((id, x, y) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error('No authentication token found');
-      return;
-    }
-    
-    // Update locally first for responsive UI
-    setNotes(prevNotes => 
-      prevNotes.map(note => 
-        note.id === id ? { ...note, x, y, isDragging: true } : note
-      )
-    );
-    
-    // Find the current note to use if the server response fails
-    const currentNote = notes.find(note => note.id === id);
-    if (!currentNote) {
-      console.error(`Note with id ${id} not found`);
-      return;
-    }
-    
-    // Only include necessary fields in the update
-    const updateData = { 
-      x, 
-      y,
-      // Preserve the existing boardType and isPrivate status
-      boardType: currentNote.boardType || 'profile',
-      isPrivate: currentNote.isPrivate || false
-    };
-    
-    console.log(`Updating position for note ${id}:`, { x, y });
-    
-    axios.put(getApiUrl(`notes/${id}`), updateData)
-    .then(async response => {
-      console.log(`Drag response for note ${id}:`, response.status);
-      
-      if (response.status === 204) {
-        console.log('No content response when updating position');
-        return { ...currentNote, x, y };
-      }
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to update position:', errorText);
-        throw new Error(`Failed to update position: ${response.status}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.warn('Expected JSON response, got:', contentType);
-        return { ...currentNote, x, y };
-      }
-      
-      try {
-        return await response.json();
-      } catch (error) {
-        console.error('JSON parsing error:', error);
-        return { ...currentNote, x, y };
-      }
-    })
-    .then(updatedNote => {
-      if (updatedNote) {
-        console.log('Successfully updated note position:', updatedNote);
-        setNotes(prevNotes =>
-          prevNotes.map(note => 
-            note.id === id ? { ...updatedNote, isDragging: false } : note
-          )
-        );
-      }
-    })
-    .catch(error => {
-      console.error('Error updating position:', error);
-      // Revert to the original position on error
-      setNotes(prevNotes =>
-        prevNotes.map(note => 
-          note.id === id ? { ...note, isDragging: false } : note
-        )
-      );
-    });
-  }, [notes]);
+  // Optimized drag handler
+  const handleDrag = createOptimizedDragHandler(setNotes, axios, getApiUrl, notes);
 
   const handleDelete = useCallback(async (id) => {
     setNoteToDelete(notes.find(note => note.id === id));
@@ -373,11 +280,14 @@ const Profile = () => {
 
       await axios.delete(getApiUrl(`notes/${noteToDelete.id}`));
 
-      // Optimistically update the UI
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteToDelete.id));
+      // Optimistically update the UI and cache
+      setNotes(prevNotes => {
+        const updatedNotes = prevNotes.filter(note => note.id !== noteToDelete.id);
+        setCachedNotes(updatedNotes); // Update cache
+        return updatedNotes;
+      });
     } catch (err) {
-      console.error('Error deleting note:', err);
-      setError('Failed to delete note. Please try again.');
+      handleError(err, 'deleting note');
     } finally {
       setShowDeleteConfirm(false);
       setNoteToDelete(null);
@@ -402,14 +312,9 @@ const Profile = () => {
       );
       
       // Call the API to mark the note as done
-      const response = await fetch(getApiUrl(`notes/${id}/done`), {
-        method: 'PUT',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await axios.put(getApiUrl(`notes/${id}/done`));
 
-      if (!response.ok) {
+      if (response.status !== 200 && response.status !== 204) {
         throw new Error('Failed to mark note as done');
       }
 
@@ -418,15 +323,16 @@ const Profile = () => {
       // Refresh the notes list to reflect the change
       fetchProfileNotes();
     } catch (error) {
-      console.error('Error marking note as done:', error);
+      handleError(error, 'marking note as done');
       // Revert the optimistic update if the API call fails
       fetchProfileNotes();
     }
-  }, [fetchProfileNotes]);
+  }, [fetchProfileNotes, handleError]);
 
   const togglePrivacy = useCallback(() => {
     setIsPrivate(prev => !prev);
-  }, []);
+    clearCache(); // Clear cache when toggling privacy
+  }, [clearCache]);
 
   if (loading) return <p>Loading profile...</p>;
   if (error) return (
@@ -444,14 +350,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="app-container" style={{
-      paddingTop: isMobile ? '80px' : '20px',
-      paddingBottom: isMobile ? '20px' : '40px',
-      minHeight: '100vh',
-      boxSizing: 'border-box',
-      position: 'relative',
-      zIndex: 1
-    }}>
+    <div className="app-container" style={containerStyle}>
       {/* Theme Background - Handled by App.jsx */}
       <div style={{ 
         position: 'fixed', 
@@ -481,98 +380,57 @@ const Profile = () => {
         padding: isMobile ? '0 15px' : '0',
         zIndex: 1
       }}>
-        <div style={{
-          width: '100%',
-          backgroundColor: theme === 'bubbles' ? 'rgba(20, 20, 25, 0.95)' : 'rgba(25, 25, 30, 0.95)',
-          borderRadius: '12px',
-          boxShadow: theme === 'bubbles' 
-            ? '0 8px 32px rgba(0, 0, 0, 0.6)' 
-            : '0 8px 32px rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          padding: isMobile ? '15px' : '20px',
-          marginBottom: isMobile ? '20px' : '30px',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}>
-        {/* Input and Buttons Container */}
-        <div style={{
-          width: '100%',
-          order: isMobile ? 2 : 1,
-          marginTop: isMobile ? '10px' : '0'
-        }}>
-          {/* Input Row */}
+        <div style={cardStyle}>
+          {/* Input and Buttons Container */}
           <div style={{
-            display: 'flex',
-            gap: '10px',
             width: '100%',
-            marginBottom: isMobile ? '10px' : '0'
+            order: isMobile ? 2 : 1,
+            marginTop: isMobile ? '10px' : '0'
           }}>
-            <input
-              type="text"
-              value={newNoteText}
-              onChange={(e) => setNewNoteText(e.target.value)}
-              placeholder="Add a new note..."
-              style={{
-                flex: 1,
-                height: '44px',
-                padding: '0 16px',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '8px',
-                outline: 'none',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: '#e0e0e0',
-                fontSize: '15px',
-                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
-                '::placeholder': {
-                  color: 'rgba(255, 255, 255, 0.5)'
-                },
-                ':focus': {
-                  borderColor: 'rgba(100, 181, 246, 0.8)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                  boxShadow: '0 0 0 2px rgba(100, 181, 246, 0.3)'
-                }
-              }}
-              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addNote())}
-            />
-          </div>
-          
-          {/* Action Buttons Row - shown for all screen sizes */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            width: '100%',
-            gap: isMobile ? '15px' : '20px',
-            marginTop: '15px',
-            padding: isMobile ? '0 10px' : '0',
-            marginBottom: '15px'
-          }}>
+            {/* Input Row */}
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+              width: '100%',
+              marginBottom: isMobile ? '10px' : '0'
+            }}>
+              <input
+                type="text"
+                value={newNoteText}
+                onChange={(e) => setNewNoteText(e.target.value)}
+                placeholder="Add a new note..."
+                style={{
+                  flex: 1,
+                  height: '44px',
+                  padding: '0 16px',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '8px',
+                  outline: 'none',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#e0e0e0',
+                  fontSize: '15px',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)'
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addNote())}
+              />
+            </div>
+            
+            {/* Action Buttons Row */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%',
+              gap: isMobile ? '15px' : '20px',
+              marginTop: '15px',
+              padding: isMobile ? '0 10px' : '0',
+              marginBottom: '15px'
+            }}>
               {/* Add Note Button */}
               <button 
                 onClick={addNote} 
                 title="Add Note"
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  border: 'none',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#e0e0e0',
-                  cursor: 'pointer',
-                  fontSize: '20px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  ':hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                  },
-                  ':active': {
-                    transform: 'translateY(0)'
-                  }
-                }}
+                style={buttonStyle}
               >
                 📌
               </button>
@@ -581,28 +439,7 @@ const Profile = () => {
               <button 
                 onClick={togglePrivacy} 
                 title={isPrivate ? 'Show All Notes' : 'Show Important Only'}
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  border: 'none',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#e0e0e0',
-                  cursor: 'pointer',
-                  fontSize: '20px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  ':hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                  },
-                  ':active': {
-                    transform: 'translateY(0)'
-                  }
-                }}
+                style={buttonStyle}
               >
                 {isPrivate ? '🌐' : '⭐'}
               </button>
@@ -612,26 +449,8 @@ const Profile = () => {
                 to="/" 
                 title="Back to Main Board"
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  border: 'none',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  textDecoration: 'none',
-                  color: '#e0e0e0',
-                  fontSize: '20px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  ':hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                  },
-                  ':active': {
-                    transform: 'translateY(0)'
-                  }
+                  ...buttonStyle,
+                  textDecoration: 'none'
                 }}
               >
                 🏠
@@ -642,26 +461,8 @@ const Profile = () => {
                 onClick={() => setShowNotesModal(true)}
                 title="Manage Notes"
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  border: 'none',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                  color: '#e0e0e0',
-                  cursor: 'pointer',
-                  fontSize: '20px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  ':hover': {
-                    backgroundColor: 'rgba(76, 175, 80, 0.3)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                  },
-                  ':active': {
-                    transform: 'translateY(0)'
-                  }
+                  ...buttonStyle,
+                  backgroundColor: 'rgba(76, 175, 80, 0.2)'
                 }}
               >
                 📋
@@ -669,6 +470,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
+
         <div className="main-content" style={{
           paddingTop: isMobile ? '180px' : '10px'
         }}>
@@ -676,137 +478,136 @@ const Profile = () => {
           <div className="sticky-board fullscreen profile-board" style={{
             paddingTop: isMobile ? '10px' : '20px'
           }}>
-            {/* Input container removed - moved to nav-center */}
-            
             {/* Notes container - show different views based on device */}
             {isMobile ? (
-            <div className="mobile-notes-list" style={{
-              width: '100%',
-              height: 'calc(100vh - 200px)', // Adjust based on your header/nav height
-              padding: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px',
-              marginTop: '10px',
-              position: 'relative', // Add this to contain absolute children
-              minHeight: '300px' // Ensure minimum height for visibility
-            }}>
-              {notes.length === 0 ? (
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  textAlign: 'center',
-                  fontSize: '1.2rem',
-                  color: '#666',
-                  width: '100%',
-                  padding: '20px',
-                  fontFamily: '"Times New Roman", Times, serif'
-                }}>
-                  No {isPrivate ? 'important ' : ''}notes yet. Add one above!
-                </div>
-              ) : (
-                notes.map(note => (
-                  <div key={note.id}>
-                    {/* Note content */}
-                    <div 
-                      className="mobile-note-content"
-                      style={{
-                        backgroundColor: note.color || '#ffea5c',
-                        borderRadius: '4px',
-                        padding: '15px',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                        marginBottom: '8px'
-                      }}
-                    >
-                      <div style={{ fontSize: '16px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#000000' }}>
-                        {note.text}
-                      </div>
-                    </div>
-                    
-                    {/* Buttons row - separate from note content */}
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'flex-end',
-                      gap: '10px'
-                    }}>
-                      <button 
-                        onClick={() => handleDelete(note.id)}
-                        style={{ 
-                          background: 'rgba(0,0,0,0.05)', 
-                          border: '1px solid rgba(0,0,0,0.1)', 
-                          borderRadius: '8px',
-                          padding: '8px 12px',
-                          width: '80px',
-                          height: '44px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '5px',
-                          fontSize: '16px',
-                          touchAction: 'manipulation'
+              <div className="mobile-notes-list" style={{
+                width: '100%',
+                height: 'calc(100vh - 200px)',
+                padding: '10px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px',
+                marginTop: '10px',
+                position: 'relative',
+                minHeight: '300px'
+              }}>
+                {filteredNotes.length === 0 ? (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                    fontSize: '1.2rem',
+                    color: '#666',
+                    width: '100%',
+                    padding: '20px',
+                    fontFamily: '"Times New Roman", Times, serif'
+                  }}>
+                    No {isPrivate ? 'important ' : ''}notes yet. Add one above!
+                  </div>
+                ) : (
+                  filteredNotes.map(note => (
+                    <div key={note.id}>
+                      {/* Note content */}
+                      <div 
+                        className="mobile-note-content"
+                        style={{
+                          backgroundColor: note.color || '#ffea5c',
+                          borderRadius: '4px',
+                          padding: '15px',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          marginBottom: '8px'
                         }}
                       >
-                        <span style={{ fontSize: '20px' }}>🗑️</span>
-                      </button>
+                        <div style={{ fontSize: '16px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#000000' }}>
+                          {note.text}
+                        </div>
+                      </div>
+                      
+                      {/* Buttons row */}
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'flex-end',
+                        gap: '10px'
+                      }}>
+                        <button 
+                          onClick={() => handleDelete(note.id)}
+                          style={{ 
+                            background: 'rgba(0,0,0,0.05)', 
+                            border: '1px solid rgba(0,0,0,0.1)', 
+                            borderRadius: '8px',
+                            padding: '8px 12px',
+                            width: '80px',
+                            height: '44px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '5px',
+                            fontSize: '16px',
+                            touchAction: 'manipulation'
+                          }}
+                        >
+                          <span style={{ fontSize: '20px' }}>🗑️</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div style={{
+                position: 'relative',
+                minHeight: '400px',
+                width: '100%',
+                height: '100%',
+                overflow: 'hidden'
+              }}>
+                {filteredNotes.length === 0 ? (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                    fontSize: '1.2rem',
+                    color: '#666',
+                    width: '100%',
+                    padding: '20px',
+                    fontFamily: '"Times New Roman", Times, serif',
+                    zIndex: 1000
+                  }}>
+                    No {isPrivate ? 'important ' : ''}notes yet. Add one above!
+                  </div>
+                ) : (
+                  <div className="notes-container" style={getBoardStyle()}>
+                    <div className="notes-items" style={{
+                      height: '100%',
+                      position: 'relative'
+                    }}>
+                      {filteredNotes.map((note, index) => (
+                        <StickyNote
+                          key={note.id}
+                          note={{ ...note, zIndex: filteredNotes.length - index }}
+                          onDrag={handleDrag}
+                          onDelete={handleDelete}
+                          onDone={handleDone}
+                        />
+                      ))}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-          ) : (
-            <div style={{
-              position: 'relative',
-              minHeight: '400px',
-              width: '100%',
-              height: '100%',
-              overflow: 'hidden'
-            }}>
-              {notes.length === 0 ? (
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  textAlign: 'center',
-                  fontSize: '1.2rem',
-                  color: '#666',
-                  width: '100%',
-                  padding: '20px',
-                  fontFamily: '"Times New Roman", Times, serif',
-                  zIndex: 1000
-                }}>
-                  No {isPrivate ? 'important ' : ''}notes yet. Add one above!
-                </div>
-              ) : (
-                <div className="notes-container" style={getBoardStyle()}>
-                  <div className="notes-items" style={{
-                    height: '100%',
-                    position: 'relative'
-                  }}>
-                    {notes.map((note, index) => (
-                      <StickyNote
-                        key={note.id}
-                        note={{ ...note, zIndex: notes.length - index }}
-                        onDrag={handleDrag}
-                        onDelete={handleDelete}
-                        onDone={handleDone}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
+
         <NotesManagementModal 
           isOpen={showNotesModal}
           onClose={() => setShowNotesModal(false)}
           userId={user?.id}
         />
-      </div>
       </div>
       
       {/* Confirmation Dialog for Note Deletion */}

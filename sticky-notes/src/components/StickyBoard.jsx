@@ -3,7 +3,7 @@ import { useZoom } from '../context/useZoom';
 import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
 import NoteDefault from './backgroundstyles/notestyles/NoteDefault';
-import News from './News';
+//import News from './News';
 import { getApiUrl } from '../utils/api';
 import '../App.css';
 import { Link } from 'react-router-dom';
@@ -495,8 +495,9 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       minHeight: '100vh',
       boxSizing: 'border-box'
     }}>
-      {/* Disclaimers */}
+      {/* Disclaimers - Temporarily commented out*/}
       <Disclaimers isMobile={isMobile} />
+      
       
       {/* Input container */}
       <div className="input-container" style={{
@@ -707,7 +708,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
         </div>
       )}
 
-      {/* News Section */}
+      {/* News Section - Temporarily commented out
       <div style={{ 
         width: '100%',
         maxWidth: '1200px',
@@ -716,6 +717,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       }}>
         <News />
       </div>
+      */}
     </div>
   );
 };

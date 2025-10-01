@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../../../context/themeUtils';
 
 const MenuDefault = ({ 
   children, 
@@ -15,8 +14,8 @@ const MenuDefault = ({
       onClose();
     }
   };
-  const { theme } = useTheme();
-  // Title style
+
+  // Title style - using a separate element for the underline effect
   const titleStyle = {
     width: '100%',
     margin: '0 0 12px 0',
@@ -28,16 +27,16 @@ const MenuDefault = ({
     letterSpacing: '0.01em',
     lineHeight: '1.3',
     position: 'relative',
-    '&:after': {
-      content: '""',
-      position: 'absolute',
-      bottom: '-1px',
-      left: '16px',
-      width: '28px',
-      height: '2px',
-      background: 'linear-gradient(90deg, #70b1ff, transparent)',
-      borderRadius: '2px'
-    }
+  };
+
+  const titleUnderlineStyle = {
+    position: 'absolute',
+    bottom: '-1px',
+    left: '16px',
+    width: '28px',
+    height: '2px',
+    background: 'linear-gradient(90deg, #70b1ff, transparent)',
+    borderRadius: '2px'
   };
 
   // Base styles for the menu container
@@ -73,35 +72,11 @@ const MenuDefault = ({
     padding: '0 16px',
     margin: '0',
     scrollbarWidth: 'thin',
-    scrollbarColor: 'rgba(255, 255, 255, 0.15) transparent',
-    '& > *': {
-      width: '100%',
-      margin: '4px 0',
-      '&:first-child': { marginTop: '0' },
-      '&:last-child': { marginBottom: '0' }
-    },
-    '&::-webkit-scrollbar': {
-      width: '4px',
-    },
-    '&::-webkit-scrollbar-track': {
-      background: 'transparent',
-      margin: '8px 0',
-      borderRadius: '4px',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-      borderRadius: '4px',
-      border: '2px solid transparent',
-      backgroundClip: 'padding-box',
-      transition: 'background-color 0.2s ease',
-      '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.25)'
-      }
-    }
+    scrollbarColor: 'rgba(255, 255, 255, 0.15) transparent'
   };
 
   // Base styles for navigation items
-  const navItemBase = {
+  const navItemStyle = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
@@ -120,127 +95,96 @@ const MenuDefault = ({
     background: 'transparent',
     textAlign: 'left',
     width: '100%',
-    boxSizing: 'border-box',
-    '&:first-child': {
-      marginTop: '0',
-    },
-    '&:last-child': {
-      marginBottom: '0',
-    },
-    '&:before': {
-      content: '""',
-      position: 'absolute',
-      left: '8px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      height: '60%',
-      width: '3px',
-      backgroundColor: 'transparent',
-      transition: 'all 0.25s ease',
-      borderRadius: '3px',
-      opacity: 0.8
-    },
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-      color: '#ffffff',
-      transform: 'translateX(4px)',
-      '&:before': {
-        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-        height: '70%',
-        left: '6px'
-      },
-      '& svg': {
-        transform: 'scale(1.1)',
-        opacity: 1
-      }
-    },
-    '&:active': {
-      transform: 'translateX(4px) scale(0.98)',
-      transition: 'all 0.1s ease'
-    },
-    '&.active': {
-      backgroundColor: 'rgba(64, 156, 255, 0.15)',
-      color: '#70b1ff',
-      fontWeight: '500',
-      '&:before': {
-        backgroundColor: '#70b1ff',
-        height: '70%',
-        left: '6px',
-        opacity: 1
-      },
-      '& svg': {
-        color: '#70b1ff',
-        opacity: 1
-      }
-    }
+    boxSizing: 'border-box'
   };
 
-  // Apply base styles to navigation items
-  const navItemStyle = {
-    ...navItemBase,
-    '& svg': {
-      transition: 'transform 0.2s ease, opacity 0.2s ease, color 0.2s ease',
-      opacity: 0.9,
-      flexShrink: 0,
-      width: '20px',
-      height: '20px',
-      color: 'rgba(255, 255, 255, 0.9)'
-    },
-    '&:hover svg': {
-      transform: 'scale(1.1)',
-      opacity: 1
-    },
-    '&.active svg': {
-      color: '#70b1ff',
-      opacity: 1
-    }
+  // Icon styles should be applied to the icon component directly
+  const iconStyle = {
+    transition: 'transform 0.2s ease, opacity 0.2s ease, color 0.2s ease',
+    opacity: 0.9,
+    flexShrink: 0,
+    width: '20px',
+    height: '20px',
+    color: 'rgba(255, 255, 255, 0.9)'
+  };
+
+  // Active state styles should be applied via className
+  const activeItemStyle = {
+    color: '#70b1ff',
+    backgroundColor: 'rgba(64, 156, 255, 0.15)'
+  };
+
+  // Hover state styles should be applied via :hover in CSS or with onMouseEnter/onMouseLeave
+  const hoverStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    color: '#ffffff',
+    transform: 'translateX(4px)'
   };
 
   // Styles for logout button
   const logoutButtonStyle = {
-    ...navItemBase,
+    ...navItemStyle,
     color: '#ff6b6b',
-    marginTop: 'auto',
-    '&:hover': {
-      backgroundColor: 'rgba(255, 107, 107, 0.12)',
-      color: '#ff8585',
-      transform: 'translateX(4px)',
-      '&:before': {
-        backgroundColor: '#ff6b6b',
-        height: '70%',
-        left: '6px',
-        opacity: 1
-      },
-      '& svg': {
-        transform: 'scale(1.1)',
-        opacity: 1
-      }
-    },
-    '&:active': {
-      transform: 'translateX(4px) scale(0.98)',
-      transition: 'all 0.1s ease',
-      backgroundColor: 'rgba(255, 107, 107, 0.15)'
-    },
-    '& svg': {
-      color: 'inherit',
-      opacity: 0.9,
-      transition: 'all 0.2s ease'
-    },
-    '&.active': {
-      backgroundColor: 'rgba(255, 107, 107, 0.12)',
-      color: '#ff8585',
-      '&:before': {
-        backgroundColor: '#ff6b6b',
-        height: '70%',
-        left: '6px',
-        opacity: 1
-      }
-    }
+    marginTop: 'auto'
   };
 
-  // Enhance children with proper styles
+  // Hover style for logout button
+  const logoutHoverStyle = {
+    backgroundColor: 'rgba(255, 107, 107, 0.12)',
+    color: '#ff8585',
+    transform: 'translateX(4px)'
+  };
+
+  // Active style for logout button
+  const logoutActiveStyle = {
+    transform: 'translateX(4px) scale(0.98)',
+    backgroundColor: 'rgba(255, 107, 107, 0.15)'
+  };
+
+  // Active state for logout button
+  const logoutActiveState = {
+    backgroundColor: 'rgba(255, 107, 107, 0.12)',
+    color: '#ff8585'
+  };
+
+  // Apply hover and active states with event handlers
+  const getNavItemStyle = (isActive = false, isLogout = false) => {
+    const baseStyle = isLogout ? logoutButtonStyle : navItemStyle;
+    const activeStyle = isLogout ? logoutActiveState : activeItemStyle;
+    
+    return {
+      ...baseStyle,
+      ...(isActive ? activeStyle : {})
+    };
+  };
+
+  // Handle mouse enter/leave for hover effects
+  const handleMouseEnter = (e) => {
+    e.currentTarget.style.transform = 'translateX(4px)';
+    e.currentTarget.style.backgroundColor = e.currentTarget.classList.contains('logout') 
+      ? 'rgba(255, 107, 107, 0.12)' 
+      : 'rgba(255, 255, 255, 0.08)';
+  };
+
+  const handleMouseLeave = (e) => {
+    e.currentTarget.style.transform = '';
+    e.currentTarget.style.backgroundColor = '';
+  };
+
+  const handleMouseDown = (e) => {
+    e.currentTarget.style.transform = 'translateX(4px) scale(0.98)';
+  };
+
+  const handleMouseUp = (e) => {
+    e.currentTarget.style.transform = 'translateX(4px)';
+  };
+
+  // Enhance children with proper styles and event handlers
   const enhancedChildren = React.Children.map(children, (child) => {
     if (!child) return null;
+
+    const isLogout = child.props.className?.includes('logout');
+    const isActive = child.props.className?.includes('active');
     
     // Handle Link components
     if (child.type === Link) {
@@ -250,107 +194,52 @@ const MenuDefault = ({
           child.props.onClick?.(e);
         },
         style: {
-          ...navItemStyle,
+          ...(isLogout ? logoutButtonStyle : navItemStyle),
           ...child.props.style
-        }
-      });
-    }
-    
-    // Handle button elements
-    if (child.type === 'button') {
-      return React.cloneElement(child, {
-        onClick: (e) => {
-          child.props.onClick?.(e);
-          onClose?.();
         },
-        style: {
-          ...logoutButtonStyle,
-          ...child.props.style
-        }
+        onMouseEnter: handleMouseEnter,
+        onMouseLeave: handleMouseLeave,
+        onMouseDown: handleMouseDown,
+        onMouseUp: handleMouseUp,
+        className: `${child.props.className || ''} ${isLogout ? 'logout' : ''} ${isActive ? 'active' : ''}`.trim()
       });
     }
     
-    // Handle other elements
+    // Handle regular elements
     return React.cloneElement(child, {
       style: {
-        ...navItemStyle,
+        ...(isLogout ? logoutButtonStyle : navItemStyle),
         ...child.props.style
-      }
+      },
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+      onMouseDown: handleMouseDown,
+      onMouseUp: handleMouseUp,
+      className: `${child.props.className || ''} ${isLogout ? 'logout' : ''} ${isActive ? 'active' : ''}`.trim()
     });
   });
 
-  // Render the appropriate background based on theme
-  const renderBackground = () => {
-    if (theme === 'bubbles') {
-      return <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: -1
-      }} />;
-    }
-    return <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      zIndex: -1,
-      backgroundColor: '#0a0a0a'
-    }} />;
-  };
-
+  // Render the menu
   return (
-    <>
-      {/* Overlay that covers the entire screen */}
-      <div 
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 1000,
-          backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          opacity: style?.opacity || 0,
-          pointerEvents: style?.pointerEvents === 'auto' ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
-          willChange: 'opacity'
-        }}
-        onClick={handleOverlayClick}
-      />
-      
-      {/* Menu container */}
-      <div style={menuContainerStyle}>
-        {renderBackground()}
-        <div style={{
-          position: 'relative',
-          zIndex: 1,
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
-          {title && (
-            <div style={{ 
-              padding: '0 16px 16px'
-            }}>
-              {typeof title === 'string' ? <h3 style={titleStyle}>{title}</h3> : title}
-            </div>
-          )}
-          <div style={scrollContainerStyle}>
-            {enhancedChildren}
-          </div>
+    <div 
+      style={menuContainerStyle}
+      onClick={handleOverlayClick}
+    >
+      {title && (
+        <div style={titleStyle}>
+          {title}
+          <div style={titleUnderlineStyle} />
         </div>
+      )}
+      <div style={scrollContainerStyle}>
+        {enhancedChildren}
       </div>
-    </>
+    </div>
   );
 };
 
 MenuDefault.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   title: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node
