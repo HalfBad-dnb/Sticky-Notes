@@ -9,7 +9,8 @@ The Sticky Notes application is a full-stack web application that allows users t
 ### Backend (Spring Boot)
 - **Framework**: Spring Boot 3.4.9
 - **Language**: Java 21
-- **Database**: PostgreSQL with Google Cloud SQL integration
+- **Database**: PostgreSQL with Supabase integration
+- **ORM**: Prisma for database management
 - **Authentication**: JWT (JSON Web Tokens) with Spring Security
 - **Build Tool**: Maven
 - **Real-time Updates**: Server-Sent Events (SSE)
@@ -27,7 +28,7 @@ The Sticky Notes application is a full-stack web application that allows users t
 ### Deployment & Infrastructure
 - **Containerization**: Docker
 - **Cloud Platform**: Google Cloud Run
-- **Database**: Google Cloud SQL (PostgreSQL)
+- **Database**: Supabase (PostgreSQL) with Prisma ORM
 - **Reverse Proxy**: Nginx
 
 ## Data Flow Architecture & Application Structure

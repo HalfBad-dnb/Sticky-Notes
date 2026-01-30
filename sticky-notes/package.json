@@ -17,13 +17,18 @@
     "electron-build-mac": "npm run build && electron-builder --mac",
     "electron-build-win": "npm run build && electron-builder --win",
     "electron-build-all": "npm run build && electron-builder --mac --win",
-    "release": "npm run build && electron-builder --publish always"
+    "release": "npm run build && electron-builder --publish always",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:studio": "npx prisma studio",
+    "api:health": "node -e \"fetch('http://localhost:8081/health').then(r=>r.json()).then(console.log)\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
+    "@prisma/client": "^7.3.0",
     "@stripe/react-stripe-js": "^5.6.0",
     "@stripe/stripe-js": "^8.7.0",
     "axios": "^1.7.9",
@@ -31,6 +36,7 @@
     "electron-updater": "^6.7.3",
     "esbuild": "^0.25.1",
     "framer-motion": "^12.12.2",
+    "prisma": "^7.3.0",
     "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
     "react-dnd": "^16.0.1",

@@ -7,6 +7,8 @@
 - Java 17+ and Maven
 - Git and GitHub account
 - PostgreSQL (for local development)
+- Supabase account (for production database)
+- Prisma CLI installed globally
 
 ### Setup Steps
 1. **Clone the repository**
@@ -28,7 +30,15 @@
    npm run dev
    ```
 
-4. **Electron development**
+4. **Database setup (Prisma + Supabase)**
+   ```bash
+   cd sticky-notes
+   npm install prisma @prisma/client
+   npx prisma generate
+   npx prisma migrate dev
+   ```
+
+5. **Electron development**
    ```bash
    npm run electron-dev
    ```
@@ -221,20 +231,23 @@ Brief description of the change
 #### Required Tools:
 - **IDE**: IntelliJ IDEA or VS Code
 - **Git**: Command line or GUI client
-- **Database**: PostgreSQL with pgAdmin
+- **Database**: PostgreSQL with pgAdmin, Supabase for production
 - **API Testing**: Postman or Insomnia
 - **Browser DevTools**: Chrome/Firefox
+- **Prisma**: For database management and migrations
 
 #### Recommended Extensions:
 - **ESLint** for code linting
 - **Prettier** for code formatting
 - **SonarLint** for code quality
 - **GitLens** for Git integration
+- **Prisma** extension for database schema visualization
 
 ### 📞 Getting Help
 
 #### Resources:
 - **Project documentation**: `DOCUMENTATION.md`
+- **Prisma database documentation**: `PRAGMA_DATABASE.md`
 - **API documentation**: Available at `/api-docs`
 - **Code examples**: Check existing implementations
 - **Team communication**: Use project channels

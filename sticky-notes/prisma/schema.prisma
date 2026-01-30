@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User model - matches User.java entity
+model User {
+  id            Int          @id @default(autoincrement())
+  username      String        @unique @db.VarChar(255)
+  email         String        @db.VarChar(255)
+  password      String        @db.VarChar(255)
+  role          String        @db.VarChar(50) // e.g., "ROLE_USER", "ROLE_ADMIN"
+  
+  // Relations
+  boards        Board[]
+  refreshTokens RefreshToken[]
+  
+  @@map("users")
+}
+
+// Board model - matches Board.java entity
+model Board {
+  id         Int    @id @default(autoincrement())
+  code       String // Unique code for the board
+  content    String // Board content
+  title      String @db.VarChar(255)
+  boardType  String // Type of the board
+  userId     Int?   // Foreign key to User
+  
+  // Relations
+  user       User?  @relation(fields: [userId], references: [id])
+  notes      Note[]
+  
+  @@map("board")
+}
+
+// Note model - matches Note.java entity
+model Note {
+  id        Int     @id @default(autoincrement())
+  x         Int     // position_x
+  y         Int     // position_y
+  text      String  // content
+  done      Boolean @default(false)
+  username  String  // Username of the user who created the note
+  isPrivate Boolean @default(false) @map("is_private")
+  boardType String  @default("main") // "main" or "profile"
+  boardId   Int?    // Foreign key to Board
+  
+  // Relations
+  board     Board?  @relation(fields: [boardId], references: [id])
+  
+  @@map("note")
+}
+
+// RefreshToken model - matches RefreshToken.java entity
+model RefreshToken {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique @db.VarChar(255)
+  expiryDate DateTime @map("expiry_date")
+  userId     Int      // Foreign key to User
+  
+  // Relations
+  user       User     @relation(fields: [userId], references: [id])
+  
+  @@map("refresh_tokens")
+}
+
+// Role model - matches Role.java entity
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String // e.g., "ROLE_USER", "ROLE_ADMIN"
+  
+  @@map("role")
+}
+
+// SubscriptionTier model - matches SubscriptionTier.java entity
+model SubscriptionTier {
+  id           Int     @id @default(autoincrement())
+  name         String  @unique @db.VarChar(255)
+  stripePriceId String @map("stripe_price_id") @db.VarChar(255)
+  price        Int
+  currency     String  @db.VarChar(10)
+  interval     String  @db.VarChar(50)
+  features     String? @db.Text
+  maxNotes     Int     @map("max_notes")
+  isActive     Boolean @default(true) @map("is_active")
+  sortOrder    Int     @map("sort_order")
+  
+  @@map("subscription_tiers")
+}
