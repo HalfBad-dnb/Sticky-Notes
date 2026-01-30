@@ -1,4 +1,4 @@
-package com.Sticky_notes.Sticky_notes.config;
+package com.Sticky_notes.Sticky_notes.Config;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

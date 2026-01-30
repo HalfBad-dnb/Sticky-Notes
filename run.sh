@@ -2,7 +2,7 @@
 
 # Set JAVA_HOME automatically if not set
 if [ -z "$JAVA_HOME" ]; then
-    export JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null)
+    export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
     if [ -z "$JAVA_HOME" ]; then
         echo "Error: JAVA_HOME is not set and could not be determined automatically"
         exit 1
