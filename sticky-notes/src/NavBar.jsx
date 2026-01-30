@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import MenuDefault from './components/backgroundstyles/menustyles/MenuDefault';
+import './NavBar.css';
 import ThemeDropdown from './components/ThemeDropdown';
 import NoteStyleDropdown from './components/NoteStyleDropdown';
 
 const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isBoardOpen, setIsBoardOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
@@ -14,23 +17,46 @@ const NavBar = () => {
     setIsAuthenticated(!!token);
   }, []);
 
-  const navBarStyle = {
-    position: 'fixed',
-    top: '32px',
-    left: isDropdownOpen ? '300px' : '32px',
-    zIndex: 1002,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-  };
-
   const handleDropdownToggle = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
   const closeMenu = () => {
     setIsDropdownOpen(false);
+  };
+
+  const openSettings = () => {
+    setIsSettingsOpen(true);
+    setIsDropdownOpen(false);
+  };
+
+  const closeSettings = () => {
+    setIsSettingsOpen(false);
+  };
+
+  const openProfile = () => {
+    setIsProfileOpen(true);
+    setIsDropdownOpen(false);
+  };
+
+  const closeProfile = () => {
+    setIsProfileOpen(false);
+  };
+
+  const openBoard = () => {
+    setIsBoardOpen(true);
+    setIsDropdownOpen(false);
+  };
+
+  const closeBoard = () => {
+    setIsBoardOpen(false);
+  };
+
+  const backToMainMenu = () => {
+    setIsSettingsOpen(false);
+    setIsProfileOpen(false);
+    setIsBoardOpen(false);
+    setIsDropdownOpen(true);
   };
 
   const handleLogout = () => {
@@ -46,297 +72,336 @@ const NavBar = () => {
   const userInitial = username.charAt(0).toUpperCase();
 
   return (
-    <div style={navBarStyle}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {/* Menu button */}
+    <>
+      {/* Menu Overlay */}
+      {isDropdownOpen && (
+        <div 
+          className="menu-overlay active"
+          onClick={closeMenu}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* NavBar */}
+      <nav className={`navbar ${isDropdownOpen ? 'menu-open' : ''}`}>
+        {/* Menu Toggle Button */}
         <button
           onClick={handleDropdownToggle}
+          className={`menu-toggle ${isDropdownOpen ? 'active' : ''}`}
           aria-label={isDropdownOpen ? 'Close menu' : 'Open menu'}
-          style={{
-            backgroundColor: isDropdownOpen ? '#FFE44D' : 'rgba(255, 255, 255, 0.1)',
-            color: isDropdownOpen ? '#000' : '#fff',
-            border: 'none',
-            borderRadius: '12px',
-            width: '44px',
-            height: '44px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: isDropdownOpen 
-              ? '0 0 0 2px rgba(255, 228, 77, 0.8)'
-              : '0 0 0 1px rgba(255, 255, 255, 0.1)',
-            padding: '0',
-            margin: '0'
-          }}
+          aria-expanded={isDropdownOpen}
         >
-          {isDropdownOpen ? (
-            <span style={{ 
-              fontSize: '24px',
-              display: 'inline-block',
-              lineHeight: '1',
-              transform: 'scale(1.1)'
-            }}>✕</span>
-          ) : (
-            <div style={{
-              position: 'relative',
-              width: '20px',
-              height: '14px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div style={{
-                width: '20px',
-                height: '2px',
-                backgroundColor: 'currentColor',
-                transition: 'all 0.2s ease',
-                transformOrigin: 'center'
-              }} />
-              <div style={{
-                width: '16px',
-                height: '2px',
-                backgroundColor: 'currentColor',
-                transition: 'all 0.2s ease',
-                transformOrigin: 'center',
-                opacity: 0.8
-              }} />
-              <div style={{
-                width: '20px',
-                height: '2px',
-                backgroundColor: 'currentColor',
-                transition: 'all 0.2s ease',
-                transformOrigin: 'center'
-              }} />
-            </div>
-          )}
-        </button>
-      </div>
-
-      {isDropdownOpen && (
-        <MenuDefault 
-          title={
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: '100%',
-              paddingBottom: '16px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                marginBottom: '8px',
-                paddingRight: '24px' // Make room for close button
-              }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  backgroundColor: '#4a90e2',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontWeight: 'bold',
-                  fontSize: '20px',
-                  flexShrink: 0
-                }}>
-                  {userInitial}
-                </div>
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden',
-                  flex: 1
-                }}>
-                  <div style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: '#fff',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {username}
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: 'rgba(255,255,255,0.6)'
-                  }}>
-                    Free Account
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-          style={{
-            position: 'fixed',
-            top: '20px',
-            left: '20px',
-            bottom: '20px',
-            width: '280px',
-            zIndex: 1001,
-            transform: isDropdownOpen ? 'translateX(0)' : 'translateX(-110%)',
-            opacity: isDropdownOpen ? 1 : 0,
-            pointerEvents: isDropdownOpen ? 'auto' : 'none',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            willChange: 'transform, opacity',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onClose={closeMenu}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 16px' }}>
-            <Link 
-              to="/profile" 
-              onClick={closeMenu}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '8px',
-                transition: 'background-color 0.2s',
-                textDecoration: 'none',
-                color: 'rgba(255, 255, 255, 0.9)',
-                display: 'block',
-                ':hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)'
-                }
-              }}
-            >
-              Profile
-            </Link>
-            <Link 
-              to="/board" 
-              onClick={closeMenu}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '8px',
-                transition: 'background-color 0.2s',
-                textDecoration: 'none',
-                color: 'rgba(255, 255, 255, 0.9)',
-                display: 'block',
-                ':hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)'
-                }
-              }}
-            >
-              Board
-            </Link>
+          <div className="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
-          
-          <div style={{ 
-            padding: '16px 0',
-            flex: 1,
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
-            {isAuthenticated ? (
-              <>
-                <div style={{ padding: '12px 16px' }}>
-                  <div style={{ 
-                    fontSize: '0.85rem', 
-                    color: 'rgba(255,255,255,0.6)', 
-                    marginBottom: '8px',
-                    letterSpacing: '0.5px',
-                    textTransform: 'uppercase',
-                    fontWeight: '600',
-                    opacity: 0.8
-                  }}>
-                    Theme
-                  </div>
-                  <ThemeDropdown />
-                </div>
-                <div style={{ padding: '12px 16px', marginTop: '8px' }}>
-                  <div style={{ 
-                    fontSize: '0.85rem', 
-                    color: 'rgba(255,255,255,0.6)', 
-                    marginBottom: '8px',
-                    letterSpacing: '0.5px',
-                    textTransform: 'uppercase',
-                    fontWeight: '600',
-                    opacity: 0.8
-                  }}>
-                    Note Style
-                  </div>
-                  <NoteStyleDropdown />
-                </div>
-                <div style={{ 
-                  marginTop: 'auto',
-                  padding: '16px 8px',
-                  borderTop: '1px solid rgba(255,255,255,0.1)'
-                }}>
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleLogout();
-                    }}
-                    style={{
-                      background: 'transparent',
-                      color: '#ff6b6b',
-                      border: 'none',
-                      padding: '12px 16px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      width: '100%',
-                      textAlign: 'left',
-                      display: 'block',
-                      ':hover': {
-                        backgroundColor: 'rgba(255, 59, 48, 0.1)'
-                      }
-                    }}
-                  >
-                    Log Out
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  onClick={closeMenu}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '8px',
-                    transition: 'background-color 0.2s',
-                    textDecoration: 'none',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    display: 'block',
-                    ':hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
-                    }
-                  }}
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/register" 
-                  onClick={closeMenu}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '8px',
-                    transition: 'background-color 0.2s',
-                    textDecoration: 'none',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    display: 'block',
-                    ':hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
-                    }
-                  }}
-                >
-                  Register
-                </Link>
-              </>
+          <span className="close-icon">✕</span>
+        </button>
+      </nav>
+
+      {/* Menu Panel */}
+      <div className={`menu-panel ${isDropdownOpen ? 'active' : ''}`}>
+        {/* User Profile Section */}
+        <div className="user-profile">
+          <div className="user-avatar">
+            {userInitial}
+          </div>
+          <div className="user-info">
+            <h2 className="user-name">{username}</h2>
+            <p className="user-status">Free Account</p>
+          </div>
+        </div>
+
+        {/* Navigation Section */}
+        <div className="nav-section">
+          <h3 className="nav-section-title">Navigation</h3>
+          <div className="nav-links">
+            {isAuthenticated && (
+              <button 
+                onClick={openProfile}
+                className="nav-link"
+                style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}
+              >
+                <span className="nav-icon">👤</span>
+                Profile
+              </button>
+            )}
+            <button 
+              onClick={openBoard}
+              className="nav-link"
+              style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}
+            >
+              <span className="nav-icon">📋</span>
+              Board
+            </button>
+            {isAuthenticated && (
+              <button 
+                onClick={openSettings}
+                className="nav-link"
+                style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}
+              >
+                <span className="nav-icon">⚙️</span>
+                Settings
+              </button>
             )}
           </div>
-        </MenuDefault>
+        </div>
+
+        {/* Logout Button for authenticated users */}
+        {isAuthenticated && (
+          <button 
+            onClick={handleLogout}
+            className="logout-button"
+          >
+            <span className="nav-icon">🚪</span>
+            Logout
+          </button>
+        )}
+      </div>
+
+      {/* Profile Menu Panel */}
+      {isProfileOpen && (
+        <>
+          <div 
+            className="menu-overlay active"
+            onClick={closeProfile}
+            aria-hidden="true"
+          />
+          <div className={`menu-panel ${isProfileOpen ? 'active' : ''}`}>
+            {/* Profile Header */}
+            <div className="user-profile">
+              <div className="user-avatar">
+                👤
+              </div>
+              <div className="user-info">
+                <h2 className="user-name">{username}</h2>
+                <p className="user-status">Profile Management</p>
+              </div>
+            </div>
+
+            {/* Back Button */}
+            <div className="nav-section">
+              <button 
+                onClick={backToMainMenu}
+                className="nav-link"
+                style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}
+              >
+                <span className="nav-icon">←</span>
+                Back to Menu
+              </button>
+            </div>
+
+            {/* Active Profile Section */}
+            <div className="nav-section">
+              <h3 className="nav-section-title">Active Profile</h3>
+              
+              <div className="nav-links">
+                <Link 
+                  to="/profile" 
+                  className="nav-link"
+                  onClick={closeProfile}
+                >
+                  <span className="nav-icon">📋</span>
+                  Profile Board
+                </Link>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">📊</span>
+                  Profile Statistics
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">🏆</span>
+                  Achievements
+                </button>
+              </div>
+            </div>
+
+            {/* Profile Options */}
+            <div className="nav-section">
+              <h3 className="nav-section-title">Profile Settings</h3>
+              
+              <div className="nav-links">
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">📝</span>
+                  Edit Profile
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">🔐</span>
+                  Security
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">🔔</span>
+                  Notifications
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">🤝</span>
+                  Connected Accounts
+                </button>
+              </div>
+            </div>
+
+            {/* Close Button */}
+            <button 
+              onClick={closeProfile}
+              className="logout-button"
+              style={{ background: 'rgba(76, 175, 80, 0.1)', borderColor: 'rgba(76, 175, 80, 0.2)', color: '#4caf50' }}
+            >
+              <span className="nav-icon">✕</span>
+              Close
+            </button>
+          </div>
+        </>
       )}
-    </div>
+
+      {/* Board Menu Panel */}
+      {isBoardOpen && (
+        <>
+          <div 
+            className="menu-overlay active"
+            onClick={closeBoard}
+            aria-hidden="true"
+          />
+          <div className={`menu-panel ${isBoardOpen ? 'active' : ''}`}>
+            {/* Board Header */}
+            <div className="user-profile">
+              <div className="user-avatar">
+                📋
+              </div>
+              <div className="user-info">
+                <h2 className="user-name">Boards</h2>
+                <p className="user-status">Board Management</p>
+              </div>
+            </div>
+
+            {/* Back Button */}
+            <div className="nav-section">
+              <button 
+                onClick={backToMainMenu}
+                className="nav-link"
+                style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}
+              >
+                <span className="nav-icon">←</span>
+                Back to Menu
+              </button>
+            </div>
+
+            {/* Board Options */}
+            <div className="nav-section">
+              <h3 className="nav-section-title">My Boards</h3>
+              
+              <div className="nav-links">
+                <Link 
+                  to="/board" 
+                  className="nav-link"
+                  onClick={closeBoard}
+                >
+                  <span className="nav-icon">📌</span>
+                  Main Board
+                </Link>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">💼</span>
+                  Work Board
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">🏠</span>
+                  Personal Board
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">➕</span>
+                  Create New Board
+                </button>
+              </div>
+
+              <h3 className="nav-section-title" style={{ marginTop: '20px' }}>Connected Boards</h3>
+              <div className="nav-links">
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">🔗</span>
+                  Shared Boards
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">💬</span>
+                  Board Messages
+                </button>
+                <button className="nav-link" style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <span className="nav-icon">👥</span>
+                  Team Boards
+                </button>
+              </div>
+            </div>
+
+            {/* Close Button */}
+            <button 
+              onClick={closeBoard}
+              className="logout-button"
+              style={{ background: 'rgba(33, 150, 243, 0.1)', borderColor: 'rgba(33, 150, 243, 0.2)', color: '#2196f3' }}
+            >
+              <span className="nav-icon">✕</span>
+              Close
+            </button>
+          </div>
+        </>
+      )}
+      {isSettingsOpen && (
+        <>
+          <div 
+            className="menu-overlay active"
+            onClick={closeSettings}
+            aria-hidden="true"
+          />
+          <div className={`menu-panel ${isSettingsOpen ? 'active' : ''}`}>
+            {/* Settings Header */}
+            <div className="user-profile">
+              <div className="user-avatar">
+                ⚙️
+              </div>
+              <div className="user-info">
+                <h2 className="user-name">Settings</h2>
+                <p className="user-status">Customize your experience</p>
+              </div>
+            </div>
+
+            {/* Back Button */}
+            <div className="nav-section">
+              <button 
+                onClick={backToMainMenu}
+                className="nav-link"
+                style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%' }}
+              >
+                <span className="nav-icon">←</span>
+                Back to Menu
+              </button>
+            </div>
+
+            {/* Settings Options */}
+            <div className="nav-section">
+              <h3 className="nav-section-title">Appearance</h3>
+              
+              {/* Theme Dropdown */}
+              <div className="dropdown-section">
+                <div className="dropdown-label">Theme</div>
+                <ThemeDropdown />
+              </div>
+
+              {/* Note Style Dropdown */}
+              <div className="dropdown-section">
+                <div className="dropdown-label">Note Style</div>
+                <NoteStyleDropdown />
+              </div>
+            </div>
+
+            {/* Close Button */}
+            <button 
+              onClick={closeSettings}
+              className="logout-button"
+              style={{ background: 'rgba(102, 126, 234, 0.1)', borderColor: 'rgba(102, 126, 234, 0.2)', color: '#667eea' }}
+            >
+              <span className="nav-icon">✕</span>
+              Close
+            </button>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
