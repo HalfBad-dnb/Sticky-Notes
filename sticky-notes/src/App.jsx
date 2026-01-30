@@ -8,6 +8,7 @@ import StickyBoard from './components/StickyBoard';
 import Login from './profile/login';
 import Register from './profile/register';
 import Profile from './profile/profile';
+import SubscriptionPage from './pages/SubscriptionPage';
 import { ZoomProvider } from './context/ZoomProvider';
 import { ThemeProvider } from './context/ThemeContext';
 import { NoteStyleProvider } from './context/NoteStyleContext';
@@ -293,6 +294,7 @@ const AppContent = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/subscription" element={<SubscriptionPage />} />
           </Routes>
         </main>
       </div>

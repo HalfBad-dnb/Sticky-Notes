@@ -5,10 +5,17 @@ import { useZoom } from "../context/useZoom";
 import { useTheme } from "../context/themeUtils";
 import { getApiUrl } from "../utils/api";
 import "../App.css";
+import "./Profile.css";
 import NotesManagementModal from "./NotesManagementModal";
 import ConfirmationDialog from '../components/common/ConfirmationDialog';
 import axios from "../utils/axiosConfig";
 import { useFilteredNotes, createOptimizedDragHandler, useMemoizedStyles, createErrorHandler, useNotesCache } from "./ProfileOptimisation";
+import PushPinIcon from '@mui/icons-material/PushPin';
+import StarIcon from '@mui/icons-material/Star';
+import PublicIcon from '@mui/icons-material/Public';
+import HomeIcon from '@mui/icons-material/Home';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -417,55 +424,41 @@ const Profile = () => {
             </div>
             
             {/* Action Buttons Row */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              width: '100%',
-              gap: isMobile ? '15px' : '20px',
-              marginTop: '15px',
-              padding: isMobile ? '0 10px' : '0',
-              marginBottom: '15px'
-            }}>
+            <div className="profile-action-buttons">
               {/* Add Note Button */}
               <button 
                 onClick={addNote} 
                 title="Add Note"
-                style={buttonStyle}
+                className="profile-action-button"
               >
-                📌
+                <PushPinIcon />
               </button>
               
               {/* Toggle Privacy Button */}
               <button 
                 onClick={togglePrivacy} 
                 title={isPrivate ? 'Show All Notes' : 'Show Important Only'}
-                style={buttonStyle}
+                className="profile-action-button"
               >
-                {isPrivate ? '🌐' : '⭐'}
+                {isPrivate ? <PublicIcon /> : <StarIcon />}
               </button>
               
               {/* Back to Main Board Button */}
               <Link 
                 to="/" 
                 title="Back to Main Board"
-                style={{
-                  ...buttonStyle,
-                  textDecoration: 'none'
-                }}
+                className="profile-action-button"
               >
-                🏠
+                <HomeIcon />
               </Link>
               
               {/* Manage Notes Button */}
               <button 
                 onClick={() => setShowNotesModal(true)}
                 title="Manage Notes"
-                style={{
-                  ...buttonStyle,
-                  backgroundColor: 'rgba(76, 175, 80, 0.2)'
-                }}
+                className="profile-action-button manage-notes"
               >
-                📋
+                <AssignmentIcon />
               </button>
             </div>
           </div>
@@ -533,23 +526,9 @@ const Profile = () => {
                       }}>
                         <button 
                           onClick={() => handleDelete(note.id)}
-                          style={{ 
-                            background: 'rgba(0,0,0,0.05)', 
-                            border: '1px solid rgba(0,0,0,0.1)', 
-                            borderRadius: '8px',
-                            padding: '8px 12px',
-                            width: '80px',
-                            height: '44px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '5px',
-                            fontSize: '16px',
-                            touchAction: 'manipulation'
-                          }}
+                          className="mobile-delete-button"
                         >
-                          <span style={{ fontSize: '20px' }}>🗑️</span>
+                          <DeleteIcon />
                         </button>
                       </div>
                     </div>

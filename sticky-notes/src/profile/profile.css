@@ -707,6 +707,164 @@
   text-decoration: underline;
 }
 
+/* Action Buttons Container */
+.profile-action-buttons {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  gap: var(--button-gap, 20px);
+  margin-top: 15px;
+  padding: 0 10px;
+  margin-bottom: 15px;
+}
+
+/* Base Button Styling - Consistent with Navigation Menu */
+.profile-action-button {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  box-shadow: 0 0 25px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-action-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(102, 126, 234, 0.6);
+}
+
+.profile-action-button:active {
+  transform: translateY(0);
+}
+
+.profile-action-button:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Icon Styling - Consistent with Navigation Menu */
+.profile-action-button svg {
+  width: 20px !important;
+  height: 20px !important;
+  display: inline-block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+  position: relative !important;
+  color: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-action-button:hover svg {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* Special Button Variants */
+.profile-action-button.manage-notes {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.3);
+  box-shadow: 0 0 25px rgba(76, 175, 80, 0.3);
+}
+
+.profile-action-button.manage-notes:hover {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: rgba(76, 175, 80, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(76, 175, 80, 0.6);
+}
+
+/* Mobile Delete Button */
+.mobile-delete-button {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 80px;
+  height: 44px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 16px;
+  touch-action: manipulation;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-delete-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  transform: translateY(-1px);
+}
+
+.mobile-delete-button svg {
+  width: 20px !important;
+  height: 20px !important;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.mobile-delete-button:hover svg {
+  color: #ef4444;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .profile-action-buttons {
+    gap: 15px;
+    padding: 0 10px;
+  }
+  
+  .profile-action-button {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .profile-action-button svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .profile-action-button {
+    border-width: 2px;
+  }
+  
+  .profile-action-button:hover,
+  .profile-action-button:focus {
+    border-color: currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .profile-action-button,
+  .mobile-delete-button {
+    transition: none;
+  }
+  
+  .profile-action-button:hover,
+  .mobile-delete-button:hover {
+    transform: none;
+  }
+}
+
 /* Home button */
 .home-square-button {
   display: inline-flex;

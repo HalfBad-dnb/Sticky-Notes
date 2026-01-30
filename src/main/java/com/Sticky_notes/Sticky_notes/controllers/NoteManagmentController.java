@@ -3,9 +3,12 @@ package com.Sticky_notes.Sticky_notes.controllers;
 import com.Sticky_notes.Sticky_notes.models.NoteManagment;
 import com.Sticky_notes.Sticky_notes.repository.NoteManagmentRepository;
 import com.Sticky_notes.Sticky_notes.services.NoteManagmentService;
+import com.Sticky_notes.Sticky_notes.models.Note;
+import com.Sticky_notes.Sticky_notes.repository.NoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -18,6 +21,9 @@ public class NoteManagmentController {
     
     @Autowired
     private NoteManagmentRepository noteRepository;
+
+    @Autowired
+    private NoteRepository legacyNoteRepository;
 
     @GetMapping
     public ResponseEntity<List<NoteManagment>> getAllNotes() {
@@ -32,14 +38,72 @@ public class NoteManagmentController {
     }
 
     @GetMapping("/by-status/{status}")
-    public ResponseEntity<List<NoteManagment>> getNotesByStatus(@PathVariable String status) {
+    public ResponseEntity<List<NoteManagment>> getNotesByStatus(
+            @PathVariable String status,
+            @RequestParam(required = false) String boardType,
+            Authentication authentication) {
         System.out.println("Fetching notes with status: " + status);
         List<NoteManagment> notes = noteService.getNotesByStatus(status);
         System.out.println("Found " + notes.size() + " notes with status " + status);
         if (!notes.isEmpty()) {
-            System.out.println("First note: " + notes.get(0).toString());
+            if (authentication != null) {
+                String username = authentication.getName();
+                notes = notes.stream()
+                        .filter(n -> (boardType == null || boardType.equalsIgnoreCase(n.getBoardType())))
+                        .filter(n -> username.equals(n.getUsername()))
+                        .collect(java.util.stream.Collectors.toList());
+            } else if (boardType != null) {
+                String bt = boardType;
+                notes = notes.stream()
+                        .filter(n -> bt.equalsIgnoreCase(n.getBoardType()))
+                        .collect(java.util.stream.Collectors.toList());
+            }
+            if (!notes.isEmpty()) {
+                return ResponseEntity.ok(notes);
+            }
         }
-        return ResponseEntity.ok(notes);
+
+        // Fallback: If NoteManagment has no records, look up legacy Note data by current user
+        if (authentication == null) {
+            return ResponseEntity.ok(notes); // empty
+        }
+
+        String username = authentication.getName();
+        List<Note> legacy;
+        if ("done".equalsIgnoreCase(status) || "deleted".equalsIgnoreCase(status)) {
+            if (boardType == null || "all".equalsIgnoreCase(boardType)) {
+                legacy = new java.util.ArrayList<>();
+                legacy.addAll(legacyNoteRepository.findByUsernameAndDoneTrueAndBoardType(username, "main"));
+                legacy.addAll(legacyNoteRepository.findByUsernameAndDoneTrueAndBoardType(username, "profile"));
+            } else {
+                legacy = legacyNoteRepository.findByUsernameAndDoneTrueAndBoardType(username, boardType);
+            }
+        } else {
+            if (boardType == null || "all".equalsIgnoreCase(boardType)) {
+                legacy = new java.util.ArrayList<>();
+                legacy.addAll(legacyNoteRepository.findByUsernameAndDoneFalseAndBoardType(username, "main"));
+                legacy.addAll(legacyNoteRepository.findByUsernameAndDoneFalseAndBoardType(username, "profile"));
+            } else {
+                legacy = legacyNoteRepository.findByUsernameAndDoneFalseAndBoardType(username, boardType);
+            }
+        }
+
+        List<NoteManagment> mapped = legacy.stream().map(n -> {
+            NoteManagment m = new NoteManagment();
+            m.setId(n.getId());
+            m.setTitle("");
+            m.setContent(n.getText());
+            m.setX(n.getX() != null ? n.getX() : 100);
+            m.setY(n.getY() != null ? n.getY() : 100);
+            m.setStatus("done".equalsIgnoreCase(status) ? "done" : ("deleted".equalsIgnoreCase(status) ? "deleted" : "active"));
+            m.setUsername(n.getUsername());
+            m.setIsPrivate(n.getIsPrivate());
+            m.setBoardType(n.getBoardType());
+            m.setDone(n.isDone());
+            return m;
+        }).collect(java.util.stream.Collectors.toList());
+
+        return ResponseEntity.ok(mapped);
     }
 
     @GetMapping("/user/{username}")
@@ -91,7 +155,27 @@ public class NoteManagmentController {
     public ResponseEntity<NoteManagment> restoreNote(@PathVariable Long id) {
         return noteService.updateNoteStatus(id, "active")
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    // Fallback: try to restore legacy Note entity
+                    return legacyNoteRepository.findById(id)
+                            .map(n -> {
+                                n.setDone(false);
+                                Note saved = legacyNoteRepository.save(n);
+                                NoteManagment m = new NoteManagment();
+                                m.setId(saved.getId());
+                                m.setTitle("");
+                                m.setContent(saved.getText());
+                                m.setX(saved.getX() != null ? saved.getX() : 100);
+                                m.setY(saved.getY() != null ? saved.getY() : 100);
+                                m.setStatus("active");
+                                m.setUsername(saved.getUsername());
+                                m.setIsPrivate(saved.getIsPrivate());
+                                m.setBoardType(saved.getBoardType());
+                                m.setDone(saved.isDone());
+                                return ResponseEntity.ok(m);
+                            })
+                            .orElse(ResponseEntity.notFound().build());
+                });
     }
     
     @GetMapping("/statuses")

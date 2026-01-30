@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { useZoom } from '../context/useZoom';
 import PropTypes from 'prop-types';
 import StickyNote from './StickyNote';
@@ -31,12 +31,50 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
   const [newNoteText, setNewNoteText] = useState('');
   const [error, setError] = useState(null);
   const [buttonHover, setButtonHover] = useState({});
+  const textareaRef = useRef(null);
   
   // Check if device is mobile (screen width less than 768px)
   const isMobile = useMediaQuery('(max-width: 768px)');
   
   // Get zoom context for the sticky board
   const { getBoardStyle } = useZoom();
+
+  // Effect to blur textarea when menu is opened
+  useEffect(() => {
+    const handleMenuOpen = () => {
+      if (textareaRef.current && document.activeElement === textareaRef.current) {
+        textareaRef.current.blur();
+      }
+    };
+
+    // Listen for menu overlay changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const target = mutation.target;
+          if (target.classList.contains('menu-overlay') && target.classList.contains('active')) {
+            handleMenuOpen();
+          }
+        }
+      });
+    });
+
+    // Observe all menu overlays
+    const menuOverlays = document.querySelectorAll('.menu-overlay');
+    menuOverlays.forEach(overlay => {
+      observer.observe(overlay, { attributes: true });
+    });
+
+    // Also check for existing active menus
+    const activeMenu = document.querySelector('.menu-overlay.active');
+    if (activeMenu) {
+      handleMenuOpen();
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const handleDoneWithBackend = useCallback((noteId) => {
     if (onDone) {
@@ -518,6 +556,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
           marginBottom: isMobile ? '10px' : '0'
         }}>
           <textarea
+            ref={textareaRef}
             value={newNoteText}
             onChange={(e) => setNewNoteText(e.target.value)}
             placeholder={notes.length >= MAX_NOTES 

@@ -157,20 +157,7 @@ export const useMemoizedStyles = (theme, isMobile) => {
     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
   }), [theme, isMobile]);
 
-  const buttonStyle = useMemo(() => ({
-    width: '44px',
-    height: '44px',
-    border: 'none',
-    borderRadius: '50%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    color: '#e0e0e0',
-    cursor: 'pointer',
-    fontSize: '20px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-  }), []);
+  const buttonStyle = useMemo(() => ({}), []);
 
   return { containerStyle, cardStyle, buttonStyle };
 };
