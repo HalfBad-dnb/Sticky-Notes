@@ -8,6 +8,12 @@ import { getApiUrl } from '../utils/api';
 import '../App.css';
 import { Link } from 'react-router-dom';
 import Disclaimers from './common/Disclaimers';
+import PersonIcon from '@mui/icons-material/Person';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import StarIcon from '@mui/icons-material/Star';
+import HomeIcon from '@mui/icons-material/Home';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -631,87 +637,145 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
             disabled={notes.length >= MAX_NOTES}
             onMouseEnter={() => setButtonHover(prev => ({...prev, addNote: true}))}
             onMouseLeave={() => setButtonHover(prev => ({...prev, addNote: false}))}
-            style={getButtonStyle('addNote', {
-              minWidth: '100px',
-              height: '36px',
-              padding: '0 16px',
-              fontSize: '14px',
-              backgroundColor: notes.length >= MAX_NOTES ? '#555' : 'rgba(255, 255, 255, 0.1)',
-              color: notes.length >= MAX_NOTES ? '#999' : '#e0e0e0',
-              fontWeight: '500',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              borderRadius: '8px',
+            style={{
+              width: '44px',
+              height: '44px',
+              border: 'none',
+              borderRadius: '12px',
+              background: notes.length >= MAX_NOTES 
+                ? 'rgba(255, 255, 255, 0.05)' 
+                : 'rgba(76, 175, 80, 0.2)',
+              backdropFilter: 'blur(10px)',
+              border: notes.length >= MAX_NOTES 
+                ? '1px solid rgba(255, 255, 255, 0.1)' 
+                : '1px solid rgba(76, 175, 80, 0.3)',
+              color: notes.length >= MAX_NOTES ? '#666' : '#e0e0e0',
               cursor: notes.length >= MAX_NOTES ? 'not-allowed' : 'pointer',
+              fontSize: '20px',
               display: 'flex',
-              alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: '"Times New Roman", Times, serif',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              alignItems: 'center',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              outline: 'none',
+              boxShadow: notes.length >= MAX_NOTES 
+                ? '0 0 25px rgba(0, 0, 0, 0.1)' 
+                : '0 0 25px rgba(76, 175, 80, 0.3)',
+              position: 'relative',
+              overflow: 'hidden',
               opacity: notes.length >= MAX_NOTES ? 0.7 : 1,
-            }, notes.length < MAX_NOTES ? {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            } : {})}
+              ...(buttonHover['addNote'] && notes.length < MAX_NOTES ? {
+                background: 'rgba(76, 175, 80, 0.3)',
+                borderColor: 'rgba(76, 175, 80, 0.4)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 0 35px rgba(76, 175, 80, 0.6)'
+              } : {})
+            }}
           >
-            {notes.length >= MAX_NOTES ? 'Limit Reached' : 'Add Note'}
+            <PushPinIcon sx={{ fontSize: 20, color: notes.length >= MAX_NOTES ? '#666' : '#e0e0e0' }} />
           </button>
+          
+          <button 
+            style={{
+              width: '44px',
+              height: '44px',
+              border: 'none',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#e0e0e0',
+              cursor: 'pointer',
+              fontSize: '20px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              outline: 'none',
+              boxShadow: '0 0 25px rgba(102, 126, 234, 0.3)',
+              position: 'relative',
+              overflow: 'hidden',
+              ...(buttonHover['star'] ? {
+                background: 'rgba(255, 255, 255, 0.15)',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 0 35px rgba(102, 126, 234, 0.6)'
+              } : {})
+            }}
+            onMouseEnter={() => setButtonHover(prev => ({...prev, star: true}))}
+            onMouseLeave={() => setButtonHover(prev => ({...prev, star: false}))}
+          >
+            <StarIcon sx={{ fontSize: 20, color: '#e0e0e0' }} />
+          </button>
+          
+          <Link 
+            to="/" 
+            onMouseEnter={() => setButtonHover(prev => ({...prev, home: true}))}
+            onMouseLeave={() => setButtonHover(prev => ({...prev, home: false}))}
+            style={{
+              width: '44px',
+              height: '44px',
+              border: 'none',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#e0e0e0',
+              cursor: 'pointer',
+              fontSize: '20px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              outline: 'none',
+              boxShadow: '0 0 25px rgba(102, 126, 234, 0.3)',
+              position: 'relative',
+              overflow: 'hidden',
+              textDecoration: 'none',
+              ...(buttonHover['home'] ? {
+                background: 'rgba(255, 255, 255, 0.15)',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 0 35px rgba(102, 126, 234, 0.6)'
+              } : {})
+            }}
+          >
+            <HomeIcon sx={{ fontSize: 20, color: '#e0e0e0' }} />
+          </Link>
           
           <Link 
             to="/profile" 
             onMouseEnter={() => setButtonHover(prev => ({...prev, profile: true}))}
             onMouseLeave={() => setButtonHover(prev => ({...prev, profile: false}))}
-            style={getButtonStyle('profile', {
-              minWidth: '44px',
-              height: '44px',
-              padding: '0',
-              fontSize: '20px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              color: '#e0e0e0',
-              fontWeight: 'normal',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              borderRadius: '50%',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              fontFamily: 'sans-serif',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            }, {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            })}
-          >
-            👤
-          </Link>
-          
-          <button 
-            onClick={refreshNotes}
-            onMouseEnter={() => setButtonHover(prev => ({...prev, refresh: true}))}
-            onMouseLeave={() => setButtonHover(prev => ({...prev, refresh: false}))}
-            style={getButtonStyle('refresh', {
+            style={{
               width: '44px',
               height: '44px',
               border: 'none',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              background: 'rgba(76, 175, 80, 0.2)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(76, 175, 80, 0.3)',
               color: '#e0e0e0',
               cursor: 'pointer',
               fontSize: '20px',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            }, {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            })}
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              outline: 'none',
+              boxShadow: '0 0 25px rgba(76, 175, 80, 0.3)',
+              position: 'relative',
+              overflow: 'hidden',
+              textDecoration: 'none',
+              ...(buttonHover['profile'] ? {
+                background: 'rgba(76, 175, 80, 0.3)',
+                borderColor: 'rgba(76, 175, 80, 0.4)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 0 35px rgba(76, 175, 80, 0.6)'
+              } : {})
+            }}
           >
-            🔄
-          </button>
+            <PersonIcon sx={{ fontSize: 20, color: '#e0e0e0' }} />
+          </Link>
         </div>
       </div>
 

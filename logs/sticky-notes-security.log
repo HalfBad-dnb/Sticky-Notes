@@ -1,0 +1,436 @@
+2026-01-31 01:09:52.799 [http-nio-8081-exec-3] INFO  com.Sticky_notes.security - [anonymousUser] AI_DATA_SCAN - User requesting data scan
+2026-01-31 01:10:02.515 [http-nio-8081-exec-5] INFO  com.Sticky_notes.security - [anonymousUser] AI_DATA_SCAN - User requesting data scan
+2026-01-31 01:11:01.952 [http-nio-8081-exec-7] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:11:01.953 [http-nio-8081-exec-8] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:11:01.957 [http-nio-8081-exec-8] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:11:01.958 [http-nio-8081-exec-7] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:11:01.970 [http-nio-8081-exec-10] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:11:01.970 [http-nio-8081-exec-9] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:11:01.974 [http-nio-8081-exec-10] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:11:01.975 [http-nio-8081-exec-9] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:11:08.070 [http-nio-8081-exec-1] INFO  com.Sticky_notes.security - [anonymousUser] AI_DATA_SCAN - User requesting data scan
+2026-01-31 01:11:16.776 [http-nio-8081-exec-3] INFO  com.Sticky_notes.security - [anonymousUser] AI_DATA_SCAN - User requesting data scan
+2026-01-31 01:12:06.788 [http-nio-8081-exec-9] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:12:06.788 [http-nio-8081-exec-10] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:12:06.791 [http-nio-8081-exec-9] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:12:06.791 [http-nio-8081-exec-10] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:12:06.807 [http-nio-8081-exec-1] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:12:06.807 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:12:06.813 [http-nio-8081-exec-1] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:12:06.813 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:28:55.682 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:28:55.684 [http-nio-8081-exec-1] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:28:55.694 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:28:55.695 [http-nio-8081-exec-1] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:28:55.716 [http-nio-8081-exec-3] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:28:55.717 [http-nio-8081-exec-4] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:28:55.728 [http-nio-8081-exec-4] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:28:55.728 [http-nio-8081-exec-3] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:30:01.614 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [anonymousUser] AI_GEMINI_SUGGESTIONS - User requesting Gemini suggestions
+2026-01-31 01:30:02.002 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:122)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+2026-01-31 01:30:02.003 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.util.concurrent.CompletionException: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at java.base/java.util.concurrent.CompletableFuture.wrapInCompletionException(CompletableFuture.java:323)
+	at java.base/java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:359)
+	at java.base/java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:364)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:693)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+Caused by: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:124)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	... 8 common frames omitted
+2026-01-31 01:30:02.003 [ForkJoinPool.commonPool-worker-1] INFO  com.Sticky_notes.security - [anonymous] GEMINI_API_ERROR - Gemini API request failed
+2026-01-31 01:30:09.937 [http-nio-8081-exec-4] INFO  com.Sticky_notes.security - [anonymousUser] AI_GEMINI_SUGGESTIONS - User requesting Gemini suggestions
+2026-01-31 01:30:09.990 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:122)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+2026-01-31 01:30:09.991 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.util.concurrent.CompletionException: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at java.base/java.util.concurrent.CompletableFuture.wrapInCompletionException(CompletableFuture.java:323)
+	at java.base/java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:359)
+	at java.base/java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:364)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:693)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+Caused by: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:124)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	... 8 common frames omitted
+2026-01-31 01:30:09.991 [ForkJoinPool.commonPool-worker-1] INFO  com.Sticky_notes.security - [anonymous] GEMINI_API_ERROR - Gemini API request failed
+2026-01-31 01:32:33.849 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [anonymousUser] AI_GEMINI_SUGGESTIONS - User requesting Gemini suggestions
+2026-01-31 01:32:34.290 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:122)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+2026-01-31 01:32:34.290 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.util.concurrent.CompletionException: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at java.base/java.util.concurrent.CompletableFuture.wrapInCompletionException(CompletableFuture.java:323)
+	at java.base/java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:359)
+	at java.base/java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:364)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:693)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+Caused by: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:124)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	... 8 common frames omitted
+2026-01-31 01:32:34.290 [ForkJoinPool.commonPool-worker-1] INFO  com.Sticky_notes.security - [anonymous] GEMINI_API_ERROR - Gemini API request failed
+2026-01-31 01:32:40.069 [http-nio-8081-exec-4] INFO  com.Sticky_notes.security - [anonymousUser] AI_GEMINI_SUGGESTIONS - User requesting Gemini suggestions
+2026-01-31 01:32:40.121 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:122)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+2026-01-31 01:32:40.121 [ForkJoinPool.commonPool-worker-1] WARN  com.Sticky_notes.security - AI Agent error occurred
+java.util.concurrent.CompletionException: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at java.base/java.util.concurrent.CompletableFuture.wrapInCompletionException(CompletableFuture.java:323)
+	at java.base/java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:359)
+	at java.base/java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:364)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:693)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:554)
+	at java.base/java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:658)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:888)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.exec(CompletableFuture.java:527)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:507)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1458)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2034)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:189)
+Caused by: java.lang.RuntimeException: HTTP 400: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+	at com.Sticky_notes.Sticky_notes.services.GeminiService.lambda$generateContent$0(GeminiService.java:124)
+	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:690)
+	... 8 common frames omitted
+2026-01-31 01:32:40.122 [ForkJoinPool.commonPool-worker-1] INFO  com.Sticky_notes.security - [anonymous] GEMINI_API_ERROR - Gemini API request failed
+2026-01-31 01:35:20.239 [http-nio-8081-exec-7] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:35:20.263 [http-nio-8081-exec-8] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:35:20.278 [http-nio-8081-exec-7] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:35:20.304 [http-nio-8081-exec-8] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:36:30.487 [http-nio-8081-exec-1] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:36:30.487 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:36:30.500 [http-nio-8081-exec-2] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:36:30.500 [http-nio-8081-exec-1] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:36:34.665 [http-nio-8081-exec-5] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:36:34.666 [http-nio-8081-exec-6] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:36:34.669 [http-nio-8081-exec-5] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully
+2026-01-31 01:36:34.669 [http-nio-8081-exec-6] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:36:40.401 [http-nio-8081-exec-10] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS - User requesting suggestions
+2026-01-31 01:36:40.403 [http-nio-8081-exec-9] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES - User requesting old notes
+2026-01-31 01:36:40.407 [http-nio-8081-exec-9] INFO  com.Sticky_notes.security - [qwerty] AI_OLD_NOTES_SUCCESS - Old notes retrieved successfully
+2026-01-31 01:36:40.407 [http-nio-8081-exec-10] INFO  com.Sticky_notes.security - [qwerty] AI_SUGGESTIONS_SUCCESS - Suggestions generated successfully

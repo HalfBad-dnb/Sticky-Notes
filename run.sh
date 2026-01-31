@@ -19,8 +19,8 @@ else
 fi
 
 # Check if required environment variables are set
-if [ -z "$SPRING_DATASOURCE_URL" ] || [ -z "$SPRING_DATASOURCE_USERNAME" ] || [ -z "$SPRING_DATASOURCE_PASSWORD" ]; then
-    echo "Error: Database credentials not set in .env file"
+if [ -z "$DATABASE_URL" ]; then
+    echo "Error: DATABASE_URL not set in .env file"
     exit 1
 fi
 
