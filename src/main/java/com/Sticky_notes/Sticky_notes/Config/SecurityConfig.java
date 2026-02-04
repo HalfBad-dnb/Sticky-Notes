@@ -79,15 +79,14 @@ public class SecurityConfig {
                 // Public endpoints
                 auth.requestMatchers("/").permitAll();
                 
-                // Static resources - using antMatchers for better pattern handling
-                auth.requestMatchers(
-                    "/favicon.ico",
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/webjars/**",
-                    "/swagger-resources/**"
-                ).permitAll();
+                // Error endpoint
+                auth.requestMatchers("/error").permitAll();
+                
+                // Static resources
+                auth.requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll();
+                
+                // WebSocket endpoints - completely bypass authentication
+                auth.requestMatchers("/ws/**", "/ws/info/**").permitAll();
                 
                 // Public API endpoints
                 String[] publicEndpoints = {
@@ -96,7 +95,13 @@ public class SecurityConfig {
                     "/api/notes/**",
                     "/api/notes/**",
                     "/api/profile/**",
-                    "/api/test/**"
+                    "/api/presence/**",
+                    "/api/test/**",
+                    "/ws/**",  // WebSocket endpoints
+                    "/ws/info/**",  // SockJS info endpoint
+                    "/topic/**",   // WebSocket topics
+                    "/queue/**",   // WebSocket queues
+                    "/app/**"      // WebSocket app destinations
                 };
                 auth.requestMatchers(publicEndpoints).permitAll();
                 

@@ -640,7 +640,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
             style={{
               width: '44px',
               height: '44px',
-              border: 'none',
               borderRadius: '12px',
               background: notes.length >= MAX_NOTES 
                 ? 'rgba(255, 255, 255, 0.05)' 
@@ -678,7 +677,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
             style={{
               width: '44px',
               height: '44px',
-              border: 'none',
               borderRadius: '12px',
               background: 'rgba(255, 255, 255, 0.1)',
               backdropFilter: 'blur(10px)',
@@ -714,7 +712,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
             style={{
               width: '44px',
               height: '44px',
-              border: 'none',
               borderRadius: '12px',
               background: 'rgba(255, 255, 255, 0.1)',
               backdropFilter: 'blur(10px)',
@@ -749,7 +746,6 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
             style={{
               width: '44px',
               height: '44px',
-              border: 'none',
               borderRadius: '12px',
               background: 'rgba(76, 175, 80, 0.2)',
               backdropFilter: 'blur(10px)',

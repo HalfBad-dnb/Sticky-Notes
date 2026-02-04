@@ -21,11 +21,24 @@ public class User {
     private String role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Board> boards = new ArrayList<>();
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<RefreshToken> refreshTokens = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Message> sentMessages = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Message> receivedMessages = new ArrayList<>();
+    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private UserPresence presence;
 
     // Default constructor (required by JPA)
     public User() {}
@@ -112,5 +125,29 @@ public class User {
     public void removeRefreshToken(RefreshToken refreshToken) {
         refreshTokens.remove(refreshToken);
         refreshToken.setUser(null);
+    }
+    
+    public List<Message> getSentMessages() {
+        return sentMessages;
+    }
+    
+    public void setSentMessages(List<Message> sentMessages) {
+        this.sentMessages = sentMessages;
+    }
+    
+    public List<Message> getReceivedMessages() {
+        return receivedMessages;
+    }
+    
+    public void setReceivedMessages(List<Message> receivedMessages) {
+        this.receivedMessages = receivedMessages;
+    }
+    
+    public UserPresence getPresence() {
+        return presence;
+    }
+    
+    public void setPresence(UserPresence presence) {
+        this.presence = presence;
     }
 }

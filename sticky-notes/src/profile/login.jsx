@@ -39,7 +39,7 @@ const Login = () => {
       console.log('Login successful, response received');
       
       // Extract token and user data from response
-      const { token, username, email, role } = response.data;
+      const { token, id, username, email, roles } = response.data;
       
       if (!token) {
         throw new Error('No token received from server');
@@ -49,15 +49,16 @@ const Login = () => {
       localStorage.setItem("authToken", token);
       localStorage.setItem("username", username || formData.username);
       
-      // Create a user object and store in sessionStorage
+      // Create a user object and store in localStorage
       const userData = {
+        id: id, // Use the actual user ID from the response
         username: username || formData.username,
         email: email || `${formData.username}@example.com`,
-        role: role || "USER"
+        role: roles ? roles[0] : "USER" // roles is an array, take first element
       };
       
-      console.log('Storing user data in session storage');
-      sessionStorage.setItem("user", JSON.stringify(userData));
+      console.log('Storing user data in localStorage:', userData);
+      localStorage.setItem("user", JSON.stringify(userData));
       
       setMessage("Login successful! Redirecting...");
       setFormData({ username: "", password: "" });

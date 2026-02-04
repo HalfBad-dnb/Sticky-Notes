@@ -4,6 +4,7 @@ import './NavBar.css';
 import ThemeDropdown from './components/ThemeDropdown';
 import NoteStyleDropdown from './components/NoteStyleDropdown';
 import SubscriptionManager from './components/SubscriptionManager';
+import { useWebSocket } from './hooks/useWebSocket';
 import PersonIcon from '@mui/icons-material/Person';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -43,12 +44,80 @@ const NavBar = () => {
   const [activeConversation, setActiveConversation] = useState(null);
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [onlineCount, setOnlineCount] = useState(0);
+  const [conversations, setConversations] = useState([]);
+  const [realMessages, setRealMessages] = useState([]);
+  
+  // Get username from localStorage early to avoid initialization issues
+  const username = localStorage.getItem('username') || 'User';
+  
+  // Get user info for WebSocket
+  const token = localStorage.getItem('authToken');
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userId = user?.id;
+  const currentUsername = user?.username || username;
+  
+  // WebSocket hook
+  const {
+    isConnected,
+    onlineUsers: wsOnlineUsers,
+    messages: wsMessages,
+    unreadCount,
+    connectionError,
+    sendMessage,
+    getConversation,
+    fetchUnreadCount,
+    fetchOnlineUsers
+  } = useWebSocket(token, userId, currentUsername);
   
   useEffect(() => {
     // Check if user is authenticated
     const token = localStorage.getItem('authToken');
     setIsAuthenticated(!!token);
   }, []);
+
+  // Update active users from WebSocket
+  useEffect(() => {
+    if (wsOnlineUsers && wsOnlineUsers.length > 0) {
+      setActiveUsers(wsOnlineUsers);
+      setOnlineCount(wsOnlineUsers.length);
+    }
+  }, [wsOnlineUsers]);
+  
+  // Fetch conversations when messages tab is active
+  useEffect(() => {
+    if (isMessagesOpen && messagesTab === 'all' && token) {
+      fetchRecentConversations();
+    }
+  }, [isMessagesOpen, messagesTab, token]);
+  
+  // Update real messages from WebSocket
+  useEffect(() => {
+    if (wsMessages && wsMessages.length > 0) {
+      setRealMessages(wsMessages);
+    }
+  }, [wsMessages]);
+  
+  // Fetch recent conversations
+  const fetchRecentConversations = async () => {
+    try {
+      const response = await fetch('/api/messages/recent', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setConversations(data);
+      }
+    } catch (error) {
+      console.error('Error fetching recent conversations:', error);
+    }
+  };
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -106,13 +175,41 @@ const NavBar = () => {
     setChatMessages([]);
   };
 
-  const openConversation = (conv) => {
+  const openConversation = async (conv) => {
     setActiveConversation(conv);
-    // Seed sample conversation content
-    setChatMessages([
-      { role: 'system', text: `You are viewing messages from ${conv.title}.` },
-      { role: 'other', text: 'Hello! Let us know if you need anything.' },
-    ]);
+    
+    // Fetch real conversation history
+    try {
+      let conversationHistory = [];
+      
+      if (conv.userId) {
+        // Real user conversation
+        conversationHistory = await getConversation(conv.userId);
+      } else {
+        // System conversation - keep hardcoded for now
+        conversationHistory = [
+          { role: 'system', text: `You are viewing messages from ${conv.title}.`, createdAt: new Date() },
+          { role: 'other', text: 'Hello! Let us know if you need anything.', createdAt: new Date() },
+        ];
+      }
+      
+      // Format messages for display
+      const formattedMessages = conversationHistory.map(msg => ({
+        role: msg.sender?.id === userId ? 'user' : 'other',
+        text: msg.content,
+        sender: msg.sender?.username,
+        createdAt: msg.createdAt
+      }));
+      
+      setChatMessages(formattedMessages);
+    } catch (error) {
+      console.error('Error fetching conversation:', error);
+      // Fallback to hardcoded messages
+      setChatMessages([
+        { role: 'system', text: `You are viewing messages from ${conv.title}.` },
+        { role: 'other', text: 'Hello! Let us know if you need anything.' },
+      ]);
+    }
   };
 
   const handleBackFromChat = () => {
@@ -123,8 +220,24 @@ const NavBar = () => {
 
   const sendChatMessage = () => {
     const text = chatInput.trim();
-    if (!text) return;
-    setChatMessages((prev) => [...prev, { role: 'user', text }]);
+    if (!text || !activeConversation) return;
+    
+    // Add message to UI immediately for better UX
+    setChatMessages((prev) => [...prev, { role: 'user', text, sender: currentUsername }]);
+    
+    // Send via WebSocket if it's a real user conversation
+    if (activeConversation.userId) {
+      const success = sendMessage(activeConversation.userId, text, 'DIRECT');
+      if (!success) {
+        // Show error message to user
+        setChatMessages((prev) => [...prev, { 
+          role: 'system', 
+          text: 'Message failed to send. Please check your connection and try again.', 
+          sender: 'System' 
+        }]);
+      }
+    }
+    
     setChatInput('');
   };
 
@@ -144,16 +257,42 @@ const NavBar = () => {
     setIsDropdownOpen(true);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Get user info before clearing storage
+    const userStr = localStorage.getItem('user'); // Changed from sessionStorage
+    let userId = null;
+    
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        userId = user.id;
+      } catch (e) {
+        console.error('Error parsing user from localStorage:', e);
+      }
+    }
+    
+    // Set user offline before logging out
+    if (userId) {
+      console.log('Setting user offline during logout:', userId);
+      try {
+        await fetch(`/api/presence/offline/${userId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        console.log('Failed to set user offline during logout:', error);
+      }
+    }
+    
+    // Clear authentication data
     localStorage.removeItem('authToken');
     localStorage.removeItem('username');
+    localStorage.removeItem('user'); // Changed from sessionStorage
     setIsAuthenticated(false);
     closeMenu();
     window.location.href = '/login';
   };
 
-  // Get username from localStorage
-  const username = localStorage.getItem('username') || 'User';
   const userInitial = username.charAt(0).toUpperCase();
 
   return (
@@ -190,7 +329,7 @@ const NavBar = () => {
         aria-expanded={isMessagesOpen}
       >
         <ChatIcon />
-        <span className="messages-badge">3</span>
+        <span className="messages-badge">{unreadCount > 0 ? unreadCount : conversations.length}</span>
       </button>
 
       {/* Menu Panel */}
@@ -659,85 +798,79 @@ const NavBar = () => {
 
               {!activeConversation && messagesTab === 'all' && (
                 <>
-                  <div
-                    className="message-item unread"
-                    onClick={() => openConversation({ id: 'system-1', title: 'System' })}
-                  >
-                    <div className="message-header">
-                      <span className="message-sender">System</span>
-                      <span className="message-time">2 min ago</span>
-                    </div>
-                    <div className="message-content">
-                      Welcome to Sticky Notes! Here are some tips to get started.
-                    </div>
-                    <div className="message-preview">
-                      Create your first note by clicking anywhere on the board...
-                    </div>
-                  </div>
+                  {conversations.length > 0 ? (
+                    conversations.map((conv, index) => (
+                      <div
+                        key={`${conv.userId}-${index}`}
+                        className={`message-item ${conv.unreadCount > 0 ? 'unread' : ''}`}
+                        onClick={() => openConversation(conv)}
+                      >
+                        <div className="message-header">
+                          <span className="message-sender">{conv.username}</span>
+                          <span className="message-time">
+                            {conv.lastMessageTime ? new Date(conv.lastMessageTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
+                          </span>
+                        </div>
+                        <div className="message-content">
+                          {conv.lastMessage || 'No messages yet'}
+                        </div>
+                        <div className="message-preview">
+                          {conv.unreadCount > 0 ? `${conv.unreadCount} unread message${conv.unreadCount > 1 ? 's' : ''}` : 'Click to open conversation'}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      {/* Fallback hardcoded messages when no real conversations */}
+                      <div
+                        className="message-item unread"
+                        onClick={() => openConversation({ id: 'system-1', title: 'System' })}
+                      >
+                        <div className="message-header">
+                          <span className="message-sender">System</span>
+                          <span className="message-time">2 min ago</span>
+                        </div>
+                        <div className="message-content">
+                          Welcome to Sticky Notes! Here are some tips to get started.
+                        </div>
+                        <div className="message-preview">
+                          Create your first note by clicking anywhere on the board...
+                        </div>
+                      </div>
 
-                  <div
-                    className="message-item unread"
-                    onClick={() => openConversation({ id: 'team-1', title: 'Team' })}
-                  >
-                    <div className="message-header">
-                      <span className="message-sender">Team</span>
-                      <span className="message-time">1 hour ago</span>
-                    </div>
-                    <div className="message-content">
-                      New features available!
-                    </div>
-                    <div className="message-preview">
-                      Check out our new collaboration tools and themes...
-                    </div>
-                  </div>
+                      <div
+                        className="message-item unread"
+                        onClick={() => openConversation({ id: 'team-1', title: 'Team' })}
+                      >
+                        <div className="message-header">
+                          <span className="message-sender">Team</span>
+                          <span className="message-time">1 hour ago</span>
+                        </div>
+                        <div className="message-content">
+                          New features available!
+                        </div>
+                        <div className="message-preview">
+                          Check out our new collaboration tools and themes...
+                        </div>
+                      </div>
 
-                  <div
-                    className="message-item unread"
-                    onClick={() => openConversation({ id: 'support-1', title: 'Support' })}
-                  >
-                    <div className="message-header">
-                      <span className="message-sender">Support</span>
-                      <span className="message-time">3 hours ago</span>
-                    </div>
-                    <div className="message-content">
-                      Your subscription is active
-                    </div>
-                    <div className="message-preview">
-                      Thank you for upgrading to our premium plan...
-                    </div>
-                  </div>
-
-                  <div
-                    className="message-item"
-                    onClick={() => openConversation({ id: 'system-2', title: 'System' })}
-                  >
-                    <div className="message-header">
-                      <span className="message-sender">System</span>
-                      <span className="message-time">Yesterday</span>
-                    </div>
-                    <div className="message-content">
-                      Your data has been backed up successfully
-                    </div>
-                    <div className="message-preview">
-                      All your notes and settings are safely stored in the cloud...
-                    </div>
-                  </div>
-
-                  <div
-                    className="message-item"
-                    onClick={() => openConversation({ id: 'tips-1', title: 'Tips' })}
-                  >
-                    <div className="message-header">
-                      <span className="message-sender">Tips</span>
-                      <span className="message-time">2 days ago</span>
-                    </div>
-                    <div className="message-content">
-                      Pro tip: Use keyboard shortcuts
-                    </div>
-                    <div className="message-preview">
-                      Press Ctrl+N to create a new note, Ctrl+D to mark as done...
-                    </div>
-                  </div>
+                      <div
+                        className="message-item unread"
+                        onClick={() => openConversation({ id: 'support-1', title: 'Support' })}
+                      >
+                        <div className="message-header">
+                          <span className="message-sender">Support</span>
+                          <span className="message-time">3 hours ago</span>
+                        </div>
+                        <div className="message-content">
+                          Your subscription is active
+                        </div>
+                        <div className="message-preview">
+                          Thank you for upgrading to our premium plan...
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
@@ -750,10 +883,80 @@ const NavBar = () => {
               )}
 
               {!activeConversation && messagesTab === 'friends' && (
-                <div className="messages-empty">
-                  <span className="nav-icon"><GroupIcon /></span>
-                  <div className="messages-empty-text">Active Users</div>
-                  <div className="messages-empty-subtext">No friends online right now.</div>
+                <div className="messages-content">
+                  <div className="messages-header">
+                    <span className="nav-icon"><GroupIcon /></span>
+                    <div className="messages-title">Active Users</div>
+                    <div className="messages-count">{onlineCount} online</div>
+                    <button 
+                      className="refresh-button"
+                      onClick={() => {
+                        // Force refresh
+                        const fetchActiveUsers = async () => {
+                          try {
+                            const response = await fetch('/api/presence/online', {
+                              headers: { 'Content-Type': 'application/json' }
+                            });
+                            if (response.ok) {
+                              const users = await response.json();
+                              setActiveUsers(users);
+                            }
+                          } catch (error) {
+                            setActiveUsers([]);
+                          }
+                        };
+                        const fetchOnlineCount = async () => {
+                          try {
+                            const response = await fetch('/api/presence/count', {
+                              headers: { 'Content-Type': 'application/json' }
+                            });
+                            if (response.ok) {
+                              const data = await response.json();
+                              setOnlineCount(data.count);
+                            }
+                          } catch (error) {
+                            setOnlineCount(0);
+                          }
+                        };
+                        fetchActiveUsers();
+                        fetchOnlineCount();
+                      }}
+                      title="Refresh active users"
+                    >
+                      <SyncIcon />
+                    </button>
+                  </div>
+                  <div className="active-users-list">
+                    {activeUsers.length > 0 ? (
+                      activeUsers.map((user) => (
+                        <div 
+                          key={user.id} 
+                          className="active-user-item"
+                          onClick={() => openConversation({ userId: user.id, username: user.username, title: user.username })}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div className="user-avatar-small">
+                            {user.username.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="user-info-small">
+                            <div className="user-name-small">{user.username}</div>
+                            <div className="user-status-online">Online</div>
+                          </div>
+                          <div className="online-indicator"></div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="messages-empty">
+                        <span className="nav-icon"><GroupIcon /></span>
+                        <div className="messages-empty-text">
+                          {onlineCount === 0 ? 'No active users right now.' : 'No friends online right now.'}
+                        </div>
+                        <div className="messages-empty-subtext">
+                          {onlineCount === 0 ? 'User presence service is unavailable.' : 'Check back later to see who\'s online.'}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -766,6 +969,7 @@ const NavBar = () => {
                   aria-label="Active users"
                 >
                   <span className="nav-icon"><GroupIcon /></span>
+                  {onlineCount > 0 && <span className="online-count-badge">{onlineCount}</span>}
                 </button>
                 <button
                   className={`messages-tab ${messagesTab === 'ai' ? 'active' : ''}`}
@@ -780,7 +984,13 @@ const NavBar = () => {
                   aria-label="All messages"
                 >
                   <span className="nav-icon"><MailIcon /></span>
+                  {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
                 </button>
+                {connectionError && (
+                  <div className="connection-error-indicator" title={connectionError}>
+                    ⚠️
+                  </div>
+                )}
               </div>
             )}
 

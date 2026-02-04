@@ -30,6 +30,17 @@ public class StickyNotesApplication {
 			activeProfiles);
 		
 		logger.info("Database URL: {}", environment.getProperty("spring.datasource.url"));
+		logger.info("Database Username: {}", maskSensitiveUsername(environment.getProperty("spring.datasource.username")));
+		logger.info("Env DATABASE_URL: {}", System.getenv("DATABASE_URL"));
+		logger.info("Env DATABASE_USERNAME: {}", maskSensitiveUsername(System.getenv("DATABASE_USERNAME")));
+	}
+
+	private String maskSensitiveUsername(String username) {
+		if (username == null || username.isBlank()) {
+			return username;
+		}
+		int visible = Math.min(4, username.length());
+		return username.substring(0, visible) + "****";
 	}
 
 	public static void main(String[] args) {

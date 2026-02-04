@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.Sticky_notes.Sticky_notes.models.Register;
 import com.Sticky_notes.Sticky_notes.models.User;
+import com.Sticky_notes.Sticky_notes.models.UserPresence;
 import com.Sticky_notes.Sticky_notes.repository.UserRepository;
+import com.Sticky_notes.Sticky_notes.repository.UserPresenceRepository;
 
 import jakarta.validation.Valid;
 
@@ -20,6 +22,9 @@ public class RegistrationController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserPresenceRepository userPresenceRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -51,6 +56,11 @@ public class RegistrationController {
         
         // Save the user to the database
         User savedUser = userRepository.save(user);
+        
+        // Create UserPresence record for the new user (offline by default)
+        UserPresence userPresence = new UserPresence(savedUser);
+        userPresence.setIsOnline(false);
+        userPresenceRepository.save(userPresence);
         
         // Return success response with the saved user details (excluding sensitive data)
         Map<String, Object> response = new HashMap<>();

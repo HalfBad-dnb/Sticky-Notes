@@ -12,6 +12,7 @@ import SubscriptionPage from './pages/SubscriptionPage';
 import { ZoomProvider } from './context/ZoomProvider';
 import { ThemeProvider } from './context/ThemeContext';
 import { NoteStyleProvider } from './context/NoteStyleContext';
+import { useWebSocket } from './hooks/useWebSocket';
 import './profile/profile.css';
 import './App.css';
 import BubbleBackgroundTheme from "./components/backgroundstyles/theme/BubleBackgroundTheme";
@@ -86,6 +87,89 @@ const AppContent = () => {
     noteId: null,
     noteTitle: ''
   });
+  
+  // Get user info for WebSocket connection
+  const token = localStorage.getItem('authToken');
+  const userStr = localStorage.getItem('user'); // Changed from sessionStorage
+  let userId = null;
+  let currentUsername = null;
+  
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      userId = user.id;
+      currentUsername = user.username;
+      console.log('App.jsx - User data from localStorage:', { userId, username: currentUsername, hasToken: !!token });
+    } catch (e) {
+      console.error('Error parsing user from localStorage:', e);
+    }
+  } else {
+    console.log('App.jsx - No user data in localStorage');
+  }
+  
+  // Initialize WebSocket connection with proper dependencies
+  useWebSocket(token, userId, currentUsername);
+  
+  // Set user online when they log in (HTTP fallback)
+  useEffect(() => {
+    if (token && userId) {
+      console.log('Setting user online via HTTP:', userId, currentUsername);
+      fetch(`/api/presence/online/${userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }).catch(error => {
+        console.log('Failed to set user online via HTTP:', error);
+      });
+    }
+  }, [token, userId, currentUsername]);
+  
+  // Set user offline when they leave the page
+  useEffect(() => {
+    const handleOffline = () => {
+      if (userId) {
+        console.log('Setting user offline via HTTP:', userId, currentUsername);
+        // Use sendBeacon for reliable delivery when page is unloading
+        navigator.sendBeacon(`/api/presence/offline/${userId}`, 
+          new Headers({ 'Content-Type': 'application/json' })
+        );
+      }
+    };
+
+    const handleBeforeUnload = (event) => {
+      handleOffline();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        handleOffline();
+      }
+    };
+
+    // Add event listeners for page unload and visibility changes
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      // Set offline when component unmounts
+      handleOffline();
+    };
+  }, [userId, currentUsername]);
+  
+  // Listen for storage changes to detect login/logout
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      console.log('Storage change detected:', e.key, e.newValue);
+      if (e.key === 'authToken' || e.key === 'user') {
+        // Force page reload to reinitialize WebSocket with new user
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
   
   // Filter active notes (not done and not deleted)
   const activeNotes = notes.filter(note => !note.done && !note.deleted);

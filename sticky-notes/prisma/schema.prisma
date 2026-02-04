@@ -24,6 +24,9 @@ model User {
   // Relations
   boards        Board[]
   refreshTokens RefreshToken[]
+  sentMessages  Message[]     @relation("SentMessages")
+  receivedMessages Message[]  @relation("ReceivedMessages")
+  presence      UserPresence?
   
   @@map("users")
 }
@@ -97,4 +100,35 @@ model SubscriptionTier {
   sortOrder    Int     @map("sort_order")
   
   @@map("subscription_tiers")
+}
+
+// Message model - matches Message.java entity
+model Message {
+  id         Int      @id @default(autoincrement())
+  senderId   Int      @map("sender_id")
+  receiverId Int?     @map("receiver_id")
+  content    String   @db.VarChar(1000)
+  messageType String  @map("message_type") // "DIRECT", "BROADCAST"
+  createdAt  DateTime @default(now()) @map("created_at")
+  isRead     Boolean  @default(false) @map("is_read")
+  
+  // Relations
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver   User?    @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  
+  @@map("messages")
+}
+
+// UserPresence model - matches UserPresence.java entity
+model UserPresence {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique @map("user_id")
+  isOnline  Boolean  @default(false) @map("is_online")
+  lastSeen  DateTime @default(now()) @map("last_seen")
+  sessionId String?  @unique @map("session_id")
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@map("user_presence")
 }
