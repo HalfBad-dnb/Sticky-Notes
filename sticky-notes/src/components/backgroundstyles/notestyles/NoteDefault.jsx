@@ -146,34 +146,47 @@ const NoteDefault = ({
   };
 
   const commentsPanelStyle = (() => {
-    const width = Math.min(520, window.innerWidth - 24);
-    const height = Math.min(520, window.innerHeight - 24);
+    const width = Math.min(400, window.innerWidth - 40);
+    const height = Math.min(300, window.innerHeight - 40);
     const rect = commentsAnchorRect;
-    const margin = 12;
+    const margin = 20;
 
     let left = margin;
     let top = margin;
 
     if (rect) {
-      left = Math.min(Math.max(margin, rect.left), window.innerWidth - width - margin);
-
-      const belowTop = rect.bottom + 8;
-      const aboveTop = rect.top - height - 8;
-      if (belowTop + height + margin <= window.innerHeight) {
-        top = belowTop;
-      } else if (aboveTop >= margin) {
-        top = aboveTop;
+      // Position the panel to the right of the comment button, or below if no space
+      const preferredLeft = rect.right + 10;
+      const preferredTop = rect.top;
+      
+      // Check if panel fits to the right
+      if (preferredLeft + width + margin <= window.innerWidth) {
+        left = preferredLeft;
+        top = Math.min(Math.max(margin, preferredTop), window.innerHeight - height - margin);
       } else {
-        top = Math.min(Math.max(margin, belowTop), window.innerHeight - height - margin);
+        // Position below the button if no space on the right
+        left = Math.min(Math.max(margin, rect.left), window.innerWidth - width - margin);
+        const belowTop = rect.bottom + 10;
+        if (belowTop + height + margin <= window.innerHeight) {
+          top = belowTop;
+        } else {
+          // Position above if no space below
+          const aboveTop = rect.top - height - 10;
+          top = Math.max(margin, aboveTop);
+        }
       }
+    } else {
+      // Fallback: center on screen if no rect available
+      left = (window.innerWidth - width) / 2;
+      top = (window.innerHeight - height) / 2;
     }
 
     return {
       position: 'fixed',
-      left,
-      top,
-      width,
-      height,
+      left: `${left}px`,
+      top: `${top}px`,
+      width: `${width}px`,
+      height: `${height}px`,
       backgroundColor: 'rgba(0, 0, 0, 0.85)',
       border: '1px solid rgba(255, 255, 255, 0.18)',
       borderRadius: '10px',

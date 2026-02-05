@@ -509,9 +509,9 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
 
 
 
-  // Get current user from session storage
+  // Get current user from local storage
   useEffect(() => {
-    const userJson = sessionStorage.getItem('user');
+    const userJson = localStorage.getItem('user');
     if (userJson) {
       try {
         const user = JSON.parse(userJson);
