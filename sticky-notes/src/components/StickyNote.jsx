@@ -5,7 +5,7 @@ import NotePuzzle from './backgroundstyles/notestyles/NotePuzzle';
 import NoteBubles from './backgroundstyles/notestyles/NoteBubles';
 import { NoteStyleContext } from '../context/noteContext';
 
-const StickyNote = ({ note, onDrag, onDone, onDelete }) => {
+const StickyNote = ({ note, onDrag, onDone, onDelete, onNoteClick, onCommentsOpen, onCommentsClose }) => {
   const noteRef = useRef(null);
   const isDragging = useRef(false);
   const startPos = useRef({ x: 0, y: 0 });
@@ -83,9 +83,28 @@ const StickyNote = ({ note, onDrag, onDone, onDelete }) => {
     }
   }, [note.x, note.y]);
   
+  const handleNoteClick = useCallback((e) => {
+    // Only bring to front if not dragging
+    if (!isDragging.current) {
+      onNoteClick?.(note.id);
+    }
+  }, [note.id, onNoteClick]);
+
   const handleMouseDown = useCallback((e) => {
+    // Allow interacting with inputs/buttons/links inside the note without triggering drag
+    const target = e.target;
+    if (
+      target?.closest?.('[data-no-drag="true"]') ||
+      ['INPUT', 'TEXTAREA', 'BUTTON', 'SELECT', 'A'].includes(target?.tagName)
+    ) {
+      return;
+    }
+
     if (e.button !== 0) return; // Only left click
     e.preventDefault();
+    
+    // Always bring note to front on mouse down
+    onNoteClick?.(note.id);
     
     isDragging.current = true;
     startPos.current = {
@@ -159,6 +178,7 @@ const StickyNote = ({ note, onDrag, onDone, onDelete }) => {
         touchAction: 'none',
         pointerEvents: 'auto',
         cursor: 'grab',
+        zIndex: note.zIndex || 0,
       }}
       onMouseDown={handleMouseDown}
     >
@@ -172,6 +192,8 @@ const StickyNote = ({ note, onDrag, onDone, onDelete }) => {
         }}
         onDone={onDone}
         onDelete={onDelete}
+        onCommentsOpen={onCommentsOpen}
+        onCommentsClose={onCommentsClose}
       />
     </div>
   );
@@ -192,6 +214,9 @@ StickyNote.propTypes = {
   onDrag: PropTypes.func.isRequired,
   onDone: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onNoteClick: PropTypes.func,
+  onCommentsOpen: PropTypes.func,
+  onCommentsClose: PropTypes.func,
 };
 
 export default StickyNote;

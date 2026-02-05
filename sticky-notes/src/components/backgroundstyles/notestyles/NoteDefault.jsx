@@ -1,3 +1,13 @@
+import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import axios from '../../../utils/axiosConfig';
+import { getApiUrl } from '../../../utils/api';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import SendIcon from '@mui/icons-material/Send';
+import CloseIcon from '@mui/icons-material/Close';
+
 const MAX_CHAR_LIMIT = 200;
 
 /**
@@ -21,6 +31,8 @@ const NoteDefault = ({
   note, 
   onDone = () => {}, 
   onDelete = () => {},
+  onCommentsOpen = () => {},
+  onCommentsClose = () => {}
 }) => {
   // Destructure with defaults
   const { 
@@ -28,7 +40,8 @@ const NoteDefault = ({
     done = false,
     width = '280px',
     height = 'auto',
-    id
+    id,
+    username
   } = note || {};
   
   // Character count for display only (no editing)
@@ -36,6 +49,40 @@ const NoteDefault = ({
   
   // Note: All editing functionality has been removed
   const isEditing = false;
+
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [commentsAnchorRect, setCommentsAnchorRect] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsError, setCommentsError] = useState('');
+
+  useEffect(() => {
+    if (!isCommentsOpen || !id) return;
+    setCommentsError('');
+    setCommentsLoading(true);
+    axios
+      .get(getApiUrl(`notes/${id}/comments`))
+      .then((res) => {
+        if (res?.status >= 200 && res?.status < 300) {
+          setComments(Array.isArray(res.data) ? res.data : []);
+          return;
+        }
+        if (res?.status === 401) {
+          setCommentsError('Login required to view/add comments.');
+        } else {
+          setCommentsError('Failed to load comments.');
+        }
+        setComments([]);
+      })
+      .catch(() => {
+        setCommentsError('Failed to load comments.');
+        setComments([]);
+      })
+      .finally(() => {
+        setCommentsLoading(false);
+      });
+  }, [isCommentsOpen, id]);
   // Apply different styles if the note is marked as done
   const noteStyle = {
     position: 'relative',
@@ -54,6 +101,91 @@ const NoteDefault = ({
     opacity: done ? 0.7 : 1,
     textDecoration: done ? 'line-through' : 'none',
   };
+
+  const actionBarStyle = {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    paddingTop: '12px',
+    marginTop: 'auto',
+    borderTop: '1px solid rgba(255, 255, 255, 0.15)',
+    gap: '10px',
+    position: 'relative',
+    zIndex: 20
+  };
+
+  const iconBtnBase = {
+    width: '36px',
+    height: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    borderRadius: '6px',
+    transition: 'all 0.2s',
+    userSelect: 'none'
+  };
+
+  const openCommentsAt = (e) => {
+    e.stopPropagation();
+    const rect = e.currentTarget?.getBoundingClientRect?.();
+    setCommentsAnchorRect(rect || null);
+    setIsCommentsOpen(true);
+    onCommentsOpen(note.id);
+  };
+
+  const toggleCommentsAt = (e) => {
+    e.stopPropagation();
+    if (isCommentsOpen) {
+      setIsCommentsOpen(false);
+      onCommentsClose();
+      return;
+    }
+    openCommentsAt(e);
+  };
+
+  const commentsPanelStyle = (() => {
+    const width = Math.min(520, window.innerWidth - 24);
+    const height = Math.min(520, window.innerHeight - 24);
+    const rect = commentsAnchorRect;
+    const margin = 12;
+
+    let left = margin;
+    let top = margin;
+
+    if (rect) {
+      left = Math.min(Math.max(margin, rect.left), window.innerWidth - width - margin);
+
+      const belowTop = rect.bottom + 8;
+      const aboveTop = rect.top - height - 8;
+      if (belowTop + height + margin <= window.innerHeight) {
+        top = belowTop;
+      } else if (aboveTop >= margin) {
+        top = aboveTop;
+      } else {
+        top = Math.min(Math.max(margin, belowTop), window.innerHeight - height - margin);
+      }
+    }
+
+    return {
+      position: 'fixed',
+      left,
+      top,
+      width,
+      height,
+      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      border: '1px solid rgba(255, 255, 255, 0.18)',
+      borderRadius: '10px',
+      backdropFilter: 'blur(10px)',
+      padding: '12px',
+      zIndex: 9999,
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    };
+  })();
 
   return (
     <div style={noteStyle}>
@@ -119,6 +251,17 @@ const NoteDefault = ({
         flexDirection: 'column',
       }}>
       <div style={{
+        fontSize: '0.8rem',
+        color: 'rgba(255, 255, 255, 0.75)',
+        padding: '0 4px',
+        marginBottom: '6px',
+        display: 'flex',
+        justifyContent: 'flex-start',
+        pointerEvents: 'none'
+      }}>
+        {username || ''}
+      </div>
+      <div style={{
         flex: '1',
         overflowY: 'auto',
         overflowX: 'hidden',
@@ -157,32 +300,16 @@ const NoteDefault = ({
         </div>
       </div>
       
-      <div style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        paddingTop: '12px',
-        marginTop: 'auto',
-        borderTop: '1px solid rgba(255, 255, 255, 0.15)',
-        gap: '15px',
-        fontSize: '0.9rem',
-        position: 'relative',
-        zIndex: 1
-      }}>
+      <div style={actionBarStyle}>
         {!done && (
-          <div 
+          <div
             onClick={(e) => {
               e.stopPropagation();
               console.log('Done button clicked for note:', id);
               onDone?.(id);
             }}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              cursor: 'pointer',
-              padding: '4px 8px',
-              borderRadius: '4px',
-              transition: 'all 0.2s',
+              ...iconBtnBase,
               backgroundColor: 'rgba(46, 204, 113, 0.2)',
               border: '1px solid rgba(46, 204, 113, 0.3)',
             }}
@@ -190,10 +317,23 @@ const NoteDefault = ({
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 204, 113, 0.2)'}
             title="Mark as Done"
           >
-            <span>✅</span>
-            <span>Done</span>
+            <CheckCircleOutlineIcon fontSize="small" />
           </div>
         )}
+
+        <div
+          onClick={toggleCommentsAt}
+          style={{
+            ...iconBtnBase,
+            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+            border: '1px solid rgba(52, 152, 219, 0.3)',
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(52, 152, 219, 0.3)')}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'rgba(52, 152, 219, 0.2)')}
+          title="Comments"
+        >
+          <ChatBubbleOutlineIcon fontSize="small" />
+        </div>
         
         <div 
           onClick={(e) => {
@@ -201,13 +341,7 @@ const NoteDefault = ({
             onDelete?.(id, text?.substring(0, 30) + (text?.length > 30 ? '...' : ''));
           }}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            transition: 'all 0.2s',
+            ...iconBtnBase,
             backgroundColor: 'rgba(231, 76, 60, 0.2)',
             border: '1px solid rgba(231, 76, 60, 0.3)',
           }}
@@ -215,16 +349,226 @@ const NoteDefault = ({
           onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(231, 76, 60, 0.2)'}
           title="Delete Note"
         >
-          <span>🗑️</span>
-          <span>Delete</span>
+          <DeleteOutlineIcon fontSize="small" />
         </div>
       </div>
+
+      {isCommentsOpen && (
+        <>
+          <div
+            data-no-drag="true"
+            onMouseDown={() => {
+              setIsCommentsOpen(false);
+              onCommentsClose();
+            }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9998,
+              backgroundColor: 'transparent'
+            }}
+          />
+          <div
+            onMouseDown={(e) => e.stopPropagation()}
+            data-no-drag="true"
+            style={commentsPanelStyle}
+          >
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.9)' }}>Comments</div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsCommentsOpen(false);
+                onCommentsClose();
+              }}
+              style={{
+                ...iconBtnBase,
+                width: '34px',
+                height: '30px',
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                color: 'rgba(255,255,255,0.9)',
+                cursor: 'pointer'
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </button>
+          </div>
+
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+            paddingRight: '4px'
+          }}>
+            {commentsLoading ? (
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Loading...</div>
+            ) : commentsError ? (
+              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.85rem' }}>{commentsError}</div>
+            ) : comments.length === 0 ? (
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>No comments yet.</div>
+            ) : (
+              comments.map((c) => (
+                <div
+                  key={c.id}
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: '6px',
+                    padding: '6px 8px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: '10px'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                    minWidth: 0
+                  }}>
+                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.78rem' }}>
+                      {c.username}
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                      {c.text}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      axios
+                        .delete(getApiUrl(`notes/${id}/comments/${c.id}`))
+                        .then((res) => {
+                          if (res?.status >= 200 && res?.status < 300) {
+                            setComments((prev) => prev.filter((x) => x.id !== c.id));
+                            return;
+                          }
+                          if (res?.status === 401) {
+                            setCommentsError('Login required to delete comments.');
+                          } else if (res?.status === 403) {
+                            setCommentsError('You can only delete your own comments.');
+                          } else {
+                            setCommentsError('Failed to delete comment.');
+                          }
+                        })
+                        .catch(() => {
+                          setCommentsError('Failed to delete comment.');
+                        });
+                    }}
+                    style={{
+                      background: 'rgba(231, 76, 60, 0.15)',
+                      border: '1px solid rgba(231, 76, 60, 0.3)',
+                      color: 'rgba(255,255,255,0.9)',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      height: 'fit-content'
+                    }}
+                    title="Delete comment"
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Write a comment..."
+              style={{
+                flex: 1,
+                minHeight: '80px',
+                resize: 'vertical',
+                padding: '10px',
+                backgroundColor: 'rgba(255,255,255,0.14)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '6px',
+                color: 'rgba(255,255,255,0.95)',
+                fontSize: '0.9rem',
+                outline: 'none'
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (e.shiftKey) return;
+                  e.preventDefault();
+                  const txt = commentText.trim();
+                  if (!txt) return;
+                  setCommentsError('');
+                  axios
+                    .post(getApiUrl(`notes/${id}/comments`), { text: txt })
+                    .then((res) => {
+                      if (res?.status >= 200 && res?.status < 300 && res?.data?.id) {
+                        setComments((prev) => [...prev, res.data]);
+                        setCommentText('');
+                        return;
+                      }
+                      if (res?.status === 401) {
+                        setCommentsError('Login required to comment.');
+                      } else {
+                        setCommentsError('Failed to add comment.');
+                      }
+                    })
+                    .catch(() => {
+                      setCommentsError('Failed to add comment.');
+                    });
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const txt = commentText.trim();
+                if (!txt) return;
+                setCommentsError('');
+                axios
+                  .post(getApiUrl(`notes/${id}/comments`), { text: txt })
+                  .then((res) => {
+                    if (res?.status >= 200 && res?.status < 300 && res?.data?.id) {
+                      setComments((prev) => [...prev, res.data]);
+                      setCommentText('');
+                      return;
+                    }
+                    if (res?.status === 401) {
+                      setCommentsError('Login required to comment.');
+                    } else {
+                      setCommentsError('Failed to add comment.');
+                    }
+                  })
+                  .catch(() => {
+                    setCommentsError('Failed to add comment.');
+                  });
+              }}
+              style={{
+                ...iconBtnBase,
+                width: '44px',
+                height: '40px',
+                backgroundColor: 'rgba(46, 204, 113, 0.22)',
+                border: '1px solid rgba(46, 204, 113, 0.35)',
+                color: 'rgba(255,255,255,0.95)',
+                cursor: 'pointer'
+              }}
+              title="Send"
+            >
+              <SendIcon fontSize="small" />
+            </button>
+          </div>
+        </div>
+        </>
+      )}
       </div> {/* Close content wrapper */}
     </div>
   );
 };
-
-import PropTypes from 'prop-types';
 
 NoteDefault.propTypes = {
   note: PropTypes.shape({
@@ -240,6 +584,8 @@ NoteDefault.propTypes = {
   onUpdateNote: PropTypes.func,
   onLike: PropTypes.func,
   onDislike: PropTypes.func,
+  onCommentsOpen: PropTypes.func,
+  onCommentsClose: PropTypes.func,
 };
 
 export default NoteDefault;

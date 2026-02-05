@@ -1,14 +1,27 @@
 import { useEffect, useCallback, useState } from 'react';
 import StickyBoard from '../components/StickyBoard';
+import Disclaimers from '../components/common/Disclaimers';
+import { getApiUrl } from '../utils/api';
 import '../profile/profile.css';
 
 const ProfileBoard = () => {
   const [notes, setNotes] = useState([]);
   const [error, setError] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Handle mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fetch profile-specific notes
   useEffect(() => {
-    fetch('http://localhost:8080/api/notes/profile', {
+    fetch(getApiUrl('notes/profile'), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -38,35 +51,30 @@ const ProfileBoard = () => {
       });
   }, []);
 
-  const handleDrag = useCallback((id, x, y) => {
-    // Handle drag functionality
-    console.log('Profile note dragged:', { id, x, y });
-  }, []);
-
-  const handleDone = useCallback((id) => {
-    // Handle done/like functionality
-    console.log('Profile note done:', id);
-  }, []);
-
-  const handleDelete = useCallback((id) => {
-    // Handle delete functionality
-    console.log('Profile note deleted:', id);
-    setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-  }, []);
-
   return (
     <div className="profile-board-container">
-      <div className="profile-board-header">
-        <h1>Profile Board</h1>
-        <p>Your personal sticky notes space</p>
-      </div>
-      
       <StickyBoard 
         notes={notes}
         setNotes={setNotes}
-        onDrag={handleDrag}
-        onDone={handleDone}
-        onDelete={handleDelete}
+        onDrag={(id, x, y) => {
+          logger.info('ProfileBoard: StickyBoard onDrag called for note:', id);
+          // Update local state immediately for responsive UI
+          setNotes(prevNotes =>
+            prevNotes.map((note) => (note.id === id ? { ...note, x, y } : note))
+          );
+        }}
+        onDone={(id) => {
+          logger.info('ProfileBoard: StickyBoard onDone called for note:', id);
+          // Update local state immediately for responsive UI
+          setNotes(prevNotes =>
+            prevNotes.map((note) => (note.id === id ? { ...note, done: !note.done } : note))
+          );
+        }}
+        onDelete={(id) => {
+          logger.info('ProfileBoard: StickyBoard onDelete called for note:', id);
+          // Update local state immediately for responsive UI
+          setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+        }}
       />
     </div>
   );

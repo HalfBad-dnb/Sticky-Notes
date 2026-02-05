@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import StickyNote from "../components/StickyNote";
 import { useZoom } from "../context/useZoom";
@@ -16,6 +16,10 @@ import PublicIcon from '@mui/icons-material/Public';
 import HomeIcon from '@mui/icons-material/Home';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import DeleteIcon from '@mui/icons-material/Delete';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import CloudIcon from '@mui/icons-material/Cloud';
+import Disclaimers from '../components/common/Disclaimers';
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -44,6 +48,13 @@ const Profile = () => {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+  
+  // Embedded apps state
+  const [embeddedApps, setEmbeddedApps] = useState([]);
+  const [nextAppId, setNextAppId] = useState(1);
+  
+  // Z-index management for notes
+  const [highestZIndex, setHighestZIndex] = useState(1000);
 
   // Check if device is mobile (screen width less than 768px)
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -170,13 +181,6 @@ const Profile = () => {
         return [];
       })
       .then(notes => {
-        if (!notes || !Array.isArray(notes)) {
-          console.log('No valid notes array received');
-          return [];
-        }
-        return notes;
-      })
-      .then(notes => {
         console.log('Processing', notes.length, 'notes');
       
         // Filter out any invalid notes
@@ -188,9 +192,21 @@ const Profile = () => {
           processedNotes = validNotes.filter(note => note.isPrivate === true);
         }
         
-        console.log(`Displaying ${processedNotes.length} notes (isPrivate=${isPrivate})`);
-        setNotes(processedNotes);
-        setCachedNotes(processedNotes); // Update cache
+        // Assign z-index values based on current highest z-index
+        const notesWithZIndex = processedNotes.map((note, index) => ({
+          ...note,
+          zIndex: (note.zIndex || 1000) + index
+        }));
+        
+        // Update highest z-index if needed
+        const maxZIndex = Math.max(...notesWithZIndex.map(note => note.zIndex || 1000));
+        if (maxZIndex > highestZIndex) {
+          setHighestZIndex(maxZIndex);
+        }
+        
+        console.log(`Displaying ${notesWithZIndex.length} notes (isPrivate=${isPrivate})`);
+        setNotes(notesWithZIndex);
+        setCachedNotes(notesWithZIndex); // Update cache
         setError('');
       })
       .catch(error => {
@@ -210,6 +226,436 @@ const Profile = () => {
     const centerY = Math.round((window.innerHeight - 120) / 2);
     return { x: centerX, y: centerY };
   }, []);
+
+  // Embedded apps functions
+  const addEmbeddedApp = useCallback((type) => {
+    // Check if an app of this type already exists
+    const existingApp = embeddedApps.find(app => app.type === type);
+    if (existingApp) {
+      // Focus existing app instead of creating new one
+      setEmbeddedApps(prev => 
+        prev.map(app => 
+          app.id === existingApp.id 
+            ? { ...app, zIndex: Math.max(...prev.map(a => a.zIndex || 1000)) + 1 }
+            : app
+        )
+      );
+      return;
+    }
+
+    const { x, y } = calculateCenterPosition();
+    const newApp = {
+      id: nextAppId,
+      type: type,
+      x: x,
+      y: y,
+      width: 400,
+      height: type === 'youtube' ? 500 : type === 'soundcloud' ? 240 : 200,
+      url: type === 'youtube' 
+        ? 'https://www.youtube.com/embed/videoseries?list=PL12icr6A-5KyPlet16iNB7BRwshWWyhuC' // User's playlist
+        : type === 'soundcloud'
+          ? 'https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/forss/flickermood&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true'
+          : 'https://open.spotify.com',
+      isMinimized: false,
+      zIndex: 1000 + nextAppId
+    };
+    
+    setEmbeddedApps(prev => [...prev, newApp]);
+    setNextAppId(prev => prev + 1);
+  }, [nextAppId, calculateCenterPosition, embeddedApps]);
+
+  const updateAppPosition = useCallback((appId, x, y) => {
+    setEmbeddedApps(prev => 
+      prev.map(app => 
+        app.id === appId ? { ...app, x, y } : app
+      )
+    );
+  }, []);
+
+  const updateAppUrl = useCallback((appId, url) => {
+    setEmbeddedApps(prev =>
+      prev.map(app =>
+        app.id === appId ? { ...app, url } : app
+      )
+    );
+  }, []);
+
+  const removeEmbeddedApp = useCallback((appId) => {
+    setEmbeddedApps(prev => prev.filter(app => app.id !== appId));
+  }, []);
+
+  const toggleMinimizeApp = useCallback((appId) => {
+    setEmbeddedApps(prev => 
+      prev.map(app => 
+        app.id === appId ? { ...app, isMinimized: !app.isMinimized } : app
+      )
+    );
+  }, []);
+
+  // Custom YouTube Interface Component
+  const CustomYouTube = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [videoUrl, setVideoUrl] = useState('');
+
+    const handleSearch = (e) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        // Create YouTube video URL from search query
+        const videoId = searchQuery.trim();
+        setVideoUrl(`https://www.youtube.com/watch?v=${videoId}`);
+      }
+    };
+
+    const contentStyle = {
+      padding: '15px',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px'
+    };
+
+    const inputStyle = {
+      width: '100%',
+      padding: '8px',
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      border: '1px solid rgba(255,255,255,0.2)',
+      borderRadius: '4px',
+      color: '#ffffff',
+      fontSize: '14px',
+      outline: 'none'
+    };
+
+    const buttonStyle = {
+      padding: '8px 16px',
+      backgroundColor: 'rgba(255,0,0,0.2)',
+      border: '1px solid rgba(255,0,0,0.3)',
+      borderRadius: '4px',
+      color: '#ffffff',
+      cursor: 'pointer',
+      fontSize: '14px'
+    };
+
+    const linkStyle = {
+      color: '#4285f4',
+      textDecoration: 'none',
+      fontSize: '12px',
+      wordBreak: 'break-all'
+    };
+
+    return (
+      <div style={contentStyle}>
+        <h4 style={{ color: '#ffffff', margin: '0 0 10px 0' }}>YouTube</h4>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '5px' }}>
+          <input
+            type="text"
+            style={inputStyle}
+            placeholder="Enter video ID or search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button type="submit" style={buttonStyle}>
+            Search
+          </button>
+        </form>
+        {videoUrl && (
+          <div style={{ marginTop: '10px' }}>
+            <p style={{ color: '#ffffff', fontSize: '12px', margin: '5px 0' }}>
+              Video Link:
+            </p>
+            <a 
+              href={videoUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={linkStyle}
+            >
+              {videoUrl}
+            </a>
+            <p style={{ color: '#cccccc', fontSize: '11px', margin: '10px 0' }}>
+              Click the link above to open in new tab
+            </p>
+          </div>
+        )}
+        <div style={{ marginTop: 'auto', paddingTop: '10px' }}>
+          <p style={{ color: '#999999', fontSize: '11px', margin: '0' }}>
+            Enter a YouTube video ID (e.g., dQw4w9WgXcQ) or search terms
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // Draggable Embedded App Component
+  const DraggableEmbeddedApp = ({ app, onRemove, onToggleMinimize }) => {
+    const appRef = useRef(null);
+    const isDragging = useRef(false);
+    const startPos = useRef({ x: 0, y: 0 });
+    const currentPos = useRef({
+      x: typeof app.x === 'number' ? app.x : 50,
+      y: typeof app.y === 'number' ? app.y : 50
+    });
+
+    const [playlistInput, setPlaylistInput] = useState('');
+
+    useEffect(() => {
+      if (app.type !== 'youtube') return;
+      const match = String(app.url || '').match(/[?&]list=([^&]+)/);
+      setPlaylistInput(match?.[1] ? decodeURIComponent(match[1]) : '');
+    }, [app.type, app.url]);
+
+    // Update position from props if not dragging
+    useEffect(() => {
+      if (!isDragging.current) {
+        currentPos.current = {
+          x: typeof app.x === 'number' ? app.x : 50,
+          y: typeof app.y === 'number' ? app.y : 50
+        };
+        if (appRef.current) {
+          appRef.current.style.left = `${currentPos.current.x}px`;
+          appRef.current.style.top = `${currentPos.current.y}px`;
+        }
+      }
+    }, [app.x, app.y]);
+
+    const handleMouseDown = useCallback((e) => {
+      // Only left click
+      if (e.button !== 0) return;
+      
+      e.preventDefault();
+      
+      isDragging.current = true;
+      startPos.current = {
+        x: e.clientX - currentPos.current.x,
+        y: e.clientY - currentPos.current.y
+      };
+      
+      document.body.style.cursor = 'grabbing';
+      
+      // Bring to front
+      setEmbeddedApps(prev => 
+        prev.map(a => 
+          a.id === app.id 
+            ? { ...a, zIndex: Math.max(...prev.map(app => app.zIndex || 1000)) + 1 }
+            : a
+        )
+      );
+      
+      const onMouseMove = (e) => {
+        if (!isDragging.current) return;
+        
+        const x = e.clientX - startPos.current.x;
+        const y = e.clientY - startPos.current.y;
+        
+        // Keep within viewport
+        const boundedX = Math.max(0, Math.min(window.innerWidth - app.width, x));
+        const boundedY = Math.max(0, Math.min(window.innerHeight - app.height, y));
+        
+        currentPos.current = { x: boundedX, y: boundedY };
+        
+        if (appRef.current) {
+          appRef.current.style.left = `${boundedX}px`;
+          appRef.current.style.top = `${boundedY}px`;
+        }
+        
+        // Update position in state
+        updateAppPosition(app.id, boundedX, boundedY);
+      };
+      
+      const onMouseUp = () => {
+        isDragging.current = false;
+        document.body.style.cursor = '';
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+      
+      document.addEventListener('mousemove', onMouseMove, { passive: false });
+      document.addEventListener('mouseup', onMouseUp, { once: true });
+      
+      return () => {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+    }, [app.id, app.width, app.height]);
+
+    const appStyle = {
+      position: 'fixed',
+      left: `${currentPos.current.x}px`,
+      top: `${currentPos.current.y}px`,
+      width: `${app.width}px`,
+      height: app.isMinimized ? '40px' : `${app.height}px`,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      border: '1px solid rgba(255,255,255,0.2)',
+      borderRadius: '8px',
+      backdropFilter: 'blur(10px)',
+      zIndex: app.zIndex || 1000,
+      cursor: isDragging.current ? 'grabbing' : 'grab',
+      transition: 'none',
+      overflow: 'hidden',
+      userSelect: 'none',
+      touchAction: 'none',
+      pointerEvents: 'auto'
+    };
+
+    const headerStyle = {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '8px 12px',
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      borderBottom: app.isMinimized ? 'none' : '1px solid rgba(255,255,255,0.2)',
+      cursor: 'grab',
+      userSelect: 'none'
+    };
+
+    const titleStyle = {
+      color: '#ffffff',
+      fontSize: '14px',
+      fontWeight: '600',
+      fontFamily: '"Times New Roman", Times, serif',
+      pointerEvents: 'none',
+      flex: 1
+    };
+
+    const buttonStyle = {
+      background: 'none',
+      border: 'none',
+      color: '#ffffff',
+      cursor: 'pointer',
+      fontSize: '16px',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      transition: 'background-color 0.2s',
+      userSelect: 'none',
+      pointerEvents: 'auto',
+      zIndex: 10
+    };
+
+    const iframeStyle = {
+      width: '100%',
+      height: app.isMinimized ? '0' : `${app.height - 40}px`,
+      border: 'none',
+      display: app.isMinimized ? 'none' : 'block',
+      pointerEvents: 'auto'
+    };
+
+    const playlistBarStyle = {
+      display: 'flex',
+      gap: '8px',
+      padding: '8px 12px',
+      borderBottom: '1px solid rgba(255,255,255,0.2)',
+      backgroundColor: 'rgba(255,255,255,0.05)'
+    };
+
+    const playlistInputStyle = {
+      flex: 1,
+      padding: '6px 8px',
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      border: '1px solid rgba(255,255,255,0.2)',
+      borderRadius: '6px',
+      color: '#ffffff',
+      fontSize: '12px',
+      outline: 'none'
+    };
+
+    const playlistButtonStyle = {
+      padding: '6px 10px',
+      backgroundColor: 'rgba(255,255,255,0.12)',
+      border: '1px solid rgba(255,255,255,0.2)',
+      borderRadius: '6px',
+      color: '#ffffff',
+      fontSize: '12px',
+      cursor: 'pointer'
+    };
+
+    const applyPlaylist = (raw) => {
+      const value = String(raw || '').trim();
+      if (!value) return;
+
+      const listMatch = value.match(/[?&]list=([^&]+)/);
+      const id = (listMatch?.[1] || value).trim();
+      if (!id) return;
+
+      updateAppUrl(app.id, `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(id)}`);
+    };
+
+    return (
+      <div
+        ref={appRef}
+        style={appStyle}
+      >
+        <div 
+          style={headerStyle}
+          data-header="true"
+          onMouseDown={(e) => {
+            // Only handle drag if not clicking on buttons
+            if (e.target.tagName === 'BUTTON') {
+              return;
+            }
+            handleMouseDown(e);
+          }}
+        >
+          <span style={titleStyle}>
+            {app.type === 'youtube' ? 'YouTube' : 'Spotify'}
+          </span>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <button
+              style={buttonStyle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleMinimize(app.id);
+              }}
+              title={app.isMinimized ? 'Maximize' : 'Minimize'}
+            >
+              {app.isMinimized ? '□' : '−'}
+            </button>
+            <button
+              style={buttonStyle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(app.id);
+              }}
+              title="Close"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        {!app.isMinimized && app.type === 'youtube' && (
+          <div
+            style={playlistBarStyle}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <input
+              type="text"
+              value={playlistInput}
+              onChange={(e) => setPlaylistInput(e.target.value)}
+              placeholder="Paste playlist URL or ID (list=...)"
+              style={playlistInputStyle}
+            />
+            <button
+              type="button"
+              style={playlistButtonStyle}
+              onClick={() => applyPlaylist(playlistInput)}
+            >
+              Play
+            </button>
+          </div>
+        )}
+
+        {!app.isMinimized && (
+          <iframe
+            src={app.url}
+            style={iframeStyle}
+            title={`${app.type} embedded app`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        )}
+      </div>
+    );
+  };
 
   const addNote = useCallback(() => {
     if (!newNoteText.trim() || !user) return;
@@ -341,6 +787,18 @@ const Profile = () => {
     clearCache(); // Clear cache when toggling privacy
   }, [clearCache]);
 
+  // Handle note click to bring to front
+  const handleNoteClick = useCallback((noteId) => {
+    setHighestZIndex(prev => prev + 1);
+    setNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === noteId 
+          ? { ...note, zIndex: highestZIndex + 1 }
+          : note
+      )
+    );
+  }, [highestZIndex]);
+
   if (loading) return <p>Loading profile...</p>;
   if (error) return (
     <div className="error-container" style={{ padding: '20px', textAlign: 'center' }}>
@@ -378,6 +836,9 @@ const Profile = () => {
           pointerEvents: 'none'
         }} />
       </div>
+
+      {/* Disclaimers Icon Bar */}
+      <Disclaimers isMobile={isMobile} />
 
       <div style={{
         position: 'relative',
@@ -441,6 +902,33 @@ const Profile = () => {
                 className="profile-action-button"
               >
                 {isPrivate ? <PublicIcon /> : <StarIcon />}
+              </button>
+              
+              {/* YouTube Button */}
+              <button 
+                onClick={() => addEmbeddedApp('youtube')} 
+                title="Open YouTube"
+                className="profile-action-button"
+              >
+                <YouTubeIcon />
+              </button>
+              
+              {/* Spotify Button */}
+              <button 
+                onClick={() => addEmbeddedApp('spotify')} 
+                title="Open Spotify"
+                className="profile-action-button"
+              >
+                <MusicNoteIcon />
+              </button>
+
+              {/* SoundCloud Button */}
+              <button
+                onClick={() => addEmbeddedApp('soundcloud')}
+                title="Open SoundCloud"
+                className="profile-action-button"
+              >
+                <CloudIcon />
               </button>
               
               {/* Back to Main Board Button */}
@@ -568,10 +1056,11 @@ const Profile = () => {
                       {filteredNotes.map((note, index) => (
                         <StickyNote
                           key={note.id}
-                          note={{ ...note, zIndex: filteredNotes.length - index }}
+                          note={note}
                           onDrag={handleDrag}
                           onDelete={handleDelete}
                           onDone={handleDone}
+                          onNoteClick={handleNoteClick}
                         />
                       ))}
                     </div>
@@ -602,6 +1091,16 @@ const Profile = () => {
           theme={theme}
         />
       )}
+      
+      {/* Embedded Apps */}
+      {embeddedApps.map(app => (
+        <DraggableEmbeddedApp 
+          key={app.id} 
+          app={app} 
+          onRemove={removeEmbeddedApp}
+          onToggleMinimize={toggleMinimizeApp}
+        />
+      ))}
     </div>
   );
 };

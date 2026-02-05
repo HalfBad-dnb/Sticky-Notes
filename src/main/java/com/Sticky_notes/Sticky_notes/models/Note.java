@@ -4,7 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 
 @Entity
 public class Note {
@@ -31,6 +35,10 @@ public class Note {
     private Boolean isPrivate = Boolean.FALSE; // Flag to indicate if the note is private
     
     private String boardType = "main"; // Indicates which board the note belongs to ("main" or "profile")
+    
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<NoteComment> comments;
 
     // Default constructor for JPA
     public Note() {
@@ -99,5 +107,13 @@ public class Note {
     
     public void setBoardType(String boardType) {
         this.boardType = boardType;
+    }
+    
+    public List<NoteComment> getComments() {
+        return comments;
+    }
+    
+    public void setComments(List<NoteComment> comments) {
+        this.comments = comments;
     }
 }
