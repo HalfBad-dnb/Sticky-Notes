@@ -1,6 +1,7 @@
 // Disclaimers.jsx
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 // Icon Component
 const Icon = ({ type, size = 24 }) => {
@@ -16,9 +17,24 @@ const Icon = ({ type, size = 24 }) => {
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
       </svg>
     ),
-    disclaimer: (
+    home: (
       <svg style={iconStyle} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+    ),
+    boardSettings: (
+      <svg style={iconStyle} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+      </svg>
+    ),
+    createBoard: (
+      <svg style={iconStyle} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+      </svg>
+    ),
+    addMembers: (
+      <svg style={iconStyle} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
       </svg>
     ),
     projectStatus: (
@@ -514,12 +530,112 @@ DropdownMenu.propTypes = {
   iconType: PropTypes.string.isRequired
 };
 
+// Navigation Button Component
+const NavigationButton = ({ title, iconType, route }) => {
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleButtonClick = () => {
+    navigate(route);
+  };
+
+  const containerStyle = {
+    position: 'relative',
+    display: 'inline-block'
+  };
+
+  const buttonStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '80px',
+    height: '80px',
+    backgroundColor: isHovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    color: '#000000',
+    fontFamily: '"Times New Roman", Times, serif',
+    gap: '8px',
+    padding: '10px',
+    boxSizing: 'border-box'
+  };
+
+  const titleStyle = {
+    fontSize: '0.7rem',
+    fontWeight: '600',
+    textAlign: 'center',
+    margin: 0,
+    lineHeight: '1.2'
+  };
+
+  return (
+    <div 
+      style={containerStyle}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <button
+        style={buttonStyle}
+        onClick={handleButtonClick}
+        aria-label={title}
+      >
+        <Icon type={iconType} size={32} />
+        <p style={titleStyle}>{title}</p>
+      </button>
+    </div>
+  );
+};
+
+// Prop validation for NavigationButton
+NavigationButton.propTypes = {
+  title: PropTypes.string.isRequired,
+  iconType: PropTypes.string.isRequired,
+  route: PropTypes.string.isRequired
+};
+
 // Main Disclaimers Component
 const Disclaimers = ({ isMobile = false }) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [persistentPlayer, setPersistentPlayer] = useState(null); // { type, url, showMainSite }
 
   // Data for each dropdown
+  // Data for navigation buttons
+  const navigationButtonsData = [
+    {
+      id: 'home',
+      title: "Home",
+      iconType: 'home',
+      route: '/'
+    },
+    {
+      id: 'profile',
+      title: "Profile",
+      iconType: 'profile',
+      route: '/profile'
+    },
+    {
+      id: 'createBoard',
+      title: "Create Board",
+      iconType: 'createBoard',
+      route: '/create-board'
+    },
+    {
+      id: 'addMembers',
+      title: "Add Members",
+      iconType: 'addMembers',
+      route: '/add-members'
+    },
+    {
+      id: 'boardSettings',
+      title: "Board Settings",
+      iconType: 'boardSettings',
+      route: '/board-settings'
+    }
+  ];
+
   const dropdownsData = [
     {
       id: 'boardRules',
@@ -530,17 +646,6 @@ const Disclaimers = ({ isMobile = false }) => {
         "Down below you can find more info and updates about the board",
         "Done notes are shown in Done Notes section",
         "Board are limited to 10 notes"
-      ]
-    },
-    {
-      id: 'disclaimer',
-      title: "Disclaimer",
-      iconType: 'disclaimer',
-      items: [
-        "Do not save sensitive data",
-        "All info exposed by notes is your responsibility",
-        "We don't know who posts notes",
-        "Be aware of what you're posting"
       ]
     },
     {
@@ -600,11 +705,12 @@ const Disclaimers = ({ isMobile = false }) => {
 
   const wrapperStyle = {
     display: 'flex',
-    gap: '20px',
-    flexWrap: 'wrap',
+    gap: '15px',
+    flexWrap: 'nowrap',
     justifyContent: 'center',
-    maxWidth: '600px',
-    width: '100%'
+    maxWidth: '1200px',
+    width: '100%',
+    overflowX: 'auto'
   };
 
   const persistentPlayerStyle = {
@@ -644,6 +750,14 @@ const Disclaimers = ({ isMobile = false }) => {
     <>
       <div style={containerStyle}>
         <div style={wrapperStyle}>
+          {navigationButtonsData.map((button) => (
+            <NavigationButton
+              key={button.id}
+              title={button.title}
+              iconType={button.iconType}
+              route={button.route}
+            />
+          ))}
           {dropdownsData.map((dropdown) => (
             <DropdownMenu
               key={dropdown.id}
