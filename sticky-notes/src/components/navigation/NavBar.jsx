@@ -47,6 +47,16 @@ const NavBar = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
+  const closeAllMenus = () => {
+    setIsDropdownOpen(false);
+    setIsSettingsOpen(false);
+    setIsProfileOpen(false);
+    setIsBoardOpen(false);
+    setIsSubscriptionOpen(false);
+    setIsMessagesOpen(false);
+    setIsUserBoardOpen(false);
+  };
+
   const closeMenu = () => {
     setIsDropdownOpen(false);
   };
@@ -298,6 +308,7 @@ const NavBar = () => {
       <BoardPanel
         isBoardOpen={isBoardOpen}
         closeBoard={closeBoard}
+        closeAllMenus={closeAllMenus}
         backToMainMenu={backToMainMenu}
       />
 

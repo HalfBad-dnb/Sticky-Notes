@@ -14,8 +14,10 @@
 ## Board creation / control panel
 
 - [ ] finnish implementation
-- [ ] now need refresh board to see only that board notes (state management? some with refresh ?)
-- [ ] 
+- [ ] why i need refresh board to see only that board notes (state management? some with refresh ?)
+- [ ] assign users to board
+- [ ] password protect board
+- [] chosing board close all menus 
 
 ## Board types
 - [ ] 

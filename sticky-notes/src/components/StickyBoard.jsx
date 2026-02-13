@@ -8,6 +8,7 @@ import { getApiUrl } from '../utils/api';
 import '../App.css';
 import { Link } from 'react-router-dom';
 import Disclaimers from './common/Disclaimers';
+import BoardNavigation from './common/BoardNavigation';
 import PersonIcon from '@mui/icons-material/Person';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PushPinIcon from '@mui/icons-material/PushPin';
@@ -573,7 +574,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete, boardId = null
         console.error('Fetch failed:', error);
         setError(`Failed to load notes: ${error.message}`);
       });
-  }, [setNotes]);
+  }, [setNotes, boardId]);
 
   const MAX_NOTES = 10;
 
@@ -814,7 +815,8 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete, boardId = null
   }, [onDelete, setNotes, notes]);
 
   const refreshNotes = useCallback(() => {
-    fetch(getApiUrl('notes'), {
+    const apiUrl = boardId ? `boards/${boardId}/notes` : 'notes';
+    fetch(getApiUrl(apiUrl), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -842,7 +844,7 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete, boardId = null
         console.error('Refresh failed:', error);
         setError(`Failed to refresh notes: ${error.message}`);
       });
-  }, [setNotes]);
+  }, [setNotes, boardId]);
 
   // Function to render notes in list view for mobile
   const renderMobileNotesList = () => {
@@ -906,6 +908,8 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete, boardId = null
       {/* Disclaimers - Temporarily commented out*/}
       <Disclaimers isMobile={isMobile} />
       
+      {/* Board Navigation */}
+      <BoardNavigation currentBoardId={boardId} />
       
       {/* Input container */}
       <div className="input-container" style={{
@@ -1265,6 +1269,9 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete, boardId = null
         <News />
       </div>
       */}
+
+      {/* Board Navigation */}
+      <BoardNavigation currentBoardId={boardId} />
     </div>
   );
 };

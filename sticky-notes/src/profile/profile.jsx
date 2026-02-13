@@ -20,6 +20,7 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import CloudIcon from '@mui/icons-material/Cloud';
 import Disclaimers from '../components/common/Disclaimers';
+import BoardNavigation from '../components/common/BoardNavigation';
 
 // Custom hook for responsive design
 const useMediaQuery = (query) => {
@@ -1101,6 +1102,9 @@ const Profile = () => {
           onToggleMinimize={toggleMinimizeApp}
         />
       ))}
+      
+      {/* Board Navigation */}
+      <BoardNavigation />
     </div>
   );
 };

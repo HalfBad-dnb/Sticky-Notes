@@ -1,0 +1,101 @@
+.board-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 8px 16px;
+  color: #ffffff;
+  font-family: 'Times New Roman', Times, serif;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.board-indicator:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateX(-50%) translateY(2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.board-indicator.loading {
+  opacity: 0.7;
+}
+
+.board-icon {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.board-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+.board-tag {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.board-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-style: italic;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .board-indicator {
+    bottom: 70px;
+    left: 20px;
+    right: 20px;
+    transform: none;
+    min-width: auto;
+  }
+  
+  .board-indicator:hover {
+    transform: translateY(2px);
+  }
+  
+  .board-details {
+    align-items: flex-start;
+  }
+  
+  .board-name {
+    font-size: 13px;
+  }
+  
+  .board-tag {
+    font-size: 10px;
+  }
+}
+
+/* Dark theme adjustments */
+.board-indicator {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.board-indicator:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+}
