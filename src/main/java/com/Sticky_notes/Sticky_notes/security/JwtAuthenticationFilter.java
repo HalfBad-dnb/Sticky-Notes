@@ -29,8 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
+            logger.info("JWT Filter: Processing request to " + request.getRequestURI());
+            logger.info("JWT Filter: Token present: " + (jwt != null && !jwt.isEmpty()));
+            
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUsernameFromToken(jwt);
+                logger.info("JWT Filter: Username extracted: " + username);
                 
                 // Load user details and create authentication
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -45,11 +49,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Set the authentication in the security context
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 
+                logger.info("JWT Filter: Authentication set successfully for " + username);
+                
                 // Add headers to expose the Authorization header to the client
                 response.setHeader("Access-Control-Expose-Headers", "Authorization");
                 response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, X-Requested-With, remember-me");
+            } else {
+                logger.warn("JWT Filter: No valid token found");
             }
         } catch (Exception ex) {
+            logger.error("JWT Filter Error: " + ex.getMessage(), ex);
             logger.error("Could not set user authentication in security context", ex);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid or expired token");

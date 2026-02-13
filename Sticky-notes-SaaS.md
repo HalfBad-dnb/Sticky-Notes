@@ -9,4 +9,4 @@
 - [ ] set up subscription management
 - [ ] implement payment processing
 - [ ] implement messaging system
-- [ ] implement 
+- [ ] start adapting typescript and refactor rest

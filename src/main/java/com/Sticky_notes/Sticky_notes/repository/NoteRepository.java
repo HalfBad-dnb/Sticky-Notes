@@ -53,4 +53,13 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     
     // Find non-done notes by username and board type
     List<Note> findByUsernameAndDoneFalseAndBoardType(String username, String boardType);
+    
+    // Find notes by board ID
+    List<Note> findByBoardId(Long boardId);
+    
+    // Find main board notes with no board ID (true main board notes)
+    List<Note> findByBoardTypeAndBoardIdIsNull(String boardType);
+    
+    // Find main board notes with no board ID by username
+    List<Note> findByUsernameAndBoardTypeAndBoardIdIsNull(String username, String boardType);
 }

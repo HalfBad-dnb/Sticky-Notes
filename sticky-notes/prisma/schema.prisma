@@ -11,15 +11,16 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = "postgresql://postgres.ivdkwsiabmzjjpvbacay:Tz36Scw@Mun2qkx8@aws-1-eu-west-3.pooler.supabase.com:5432/postgres?sslmode=require"
 }
 
 // User model - matches User.java entity
 model User {
-  id            Int          @id @default(autoincrement())
-  username      String        @unique @db.VarChar(255)
-  email         String        @db.VarChar(255)
-  password      String        @db.VarChar(255)
-  role          String        @db.VarChar(50) // e.g., "ROLE_USER", "ROLE_ADMIN"
+  id            Int      @id @default(autoincrement())
+  username      String   @unique @db.VarChar(255)
+  email         String   @db.VarChar(255)
+  password      String   @db.VarChar(255)
+  role          String   @db.VarChar(50) // e.g., "ROLE_USER", "ROLE_ADMIN"
   
   // Relations
   boards        Board[]
@@ -33,15 +34,20 @@ model User {
 
 // Board model - matches Board.java entity
 model Board {
-  id         Int    @id @default(autoincrement())
-  code       String // Unique code for the board
-  content    String // Board content
-  title      String @db.VarChar(255)
-  boardType  String // Type of the board
-  userId     Int?   // Foreign key to User
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar(255)
+  description String?  @db.Text
+  isPublic   Boolean   @default(false) @map("is_public")
+  createdBy  String?   @map("created_by") @db.VarChar(255)
+  createdAt  DateTime? @default(now()) @map("created_at")
+  code       String?   @db.VarChar(255)
+  content    String?   @db.Text
+  title      String?   @db.VarChar(255)
+  boardType  String    @default("GENERAL") @map("board_type") @db.VarChar(50)
+  userId     Int?      @map("user_id") // Foreign key to User
   
   // Relations
-  user       User?  @relation(fields: [userId], references: [id])
+  user       User?     @relation(fields: [userId], references: [id])
   notes      Note[]
   
   @@map("board")
@@ -57,7 +63,7 @@ model Note {
   username  String  // Username of the user who created the note
   isPrivate Boolean @default(false) @map("is_private")
   boardType String  @default("main") // "main" or "profile"
-  boardId   Int?    // Foreign key to Board
+  boardId   Int?    @map("board_id") // Foreign key to Board
   
   // Relations
   board     Board?  @relation(fields: [boardId], references: [id])

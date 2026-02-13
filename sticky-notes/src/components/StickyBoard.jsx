@@ -298,7 +298,7 @@ const DraggableEmbeddedApp = ({ app, onRemove, onToggleMinimize }) => {
   );
 };
 
-const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
+const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete, boardId = null }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [newNoteText, setNewNoteText] = useState('');
   const [error, setError] = useState(null);
@@ -525,7 +525,8 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
 
   useEffect(() => {
     console.log('Fetching notes from API...');
-    fetch(getApiUrl('notes'), {
+    const apiUrl = boardId ? `boards/${boardId}/notes` : 'notes';
+    fetch(getApiUrl(apiUrl), {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -592,11 +593,13 @@ const StickyBoard = ({ notes, setNotes, onDrag, onDone, onDelete }) => {
       done: false,
       username: currentUser?.username || 'anonymous',
       boardType: 'main',
-      isPrivate: false
+      isPrivate: false,
+      boardId: boardId
     };
 
     console.log('Sending new note:', newNote);
-    fetch(getApiUrl('notes'), {
+    const apiUrl = boardId ? `boards/${boardId}/notes` : 'notes';
+    fetch(getApiUrl(apiUrl), {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

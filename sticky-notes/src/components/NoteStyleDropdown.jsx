@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { NOTE_STYLES } from '../constants/noteStyles';
 import { useContext } from 'react';
 import { NoteStyleContext } from '../context/noteContext';
-import '../NavBar.css';
+import './navigation/NavBar.css';
 
 const NoteStyleDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);

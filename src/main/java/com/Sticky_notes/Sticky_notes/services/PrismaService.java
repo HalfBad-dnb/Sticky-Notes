@@ -1,4 +1,4 @@
-package com.Sticky_notes.Sticky_notes.service;
+package com.Sticky_notes.Sticky_notes.services;
 
 import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../context/themeUtils';
 import { THEMES } from '../constants/themes';
-import '../NavBar.css';
+import './navigation/NavBar.css';
 
 const ThemeDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);

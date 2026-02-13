@@ -9,7 +9,15 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create board table if not exists
 CREATE TABLE IF NOT EXISTS board (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    description TEXT,
+    is_public BOOLEAN DEFAULT false,
+    created_by VARCHAR(255),
+    created_at TIMESTAMP,
+    code VARCHAR(255),
+    content TEXT,
+    title VARCHAR(255),
+    board_type VARCHAR(50) NOT NULL DEFAULT 'GENERAL',
     user_id BIGINT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

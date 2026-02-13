@@ -1,10 +1,11 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import { useState, useCallback, useEffect } from 'react';
 import { useTheme } from './context/themeUtils';
 import ConfirmationDialog from './components/common/ConfirmationDialog';
-import NavBar from './NavBar';
+import NavBar from './components/navigation/NavBar';
 import { getApiUrl } from './utils/api';
 import StickyBoard from './components/StickyBoard';
+import BoardPage from './components/BoardPage';
 import Login from './profile/login';
 import Register from './profile/register';
 import Profile from './profile/profile';
@@ -13,6 +14,7 @@ import { ZoomProvider } from './context/ZoomProvider';
 import { ThemeProvider } from './context/ThemeContext';
 import { NoteStyleProvider } from './context/NoteStyleContext';
 import { useWebSocket } from './hooks/useWebSocket';
+import { UserControlPanel } from './components/UserBoardControl';
 import './profile/profile.css';
 import './App.css';
 import BubbleBackgroundTheme from "./components/backgroundstyles/theme/BubleBackgroundTheme";
@@ -375,10 +377,25 @@ const AppContent = () => {
                 onDelete={handleDeleteClick}
               />
             } />
+            <Route path="/board/:boardId" element={
+              <BoardPage
+                notes={activeNotes}
+                setNotes={setNotes}
+                onDrag={handleDrag}
+                onDone={handleDone}
+                onDelete={handleDeleteClick}
+              />
+            } />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
+            <Route path="/user-board-control" element={
+              <UserControlPanel 
+                currentUser={userStr ? JSON.parse(userStr) : null}
+                onUserUpdated={(action) => console.log('User action:', action)}
+              />
+            } />
           </Routes>
         </main>
       </div>

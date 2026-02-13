@@ -51,11 +51,11 @@ public class NoteController {
             List<Note> notes;
             
             if (username != null && !username.isEmpty()) {
-                // Get user's public notes for the main board
-                notes = noteRepository.findByUsernameAndIsPrivateFalseAndBoardType(username, "main");
+                // Get user's public notes for the main board (only notes with no boardId)
+                notes = noteRepository.findByUsernameAndBoardTypeAndBoardIdIsNull(username, "main");
             } else {
-                // Get all public notes for the main board (for guests)
-                notes = noteRepository.findByIsPrivateFalseAndBoardType("main");
+                // Get all public notes for the main board (for guests, only notes with no boardId)
+                notes = noteRepository.findByBoardTypeAndBoardIdIsNull("main");
             }
             
             // Sort by creation time (most recent first)
@@ -208,15 +208,54 @@ public class NoteController {
                 note.setIsPrivate(false);
             }
             
-            logger.debug("Creating note with boardType: {}, isPrivate: {}", 
-                note.getBoardType(), note.getIsPrivate());
-            
-            Note savednote = noteRepository.save(note);
-            sendUpdateToClients(savednote); // Notify clients about the new note
-            return new ResponseEntity<>(savednote, HttpStatus.CREATED);
+            Note savedNote = noteRepository.save(note);
+            logger.info("Created note: {}", savedNote.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedNote);
         } catch (Exception e) {
-            logger.error("Error creating note: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error creating note: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Get notes for a specific board
+    @GetMapping("/boards/{boardId}/notes")
+    public ResponseEntity<List<Note>> getNotesByBoardId(@PathVariable Long boardId) {
+        try {
+            List<Note> notes = noteRepository.findByBoardId(boardId);
+            logger.info("Found {} notes for board {}", notes.size(), boardId);
+            return ResponseEntity.ok(notes);
+        } catch (Exception e) {
+            logger.error("Error fetching notes for board {}: {}", boardId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Create a note for a specific board
+    @PostMapping("/boards/{boardId}/notes")
+    public ResponseEntity<Note> createNoteForBoard(@PathVariable Long boardId, @Valid @RequestBody Note note) {
+        try {
+            // Set the board ID
+            note.setBoardId(boardId);
+            
+            // Initialize done to false if null
+            note.setDone(note.isDone());
+            
+            // Ensure boardType is set to the board's type or default
+            if (note.getBoardType() == null) {
+                note.setBoardType("main"); // Default to main board if not specified
+            }
+            
+            // Ensure isPrivate is set
+            if (note.getIsPrivate() == null) {
+                note.setIsPrivate(false);
+            }
+            
+            Note savedNote = noteRepository.save(note);
+            logger.info("Created note {} for board {}", savedNote.getId(), boardId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedNote);
+        } catch (Exception e) {
+            logger.error("Error creating note for board {}: {}", boardId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

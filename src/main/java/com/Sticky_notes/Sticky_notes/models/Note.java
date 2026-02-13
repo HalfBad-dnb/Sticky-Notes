@@ -6,6 +6,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
@@ -35,6 +38,13 @@ public class Note {
     private Boolean isPrivate = Boolean.FALSE; // Flag to indicate if the note is private
     
     private String boardType = "main"; // Indicates which board the note belongs to ("main" or "profile")
+    
+    @Column(name = "board_id")
+    private Long boardId;
+    
+    @ManyToOne
+    @JoinColumn(name = "board_id", insertable = false, updatable = false)
+    private Board board;
     
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -107,6 +117,22 @@ public class Note {
     
     public void setBoardType(String boardType) {
         this.boardType = boardType;
+    }
+    
+    public Board getBoard() {
+        return board;
+    }
+    
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+    
+    public Long getBoardId() {
+        return boardId;
+    }
+    
+    public void setBoardId(Long boardId) {
+        this.boardId = boardId;
     }
     
     public List<NoteComment> getComments() {

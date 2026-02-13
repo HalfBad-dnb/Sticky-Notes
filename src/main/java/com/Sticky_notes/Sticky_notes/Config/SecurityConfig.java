@@ -97,6 +97,7 @@ public class SecurityConfig {
                     "/api/profile/**",
                     "/api/presence/**",
                     "/api/test/**",
+                    "/api/boards/**",  // Temporarily make boards public for testing
                     "/ws/**",  // WebSocket endpoints
                     "/ws/info/**",  // SockJS info endpoint
                     "/topic/**",   // WebSocket topics
