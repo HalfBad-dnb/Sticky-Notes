@@ -1,4 +1,4 @@
-package com.Sticky_notes.Sticky_notes.controllers;
+package com.Sticky_notes.Sticky_notes.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

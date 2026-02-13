@@ -192,7 +192,7 @@ Sticky-Notes/
 ├── src/main/java/                 # Java source code
 │   └── com/Sticky_notes/Sticky_notes/
 │       ├── Config/                # Configuration classes
-│       ├── controllers/           # REST controllers
+│       ├── controller/            # REST controllers
 │       ├── models/               # Entity models
 │       ├── repository/           # Data repositories
 │       ├── security/             # Security configuration

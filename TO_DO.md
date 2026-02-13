@@ -10,3 +10,21 @@
 - [ ] implement payment processing
 - [ ] implement messaging system
 - [ ] start adapting typescript and refactor rest
+
+## Board creation / control panel
+
+- [ ] finnish implementation
+- [ ] now need refresh board to see only that board notes (state management? some with refresh ?)
+- [ ] 
+
+## Board types
+- [ ] 
+
+
+## Notes
+- [ ] 
+
+
+
+
+

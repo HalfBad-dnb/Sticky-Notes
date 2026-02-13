@@ -1,4 +1,4 @@
-package com.Sticky_notes.Sticky_notes.controllers;
+package com.Sticky_notes.Sticky_notes.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

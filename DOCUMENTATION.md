@@ -304,7 +304,7 @@ Sticky-Notes/
 │       │   │   ├── SecurityConfig.java
 │       │   │   ├── SimpleCorsFilter.java
 │       │   │   └── WebConfig.java
-│       │   ├── controllers/               # REST API controllers
+│       │   ├── controller/                # REST API controllers
 │       │   │   ├── AuthController.java
 │       │   │   ├── BoardController.java
 │       │   │   ├── HealthCheckController.java

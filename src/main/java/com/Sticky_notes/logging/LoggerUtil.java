@@ -22,7 +22,7 @@ public class LoggerUtil {
     
     // Create loggers for different components
     public static final Logger SECURITY_LOGGER = LoggerFactory.getLogger("com.Sticky_notes.security");
-    public static final Logger CONTROLLER_LOGGER = LoggerFactory.getLogger("com.Sticky_notes.controllers");
+    public static final Logger CONTROLLER_LOGGER = LoggerFactory.getLogger("com.Sticky_notes.controller");
     public static final Logger SERVICE_LOGGER = LoggerFactory.getLogger("com.Sticky_notes.services");
     public static final Logger REPOSITORY_LOGGER = LoggerFactory.getLogger("com.Sticky_notes.repositories");
     public static final Logger AI_LOGGER = LoggerFactory.getLogger("com.Sticky_notes.ai");

@@ -1,4 +1,4 @@
-package com.Sticky_notes.Sticky_notes.controllers;
+package com.Sticky_notes.Sticky_notes.controller;
 
 import com.Sticky_notes.Sticky_notes.models.NoteManagment;
 import com.Sticky_notes.Sticky_notes.repository.NoteManagmentRepository;
