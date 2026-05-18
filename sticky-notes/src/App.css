@@ -431,7 +431,8 @@ textarea {
 /* Input container */
 .input-container {
   position: relative;
-  z-index: 10;
+  z-index: 2000; /* Ensure input stays above ALL other elements */
+  width: 100%;
   background-color: rgba(26, 42, 42, 0.6);
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
@@ -452,15 +453,17 @@ textarea {
   width: 100%;
 }
 
-/* Fixed input container at the top */
+/* Fixed input container at the top - REMOVED to allow free positioning */
+/*
 .input-container[style*="position: sticky"] {
   position: sticky !important;
   top: 0;
   z-index: 100;
   background-color: rgba(26, 42, 42, 0.8);
   margin-bottom: 20px;
-  transform: scale(1) !important; /* Ensure input doesn't scale with zoom */
+  transform: scale(1) !important;
 }
+*/
 
 /* Textarea with chalk-like appearance */
 .textarea {
@@ -585,11 +588,8 @@ textarea {
   width: 100%;
   height: calc(100% - 150px);
   z-index: 5;
-  transition: transform 0.3s ease; /* Smooth zoom transition */
   min-height: 80vh; /* Ensure there's enough space for notes */
-  transform-origin: center; /* Set transform origin to center for mouse-centered zoom */
-  overflow: auto; /* Allow scrolling within the zoomed container */
-  cursor: grab; /* Show grab cursor to indicate it can be panned */
+  overflow: visible; /* Allow notes to be positioned freely */
 }
 
 @media (max-width: 768px) {
@@ -597,8 +597,6 @@ textarea {
     height: auto;
     min-height: calc(100vh - 200px);
     padding: 0.5rem;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overscroll-behavior: contain; /* For Safari/iOS */
@@ -612,11 +610,11 @@ textarea {
 }
 
 /* Notes items container - actual content that gets zoomed */
-.notes-items {
+/* .notes-items {
   position: relative;
   width: 100%;
   height: 100%;
-}
+} */
 
 /* Zoom controls styling */
 .zoom-controls {
@@ -717,7 +715,7 @@ textarea {
 
 /* Realistic sticky note */
 .sticky-note {
-  position: absolute;
+  position: fixed;
   width: 180px;
   height: 140px;
   border-radius: 2px;

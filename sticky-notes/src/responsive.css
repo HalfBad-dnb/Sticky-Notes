@@ -37,10 +37,10 @@
   }
   
   /* Input container adjustments */
-  .input-container {
+  /* .input-container {
     max-width: 100% !important;
     padding: 10px;
-  }
+  } */
   
   .textarea {
     min-height: 80px;
@@ -59,12 +59,7 @@
     font-size: 16px;
   }
   
-  /* Notes container adjustments */
-  .notes-container {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-    gap: 10px !important;
-  }
-  
+    
   .note {
     min-height: 150px;
     font-size: 14px;
@@ -110,10 +105,6 @@
 
 /* Small mobile devices */
 @media screen and (max-width: 480px) {
-  .notes-container {
-    grid-template-columns: 1fr !important;
-  }
-  
   .note {
     min-height: 120px;
   }

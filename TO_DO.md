@@ -2,14 +2,14 @@
 
 ## Backend
 
-- [ ] Prisma free db setup with PostgreSQL [ data base set up / need check is app using it /AplicationProperties]
+- [ already set up free project] Prisma free db setup with PostgreSQL [ data base set up / need check is app using it /AplicationProperties]
 - [ ] Set up free AI integration (gemini or grok or claude or ollama or other free APIs for AI Agent)
 - [ ] free frontend and backend deployment
 - [ ] set up stripe account and API
 - [ ] set up subscription management
 - [ ] implement payment processing
 - [ ] implement messaging system
-- [ ] start adapting typescript and refactor rest
+- [ ] start adapting typescript and refactor rest [started - 2026-02-14]
 
 ## Board creation / control panel
 

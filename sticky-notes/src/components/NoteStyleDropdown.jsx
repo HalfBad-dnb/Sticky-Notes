@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { NOTE_STYLES } from '../constants/noteStyles';
+import { NOTE_STYLES } from '../constants/noteStyles.ts';
 import { useContext } from 'react';
-import { NoteStyleContext } from '../context/noteContext';
+import { NoteStyleContext } from '../context/noteContext.ts';
 import './navigation/NavBar.css';
 
 const NoteStyleDropdown = () => {

@@ -1,7 +1,6 @@
 package com.Sticky_notes.Sticky_notes.controller;
 
 import com.Sticky_notes.Sticky_notes.models.Board;
-import com.Sticky_notes.Sticky_notes.models.BoardUser;
 import com.Sticky_notes.Sticky_notes.models.User;
 import com.Sticky_notes.Sticky_notes.repository.BoardRepository;
 import com.Sticky_notes.Sticky_notes.repository.UserRepository;

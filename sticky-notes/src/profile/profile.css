@@ -652,7 +652,7 @@
 
 /* Sticky note in profile board */
 .profile-board .sticky-note {
-  position: absolute;
+  position: fixed;
   transform: none !important;
   margin: 10px;
 }

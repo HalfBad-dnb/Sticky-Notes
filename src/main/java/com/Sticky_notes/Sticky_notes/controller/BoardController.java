@@ -32,8 +32,12 @@ public class BoardController {
 
     // Get all boards for authenticated user
     @GetMapping
-    public ResponseEntity<List<BoardDTO>> getBoards(Authentication authentication) {
+    public ResponseEntity<?> getBoards(Authentication authentication) {
         try {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required");
+            }
+            
             String username = authentication.getName();
             List<Board> boards = boardService.getBoardsForUser(username);
             
@@ -44,7 +48,9 @@ public class BoardController {
             
             return ResponseEntity.ok(boardDTOs);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of());
+            System.err.println("Error fetching boards: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching boards: " + e.getMessage());
         }
     }
 
