@@ -4,7 +4,8 @@ import "../profile/profile.css";
 import { getApiUrl } from "../utils/api";
 import { useTheme } from "../context/themeUtils";
 import { THEMES } from "../constants/themes";
-import axios from "../utils/axiosConfig.js";
+import axios from "../utils/axiosConfig";
+import type { AxiosError } from "axios";
 import BubbleBackgroundTheme from "../components/backgroundstyles/theme/BubleBackgroundTheme";
 import HeartBackgroundTheme from "../components/backgroundstyles/theme/HeartBackgroundTheme";
 import TriangleBackgroundTheme from "../components/backgroundstyles/theme/TriangleBackgroundTheme";
@@ -54,11 +55,11 @@ const Register = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     // Client-side validation
@@ -74,7 +75,7 @@ const Register = () => {
       const url = getApiUrl("registration/register");
       console.log('Making request to:', url);
       
-      const response = await axios.post(url, {
+      await axios.post(url, {
         username: formData.username,
         email: formData.email,
         password: formData.password,
@@ -89,25 +90,17 @@ const Register = () => {
       
       // Redirect to login page after successful registration
       setTimeout(() => {
-        window.location.href = "/login";
+        navigate("/login");
       }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        setMessage(
-          error.response.data?.message ||
-          error.response.data?.error ||
-          `Registration failed: ${error.response.status} - ${error.response.statusText}`
-        );
-      } else if (error.request) {
-        // The request was made but no response was received
-        setMessage("Network error. Please check your connection and try again.");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        setMessage(error.message || "Registration failed. Please try again.");
-      }
+      const axiosError = error as AxiosError<{ message?: string; error?: string }>;
+      const msg =
+        axiosError?.response?.data?.message ||
+        axiosError?.response?.data?.error ||
+        (error as { message?: string })?.message ||
+        "Registration failed. Please try again.";
+      setMessage(msg);
     } finally {
       setLoading(false);
     }

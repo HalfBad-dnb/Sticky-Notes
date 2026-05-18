@@ -2,33 +2,41 @@
 
 ## Overview
 
-The Sticky Notes application is a full-stack web application that allows users to create, manage, and organize digital sticky notes on a virtual board. It features real-time updates, user authentication, multiple themes, and both public and private note management capabilities.
+The Sticky Notes application is a full-stack web application that allows users to create, manage, and organize digital sticky notes on a virtual board. It features real-time updates via SSE and WebSocket, user authentication, multiple themes, AI-powered note creation, real-time messaging, subscription/payment management, user presence tracking, note comments, and custom board management.
 
 ## Technology Stack
 
 ### Backend (Spring Boot)
 - **Framework**: Spring Boot 3.4.9
 - **Language**: Java 21
-- **Database**: PostgreSQL with Supabase integration
-- **ORM**: Prisma for database management
+- **Database**: PostgreSQL (Supabase / Google Cloud SQL)
+- **ORM**: JPA / Hibernate with Spring Data (Prisma schema used for frontend/migrations)
 - **Authentication**: JWT (JSON Web Tokens) with Spring Security
 - **Build Tool**: Maven
-- **Real-time Updates**: Server-Sent Events (SSE)
+- **Real-time Updates**: Server-Sent Events (SSE) + WebSocket (STOMP over SockJS)
+- **Payments**: Stripe Java SDK 28.0.0
+- **AI Integration**: Google Gemini API (gemini-2.0-flash)
+- **Boilerplate Reduction**: Lombok
 
-### Frontend (React)
+### Frontend (React / TypeScript)
 - **Framework**: React 18.3.1
+- **Language**: TypeScript 5.9.3
 - **Build Tool**: Vite 6.2.2
 - **Routing**: React Router DOM 7.3.0
 - **UI Components**: Material-UI 7.3.1
 - **Styling**: Styled Components 6.1.18, TailwindCSS 4.0.14
-- **Drag & Drop**: react-beautiful-dnd, react-dnd, react-draggable
 - **Animations**: Framer Motion 12.12.2
 - **HTTP Client**: Axios 1.7.9
+- **WebSocket Client**: @stomp/stompjs 7.2.1 + sockjs-client 1.6.1
+- **Payments**: @stripe/react-stripe-js 5.6.0, @stripe/stripe-js 8.7.0
+- **Security**: DOMPurify 3.2.6 (XSS sanitization)
+- **Desktop**: Electron 40.1.0 (cross-platform desktop app)
+- **Schema/Migrations**: Prisma 6.19.3
 
 ### Deployment & Infrastructure
 - **Containerization**: Docker
 - **Cloud Platform**: Google Cloud Run
-- **Database**: Supabase (PostgreSQL) with Prisma ORM
+- **Database**: Supabase (PostgreSQL)
 - **Reverse Proxy**: Nginx
 
 ## Data Flow Architecture & Application Structure
@@ -37,17 +45,23 @@ The Sticky Notes application is a full-stack web application that allows users t
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           STICKY NOTES APPLICATION                              │
+│                          STICKY NOTES APPLICATION                               │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
-│  ┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌─────────────┐      │
-│  │   CLIENT    │◄──►│   NGINX     │◄──►│ SPRING BOOT │◄──►│ POSTGRESQL  │      │
-│  │  (BROWSER)  │    │  REVERSE    │    │   BACKEND   │    │  DATABASE   │      │
-│  │             │    │   PROXY     │    │             │    │             │      │
-│  │ React App   │    │   (Port 80) │    │  (Port 8081)│    │ Cloud SQL   │      │
-│  │ JWT Tokens  │    │ Static Files│    │ JWT Auth    │    │             │      │
-│  │ SSE Client  │    │ SSL/TLS     │    │ REST API    │    │             │      │
-│  └─────────────┘    └──────────────┘    └─────────────┘    └─────────────┘      │
+│   ┌───────────────┐       ┌───────────────┐       ┌───────────────┐             │
+│   │    CLIENT     │       │     NGINX     │       │  SPRING BOOT  │             │
+│   │   (Browser)   │◄─────►│  Reverse Proxy│◄─────►│   Backend     │             │
+│   │               │       │               │       │               │             │
+│   │  React / TS   │       │   Port 80     │       │   Port 8081   │             │
+│   │  JWT Tokens   │       │  Static Files │       │   JWT Auth    │             │
+│   │  SSE + WS     │       │   SSL/TLS     │       │   REST API    │             │
+│   └───────────────┘       └───────────────┘       └───────┬───────┘             │
+│                                                           │                     │
+│                                                   ┌───────▼───────┐             │
+│                                                   │  POSTGRESQL   │             │
+│                                                   │   Database    │             │
+│                                                   │  (Supabase)   │             │
+│                                                   └───────────────┘             │
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -168,26 +182,34 @@ The Sticky Notes application is a full-stack web application that allows users t
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                            DATABASE RELATIONSHIPS                              │
 │                                                                                 │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
-│  │   USERS     │    │    ROLES    │    │    NOTES    │    │ REFRESH_TKN │      │
-│  │             │    │             │    │             │    │             │      │
-│  │ id (PK)     │◄──►│ id (PK)     │    │ id (PK)     │    │ id (PK)     │      │
-│  │ username    │    │ name        │    │ x, y        │    │ token       │      │
-│  │ email       │    │             │    │ text        │    │ expiry_date │      │
-│  │ password    │    │             │    │ done        │    │ user_id (FK) │      │
-│  │ roles (M:M) │    │ users (M:M) │    │ username(FK)│    │             │      │
-│  │             │    │             │    │ is_private  │    │             │      │
-│  │             │    │             │    │ board_type  │    │             │      │
-│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘      │
-│         │                   │                   │                   │          │
-│         └───────────────────┼───────────────────┼───────────────────┘          │
-│                             │                   │                              │
-│                    ┌─────────────────────────────────────────────┐           │
-│                    │            USER_ROLES (JOIN)              │           │
-│                    │                                             │           │
-│                    │ user_id (FK) ──── USERS.id                 │           │
-│                    │ role_id (FK) ──── ROLES.id                 │           │
-│                    └─────────────────────────────────────────────┘           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐           │
+│  │   USERS     │  │    ROLES    │  │    NOTES    │  │ REFRESH_TKN │           │
+│  │ id (PK)     │  │ id (PK)     │  │ id (PK)     │  │ id (PK)     │           │
+│  │ username    │  │ name        │  │ x, y        │  │ token       │           │
+│  │ email       │  │             │  │ text        │  │ expiry_date │           │
+│  │ password    │  │             │  │ done        │  │ user_id(FK) │           │
+│  │ roles (M:M) │  │ users (M:M) │  │ username(FK)│  │             │           │
+│  └──────┬──────┘  └──────┬──────┘  │ is_private  │  └─────────────┘           │
+│         │                │         │ board_type  │                             │
+│         └────────────────┘         │ board_id(FK)│                             │
+│              USER_ROLES            └──────┬──────┘                             │
+│                                           │                                    │
+│  ┌─────────────┐  ┌─────────────┐  ┌──────┴──────┐  ┌─────────────┐           │
+│  │   BOARDS    │  │ BOARD_USERS │  │ NOTE_COMMENT│  │  MESSAGES   │           │
+│  │ id (PK)     │  │ id (PK)     │  │ id (PK)     │  │ id (PK)     │           │
+│  │ name        │  │ board_id(FK)│  │ note_id(FK) │  │ sender_id   │           │
+│  │ description │  │ user_id(FK) │  │ username    │  │ receiver_id │           │
+│  │ is_public   │  │ role        │  │ text        │  │ content     │           │
+│  │ created_by  │  └─────────────┘  │ created_at  │  │ read        │           │
+│  └─────────────┘                   └─────────────┘  └─────────────┘           │
+│                                                                                 │
+│  ┌─────────────┐  ┌─────────────────────────────────────────────┐              │
+│  │USER_PRESENCE│  │         SUBSCRIPTION_TIER                   │              │
+│  │ id (PK)     │  │ id (PK)   name   price   features           │              │
+│  │ user_id(FK) │  └─────────────────────────────────────────────┘              │
+│  │ online      │                                                                │
+│  │ last_seen   │                                                                │
+│  └─────────────┘                                                                │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -298,30 +320,47 @@ Sticky-Notes/
 │   └── main/
 │       ├── java/com/Sticky_notes/Sticky_notes/
 │       │   ├── Config/                    # Configuration classes
-│       │   │   ├── CloudSqlConfig.java
 │       │   │   ├── CorsConfig.java
 │       │   │   ├── JwtProperties.java
 │       │   │   ├── SecurityConfig.java
 │       │   │   ├── SimpleCorsFilter.java
-│       │   │   └── WebConfig.java
+│       │   │   ├── StripeConfig.java      # Stripe payment config
+│       │   │   ├── WebConfig.java
+│       │   │   └── WebSocketConfig.java   # STOMP WebSocket config
 │       │   ├── controller/                # REST API controllers
+│       │   │   ├── AiAgentController.java       # /api/ai
 │       │   │   ├── AuthController.java
-│       │   │   ├── BoardController.java
+│       │   │   ├── BoardController.java         # /api/boards
+│       │   │   ├── BoardUserController.java     # Board user assignment
 │       │   │   ├── HealthCheckController.java
-│       │   │   ├── NoteController.java
+│       │   │   ├── MessageController.java       # /api/messages (WebSocket)
+│       │   │   ├── NoteCommentController.java   # /api/notes/{id}/comments
+│       │   │   ├── NoteController.java          # /api/notes
 │       │   │   ├── NoteManagmentController.java
+│       │   │   ├── PaymentController.java       # /api/payments (Stripe)
 │       │   │   ├── ProfileController.java
 │       │   │   ├── RegistrationController.java
-│       │   │   └── TestController.java
+│       │   │   ├── UserController.java
+│       │   │   └── UserPresenceController.java  # /api/presence (WebSocket)
+│       │   ├── dto/                       # Data Transfer Objects
+│       │   │   ├── BoardDTO.java
+│       │   │   ├── BoardMapper.java
+│       │   │   ├── NoteDTO.java
+│       │   │   └── NoteMapper.java
 │       │   ├── models/                    # JPA entities
 │       │   │   ├── Board.java
+│       │   │   ├── BoardUser.java         # Board-user assignment
+│       │   │   ├── Message.java           # Chat messages
 │       │   │   ├── Note.java
+│       │   │   ├── NoteComment.java       # Note comments
 │       │   │   ├── NoteManagment.java
 │       │   │   ├── Profile.java
 │       │   │   ├── RefreshToken.java
 │       │   │   ├── Register.java
 │       │   │   ├── Role.java
-│       │   │   └── User.java
+│       │   │   ├── SubscriptionTier.java  # Subscription tiers
+│       │   │   ├── User.java
+│       │   │   └── UserPresence.java      # Online presence tracking
 │       │   ├── payload/                   # Request/Response DTOs
 │       │   │   ├── request/
 │       │   │   │   └── LoginRequest.java
@@ -329,9 +368,15 @@ Sticky-Notes/
 │       │   │       └── JwtResponse.java
 │       │   ├── repository/                # JPA repositories
 │       │   │   ├── BoardRepository.java
+│       │   │   ├── BoardUserRepository.java
+│       │   │   ├── MessageRepository.java
+│       │   │   ├── NoteCommentRepository.java
 │       │   │   ├── NoteManagmentRepository.java
 │       │   │   ├── NoteRepository.java
+│       │   │   ├── RefreshTokenRepository.java
 │       │   │   ├── RoleRepository.java
+│       │   │   ├── SubscriptionTierRepository.java
+│       │   │   ├── UserPresenceRepository.java
 │       │   │   └── UserRepository.java
 │       │   ├── security/                  # Security components
 │       │   │   ├── CustomUserDetailsService.java
@@ -339,45 +384,113 @@ Sticky-Notes/
 │       │   │   ├── JwtAuthenticationFilter.java
 │       │   │   └── JwtTokenProvider.java
 │       │   ├── services/                  # Business logic
+│       │   │   ├── AiAgentService.java
 │       │   │   ├── AuthService.java
 │       │   │   ├── AuthServiceImpl.java
+│       │   │   ├── BoardService.java
+│       │   │   ├── GeminiService.java     # Google Gemini AI client
 │       │   │   ├── NoteManagmentService.java
-│       │   │   └── NoteService.java
+│       │   │   ├── NoteService.java
+│       │   │   ├── PaymentService.java
+│       │   │   ├── PaymentServiceImpl.java
+│       │   │   ├── PrismaService.java
+│       │   │   └── UserDetailsServiceImpl.java
 │       │   └── StickyNotesApplication.java # Main application class
 │       └── resources/
 │           └── application.properties     # Application configuration
-├── sticky-notes/                          # React frontend
+├── sticky-notes/                          # React/TypeScript frontend
+│   ├── prisma/
+│   │   └── schema.prisma                  # DB schema for Prisma migrations
 │   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── backgroundstyles/
-│   │   │   │   ├── menustyles/
-│   │   │   │   ├── notestyles/
-│   │   │   │   └── theme/
-│   │   │   ├── common/
-│   │   │   ├── ImportantSection.jsx
-│   │   │   ├── News.jsx
-│   │   │   ├── NoteStyleDropdown.jsx
-│   │   │   ├── StickyBoard.jsx
-│   │   │   ├── StickyNote.jsx
-│   │   │   └── ThemeDropdown.jsx
-│   │   ├── context/                      # React contexts
-│   │   │   ├── NoteStyleContext.jsx
-│   │   │   ├── ThemeContext.jsx
-│   │   │   ├── ZoomContext.jsx
-│   │   │   └── ZoomProvider.jsx
-│   │   ├── profile/                      # User profile components
-│   │   │   ├── NotesManagementModal.jsx
-│   │   │   ├── ProfileBoard.jsx
-│   │   │   ├── login.jsx
-│   │   │   ├── profile.jsx
-│   │   │   └── register.jsx
-│   │   ├── __tests__/                    # Test files
-│   │   ├── App.jsx                      # Main React component
-│   │   ├── NavBar.jsx
-│   │   └── main.jsx
+│   │   └── electron.cjs                   # Electron main process
+│   └── src/
+│       ├── components/
+│       │   ├── backgroundstyles/
+│       │   │   ├── notestyles/            # NoteDefault.tsx, NoteBubles.tsx, NotePuzzle.tsx
+│       │   │   └── theme/                 # BubbleBackgroundTheme, HeartBackgroundTheme, TriangleBackgroundTheme
+│       │   ├── common/
+│       │   │   ├── BoardIndicator.jsx
+│       │   │   ├── BoardNavigation.tsx
+│       │   │   ├── ConfirmationDialog.tsx
+│       │   │   ├── Disclaimers.tsx
+│       │   │   ├── Icon.tsx
+│       │   │   └── MediaPlayer.tsx
+│       │   ├── navigation/
+│       │   │   ├── BoardPanel.jsx
+│       │   │   ├── DropdownMenu.tsx
+│       │   │   ├── MediaDropdown.tsx
+│       │   │   ├── MessagesPanel.jsx      # Real-time chat panel
+│       │   │   ├── NavBar.tsx
+│       │   │   ├── NavigationButton.tsx
+│       │   │   ├── SettingsPanel.jsx
+│       │   │   ├── SubscriptionPanel.jsx
+│       │   │   ├── UserBoardPanel.jsx
+│       │   │   └── UserProfile.jsx
+│       │   ├── payment/                   # Stripe payment components
+│       │   ├── UserBoardControl/          # Board assignment and control
+│       │   │   ├── BoardControlPanel.jsx
+│       │   │   ├── BoardCreation.jsx
+│       │   │   ├── UserAssignment.jsx
+│       │   │   └── UserControlPanel.jsx
+│       │   ├── BoardPage.tsx              # Dynamic board by ID (/board/:boardId)
+│       │   ├── CheckoutForm.jsx           # Stripe checkout
+│       │   ├── EnhancedMessageAgent.jsx   # AI message agent UI
+│       │   ├── InlineMessageAgent.jsx
+│       │   ├── MessageAgent.jsx
+│       │   ├── NoteStyleDropdown.jsx
+│       │   ├── StickyBoard.tsx            # Main board container
+│       │   ├── StickyNote.tsx             # Individual note component
+│       │   ├── StripePayment.jsx
+│       │   ├── Subscription.jsx
+│       │   ├── SubscriptionManager.jsx
+│       │   └── ThemeDropdown.jsx
+│       ├── config/
+│       │   └── api.ts                     # Centralized API base URL config
+│       ├── constants/
+│       │   ├── noteStyles.ts
+│       │   └── themes.ts
+│       ├── context/                       # React contexts
+│       │   ├── NoteStyleContext.tsx
+│       │   ├── ThemeContext.tsx
+│       │   ├── ZoomContext.ts
+│       │   ├── ZoomProvider.tsx
+│       │   ├── noteContext.ts
+│       │   ├── noteStyleUtils.jsx
+│       │   ├── themeUtils.ts
+│       │   └── useZoom.ts
+│       ├── hooks/                         # Custom React hooks
+│       │   ├── useAIAgentTools.js
+│       │   ├── useDataService.ts
+│       │   ├── useGeminiAgent.js
+│       │   ├── useNotes.ts
+│       │   ├── usePresence.ts
+│       │   └── useWebSocket.ts
+│       ├── models/                        # TypeScript model types
+│       ├── pages/
+│       │   └── SubscriptionPage.tsx
+│       ├── profile/                       # User profile components
+│       │   ├── NotesManagementModal.jsx
+│       │   ├── ProfileBoard.jsx
+│       │   ├── ProfileOptimisation.js
+│       │   ├── login.tsx
+│       │   ├── profile.tsx
+│       │   └── register.tsx
+│       ├── services/
+│       │   ├── dataService.ts             # REST API data service
+│       │   └── websocketService.ts        # STOMP WebSocket service
+│       ├── types/                         # TypeScript type definitions
+│       │   ├── global.d.ts
+│       │   ├── index.ts
+│       │   └── modules.d.ts
+│       ├── utils/
+│       │   ├── api.ts
+│       │   ├── axiosConfig.ts             # Centralized Axios with interceptors
+│       │   ├── fetchWithToken.js
+│       │   └── logger.js
+│       ├── App.tsx                        # Main React component
+│       └── main.tsx
 │   ├── package.json
-│   └── vite.config.js
+│   └── vite.config.ts
 ├── Dockerfile
 ├── pom.xml
 ├── nginx.conf
@@ -445,42 +558,124 @@ public class Note {
 
 #### React Component Structure
 ```
-App.jsx
-├── Background (Theme-based)
-├── NavBar
-├── Routes
-│   ├── / (StickyBoard)
-│   ├── /board (StickyBoard)
-│   ├── /login (Login)
-│   ├── /register (Register)
-│   └── /profile (Profile)
-└── ConfirmationDialog
+App.tsx
+├── ThemeProvider
+├── NoteStyleProvider
+├── ZoomProvider
+│   └── AppContent
+│       ├── Background (Theme-based)
+│       ├── NavBar (navigation/)
+│       ├── ConfirmationDialog
+│       └── Routes
+│           ├── /              → StickyBoard
+│           ├── /board         → StickyBoard
+│           ├── /board/:boardId → BoardPage (dynamic board)
+│           ├── /login         → Login
+│           ├── /register      → Register
+│           ├── /profile       → Profile
+│           ├── /subscription  → SubscriptionPage
+│           └── /user-board-control → UserControlPanel
 ```
 
 #### Context Providers
+
 - **ThemeProvider**: Theme management (Bubbles, Hearts, Triangles)
 - **NoteStyleProvider**: Note appearance customization
 - **ZoomProvider**: Zoom level control for accessibility
 
+#### Custom Hooks
+
+- **useNotes**: Note state management (drag, done, delete)
+- **usePresence**: WebSocket-based user online presence
+- **useWebSocket**: STOMP WebSocket connection lifecycle
+- **useDataService**: Centralized REST data fetching
+- **useAIAgentTools / useGeminiAgent**: AI agent integration hooks
+
 #### Key Components
-- **StickyBoard**: Main board container with drag-and-drop
+
+- **StickyBoard**: Main board container with note CRUD
 - **StickyNote**: Individual note component with editing capabilities
+- **BoardPage**: Dynamic board rendering by `boardId` URL param
 - **ProfileBoard**: User-specific note management
 - **NotesManagementModal**: Advanced note organization
+- **MessagesPanel**: Real-time WebSocket chat panel
+- **EnhancedMessageAgent / MessageAgent**: AI-powered note assistant
+- **UserBoardControl**: Board creation, user assignment, board management panel
+- **SubscriptionManager**: Subscription plan display and management
 
-### 5. Theming System
+### 5. Payment & Subscription System
+
+#### Stripe Integration
+
+- **Checkout**: `POST /api/payments/create-checkout-session` creates a hosted Stripe checkout page
+- **Customer Portal**: `POST /api/payments/create-customer-portal` opens the Stripe billing portal
+- **Frontend**: `CheckoutForm.jsx`, `StripePayment.jsx`, `SubscriptionManager.jsx`, `SubscriptionPanel.jsx`
+- **Tiers**: `SubscriptionTier` entity stores available plans; `SubscriptionPage.tsx` renders them
+- **Config**: `StripeConfig.java` initializes the Stripe SDK from `STRIPE_SECRET_KEY`
+
+### 6. AI Integration (Google Gemini)
+
+#### AI Agent
+
+- **Backend**: `GeminiService.java` calls the Gemini REST API; `AiAgentService.java` orchestrates note creation with AI
+- **Controller**: `AiAgentController.java` exposes `/api/ai/*` endpoints
+- **Frontend**: `MessageAgent.jsx`, `EnhancedMessageAgent.jsx`, `InlineMessageAgent.jsx` provide chat-style UI
+- **Hooks**: `useAIAgentTools.js` and `useGeminiAgent.js` manage agent state and tool calls
+- **Model**: `gemini-2.0-flash` (configurable via `GEMINI_MODEL` env var)
+
+### 7. Real-Time Messaging (WebSocket)
+
+#### STOMP over SockJS
+
+- **Backend**: `WebSocketConfig.java` enables STOMP broker on `/ws` endpoint with SockJS fallback
+- **Destinations**: `/topic/*` (broadcast), `/queue/*` (user-specific), `/app/*` (client→server)
+- **Controller**: `MessageController.java` handles `@MessageMapping("/chat.send")` and `/chat.read`
+- **Service**: `websocketService.ts` manages the STOMP client lifecycle on the frontend
+- **UI**: `MessagesPanel.jsx` in the navigation panel renders conversation threads
+
+### 8. User Presence Tracking
+
+- **Backend**: `UserPresenceController.java` handles `/presence.online` and `/presence.offline` STOMP messages; persists to `UserPresence` entity
+- **Frontend**: `usePresence.ts` hook publishes presence on mount/unmount; `useWebSocket.ts` subscribes to `/topic/presence`
+- **REST**: `GET /api/presence/online` returns currently online users
+
+### 9. Note Comments
+
+- **Backend**: `NoteCommentController.java` handles `GET/POST /api/notes/{noteId}/comments` and `DELETE /api/notes/{noteId}/comments/{commentId}`
+- **Security**: Only the comment author can delete their own comments (returns 403 otherwise)
+- **Entity**: `NoteComment` — stores `note_id`, `username`, `text`, `created_at`
+
+### 10. Board Management
+
+- **Custom Boards**: Users can create named boards (public or private) via `BoardController.java`
+- **Board Notes**: Notes support a `board_id` FK; null = main board, non-null = custom board
+- **Route**: `/board/:boardId` renders `BoardPage.tsx` which loads notes for that board
+- **User Assignment**: `BoardUserController.java` + `UserBoardControl/` components allow assigning users to boards with roles
+- **DTOs**: `BoardDTO` / `NoteDTO` with `BoardMapper` / `NoteMapper` for clean API responses
+
+### 11. Electron Desktop App
+
+- **Entry**: `public/electron.cjs` is the Electron main process
+- **Scripts**: `npm run electron-dev` (dev), `npm run electron-build` (package)
+- **Distribution**: macOS (.dmg), Windows (NSIS installer), Linux (AppImage) via `electron-builder`
+- **Auto-update**: `electron-updater` publishes releases to GitHub (`HalfBad-dnb/Sticky-Notes`)
+
+### 12. Theming System
 
 #### Background Themes
+
 - **Bubbles**: Animated bubble background
 - **Hearts**: Animated heart shapes
 - **Triangles**: Geometric triangle patterns
 
 #### Note Styles
+
 - **Default**: Classic sticky note appearance
 - **Bubbles**: Rounded bubble-style notes
 - **Puzzle**: Puzzle-piece shaped notes
 
 #### Customization Options
+
 - **Dynamic Switching**: Runtime theme changes
 - **Responsive Design**: Mobile-friendly layouts
 - **Accessibility**: High contrast and zoom support
@@ -488,12 +683,14 @@ App.jsx
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/login` - User login
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/refresh` - Token refresh
 
 ### Notes Management
-- `GET /api/notes` - Get all public notes
+
+- `GET /api/notes` - Get all public notes (supports `?username=` filter)
 - `GET /api/notes/sse` - SSE stream for real-time updates
 - `POST /api/notes` - Create new note
 - `PUT /api/notes/{id}` - Update note position
@@ -501,29 +698,83 @@ App.jsx
 - `DELETE /api/notes/{id}` - Delete note
 
 ### User-Specific Notes
-- `GET /api/notes/profile/{username}` - Get user's profile notes
+
+- `GET /api/notes/profile/{username}` - Get user's profile notes (supports `?isPrivate=` filter)
 - `GET /api/notes/user/{username}` - Get user's notes
 - `GET /api/notes/user/{username}/private` - Get private notes
 - `GET /api/notes/user/{username}/public` - Get public notes
 
+### Note Comments
+
+- `GET /api/notes/{noteId}/comments` - List comments for a note
+- `POST /api/notes/{noteId}/comments` - Add a comment to a note
+- `DELETE /api/notes/{noteId}/comments/{commentId}` - Delete a comment
+
+### Board Management
+
+- `GET /api/boards` - Get all boards for authenticated user
+- `GET /api/boards/public` - Get all public boards
+- `POST /api/boards` - Create a new board
+- `GET /api/boards/{boardId}` - Get board by ID
+- `PUT /api/boards/{boardId}` - Update board
+- `DELETE /api/boards/{boardId}` - Delete board
+- `GET /api/boards/{boardId}/notes` - Get notes for a specific board
+
+### Board User Assignment
+
+- `GET /api/board-users` - Get board-user assignments
+- `POST /api/board-users` - Assign user to board
+- `DELETE /api/board-users/{id}` - Remove user from board
+
 ### Profile Management
+
 - `GET /api/profile/{username}` - Get user profile
 - `PUT /api/profile/{username}` - Update user profile
 
+### Messages (WebSocket + REST)
+
+- `GET /api/messages/conversation/{userId}` - Get conversation with user
+- `GET /api/messages/recent` - Get recent conversations
+- `DELETE /api/messages/{messageId}` - Delete a message
+- WebSocket: `@MessageMapping("/chat.send")` - Send message via STOMP
+- WebSocket: `@MessageMapping("/chat.read")` - Mark messages as read
+
+### User Presence (WebSocket + REST)
+
+- `GET /api/presence/online` - Get all online users
+- `GET /api/presence/{userId}` - Get user presence status
+- WebSocket: `@MessageMapping("/presence.online")` - Set user online
+- WebSocket: `@MessageMapping("/presence.offline")` - Set user offline
+
+### AI Agent Endpoints
+
+- `POST /api/ai/notes` - Create a note with AI assistance
+- `POST /api/ai/analyze` - Analyze notes with AI
+- `POST /api/ai/suggest` - Get AI suggestions
+- `POST /api/ai/chat` - Chat with AI agent (streaming)
+
+### Payments (Stripe)
+
+- `POST /api/payments/create-checkout-session` - Create Stripe checkout session
+- `POST /api/payments/create-customer-portal` - Create Stripe customer portal session
+
 ### Health & Monitoring
+
 - `GET /api/health` - Application health check
 - `GET /actuator/health` - Spring Boot health endpoint
 
 ## Database Schema
 
 ### Users Table
+
 - `id` (Primary Key)
 - `username` (Unique)
 - `email` (Unique)
 - `password` (Hashed)
-- `roles` (User roles)
+- `roles` (Many-to-Many with Roles)
 
 ### Notes Table
+
 - `id` (Primary Key)
 - `x`, `y` (Position coordinates)
 - `text` (Note content)
@@ -531,57 +782,128 @@ App.jsx
 - `username` (Foreign key to Users)
 - `is_private` (Privacy flag)
 - `board_type` ("main" or "profile")
+- `board_id` (Foreign key to Boards, nullable — null = main board)
 - `created_at`, `updated_at` (Timestamps)
 
 ### Roles Table
+
 - `id` (Primary Key)
 - `name` (Role name: USER, ADMIN)
+
+### Boards Table
+
+- `id` (Primary Key)
+- `name` (Board name)
+- `description`
+- `is_public` (Boolean)
+- `created_by` (Username)
+- `created_at`
+
+### Board Users Table (Join)
+
+- `id` (Primary Key)
+- `board_id` (FK → Boards)
+- `user_id` (FK → Users)
+- `role` (User role on the board)
+
+### Messages Table
+
+- `id` (Primary Key)
+- `sender_id` / `receiver_id` (FK → Users)
+- `content`
+- `read` (Boolean)
+- `created_at`
+
+### Note Comments Table
+
+- `id` (Primary Key)
+- `note_id` (FK → Notes)
+- `username`
+- `text`
+- `created_at`
+
+### User Presence Table
+
+- `id` (Primary Key)
+- `user_id` (FK → Users)
+- `online` (Boolean)
+- `last_seen`
+
+### Subscription Tier Table
+
+- `id` (Primary Key)
+- `name`
+- `price`
+- `features`
+
+### Refresh Tokens Table
+
+- `id` (Primary Key)
+- `token`
+- `expiry_date`
+- `user_id` (FK → Users)
 
 ## Configuration
 
 ### Application Properties
+
 ```properties
 # Server Configuration
 server.port=${PORT:8081}
 spring.profiles.active=${SPRING_PROFILES_ACTIVE:local}
 
 # Database Configuration
-spring.datasource.url=${SPRING_DATASOURCE_URL}
-spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
-spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+spring.datasource.url=${DATABASE_URL}
+spring.datasource.username=${DATABASE_USERNAME}
+spring.datasource.password=${DATABASE_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
 
 # JWT Configuration
 app.jwtSecret=${JWT_SECRET}
 app.jwtExpirationMs=900000
 app.jwtRefreshExpirationMs=604800000
 
-# Cloud SQL Configuration
-spring.cloud.gcp.sql.enabled=${SPRING_CLOUD_GCP_SQL_ENABLED:false}
-spring.cloud.gcp.sql.database-name=${SPRING_CLOUD_GCP_SQL_DATABASE_NAME:sticky_notes}
+# Stripe Configuration
+stripe.secret.key=${STRIPE_SECRET_KEY}
+stripe.publishable.key=${STRIPE_PUBLISHABLE_KEY}
+stripe.webhook.secret=${STRIPE_WEBHOOK_SECRET}
+
+# Gemini AI Configuration
+gemini.api.key=${GEMINI_API_KEY}
+gemini.model=${GEMINI_MODEL:gemini-2.0-flash}
 ```
 
 ### Environment Variables
-- `PORT` - Server port
-- `SPRING_DATASOURCE_URL` - Database connection URL
-- `SPRING_DATASOURCE_USERNAME` - Database username
-- `SPRING_DATASOURCE_PASSWORD` - Database password
+
+- `PORT` - Server port (default: 8081)
+- `DATABASE_URL` - PostgreSQL JDBC connection URL
+- `DATABASE_USERNAME` - Database username
+- `DATABASE_PASSWORD` - Database password
 - `JWT_SECRET` - JWT signing secret
-- `SPRING_PROFILES_ACTIVE` - Active Spring profile
+- `SPRING_PROFILES_ACTIVE` - Active Spring profile (default: local)
+- `STRIPE_SECRET_KEY` - Stripe secret API key
+- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret
+- `GEMINI_API_KEY` - Google Gemini AI API key
+- `GEMINI_MODEL` - Gemini model name (default: gemini-2.0-flash)
 
 ## Deployment
 
 ### Docker Configuration
+
 Multi-stage Docker build:
 1. **Build Stage**: Maven compilation and packaging
 2. **Runtime Stage**: Java 21 JRE with application JAR
 
 ### Google Cloud Run
+
 - **Platform**: Serverless container hosting
 - **Scaling**: Automatic scaling based on traffic
 - **Networking**: HTTPS with custom domain support
 - **Database**: Google Cloud SQL PostgreSQL
 
 ### Nginx Configuration
+
 - **Reverse Proxy**: Routes requests to Spring Boot application
 - **Static Files**: Serves React build artifacts
 - **SSL Termination**: HTTPS handling
@@ -589,12 +911,14 @@ Multi-stage Docker build:
 ## Testing
 
 ### Backend Tests
+
 - **Unit Tests**: Service layer testing with JUnit 5
 - **Integration Tests**: Repository and controller testing
 - **Security Tests**: Authentication and authorization testing
 - **Database Tests**: H2 in-memory database for testing
 
 ### Frontend Tests
+
 - **Component Tests**: React component testing with Jest
 - **User Interaction Tests**: User event simulation
 - **Integration Tests**: Component interaction testing
@@ -603,12 +927,14 @@ Multi-stage Docker build:
 ## Security Features
 
 ### Authentication Security
+
 - **Password Hashing**: BCrypt encryption
 - **JWT Security**: Signed tokens with expiration
 - **CSRF Protection**: Cross-site request forgery prevention
 - **CORS Configuration**: Cross-origin resource sharing control
 
 ### Data Security
+
 - **Input Validation**: Request payload validation
 - **SQL Injection Prevention**: JPA parameterized queries
 - **XSS Protection**: Input sanitization and output encoding
@@ -617,12 +943,14 @@ Multi-stage Docker build:
 ## Performance Optimizations
 
 ### Backend Optimizations
+
 - **Connection Pooling**: HikariCP for database connections
 - **Caching**: Application-level caching for frequently accessed data
 - **Lazy Loading**: JPA lazy loading for entity relationships
 - **Async Processing**: Non-blocking SSE implementation
 
 ### Frontend Optimizations
+
 - **Code Splitting**: React lazy loading for components
 - **Memoization**: React.memo and useCallback for performance
 - **Virtual Scrolling**: Efficient rendering of large note lists
@@ -631,12 +959,14 @@ Multi-stage Docker build:
 ## Monitoring & Logging
 
 ### Application Logging
+
 - **Structured Logging**: SLF4J with Logback
 - **Log Levels**: DEBUG, INFO, WARN, ERROR
 - **Request Logging**: HTTP request/response logging
 - **Security Logging**: Authentication and authorization events
 
 ### Health Monitoring
+
 - **Spring Boot Actuator**: Application health endpoints
 - **Database Health**: Connection pool monitoring
 - **Memory Monitoring**: JVM memory usage tracking
@@ -645,20 +975,22 @@ Multi-stage Docker build:
 ## Future Enhancements
 
 ### Planned Features
-- **Collaborative Boards**: Multi-user note collaboration
+
 - **Note Categories**: Tag-based note organization
 - **Search Functionality**: Full-text note search
 - **File Attachments**: Support for note attachments
-- **Mobile App**: Native mobile application
 - **Offline Support**: PWA capabilities
+- **Advanced Analytics**: Usage patterns and insights
 
 ### Technical Improvements
+
 - **Microservices Architecture**: Service decomposition
 - **Event Sourcing**: Audit trail and event replay
 - **GraphQL API**: More efficient data fetching
-- **WebSocket Integration**: Bidirectional real-time communication
-- **Advanced Analytics**: Usage patterns and insights
+- **Push Notifications**: Browser push for new messages/notes
+
+> **Note**: The following items from the original roadmap have been implemented: Collaborative Boards (BoardController + UserBoardControl), WebSocket real-time communication (STOMP/SockJS), Mobile App support (Electron desktop), AI Agent (Gemini integration), and Subscription/Payment (Stripe).
 
 ## Conclusion
 
-The Sticky Notes application represents a comprehensive full-stack solution with modern web development practices. It combines robust backend architecture with an intuitive, feature-rich frontend to deliver a seamless user experience. The application demonstrates expertise in Spring Boot, React, real-time communication, security, and cloud deployment strategies.
+The Sticky Notes application represents a comprehensive full-stack solution with modern web development practices. It combines robust backend architecture with an intuitive, feature-rich frontend to deliver a seamless user experience. The application demonstrates expertise in Spring Boot, React/TypeScript, real-time communication (SSE + WebSocket), AI integration (Gemini), payment processing (Stripe), security, and cloud deployment strategies. A desktop variant is also available via Electron.

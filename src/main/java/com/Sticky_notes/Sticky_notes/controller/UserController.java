@@ -63,10 +63,19 @@ public class UserController {
             
             User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            // Mock response (would use BoardService in real implementation)
-            List<Map<String, Object>> response = List.of(); // Empty for now
-            
+
+            List<Map<String, Object>> response = user.getBoards().stream()
+                .map(board -> {
+                    Map<String, Object> boardMap = new HashMap<>();
+                    boardMap.put("id", board.getId());
+                    boardMap.put("name", board.getName());
+                    boardMap.put("description", board.getDescription());
+                    boardMap.put("isPublic", board.isPublic());
+                    boardMap.put("createdAt", board.getCreatedAt());
+                    return boardMap;
+                })
+                .collect(Collectors.toList());
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching user boards");

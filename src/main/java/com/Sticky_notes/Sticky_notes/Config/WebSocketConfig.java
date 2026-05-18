@@ -16,7 +16,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.Sticky_notes.Sticky_notes.security.JwtTokenProvider;
