@@ -185,10 +185,6 @@ public class BoardController {
             note.setBoardId(boardId);
             
             // Initialize default values
-            if (!note.isDone()) {
-                note.setDone(false);
-            }
-            
             if (note.getBoardType() == null) {
                 note.setBoardType("main");
             }

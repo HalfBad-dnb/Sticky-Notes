@@ -190,9 +190,6 @@ public class NoteController {
     @PostMapping
     public ResponseEntity<Note> createnote(@Valid @RequestBody Note note) {
         try {
-            // Initialize done to false if null
-            note.setDone(note.isDone());
-            
             // Ensure boardType is set
             if (note.getBoardType() == null) {
                 note.setBoardType("main"); // Default to main board if not specified
@@ -236,9 +233,6 @@ public class NoteController {
         try {
             // Set the board ID
             note.setBoardId(boardId);
-            
-            // Initialize done to false if null
-            note.setDone(note.isDone());
             
             // Ensure boardType is set to the board's type or default
             if (note.getBoardType() == null) {
